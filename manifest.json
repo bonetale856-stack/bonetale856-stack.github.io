@@ -1,11 +1,12 @@
 {
-  "name": "Гильдия сервиса",
+  "name": "Гильдия Сервис",
   "short_name": "ГИЛЬДИЯ",
-  "start_url": "./index.html",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#FFFFFF",
-  "theme_color": "#FFFFFF",
-  "orientation": "portrait",
+  "background_color": "#f2f2f7",
+  "theme_color": "#007aff",
+  "orientation": "portrait-primary",
   "icons": [
     {
       "src": "icon-192.png",
