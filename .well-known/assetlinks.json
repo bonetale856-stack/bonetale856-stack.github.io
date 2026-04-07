@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.guild.app",
+        "sha256_cert_fingerprints": ["02:FE:9F:6F:E6:A0:D1:74:65:E5:D0:E3:2C:5E:17:8E:89:E6:6E:BE:1B:C8:DC:AA:B6:EA:1B:58:45:9F:5F:A6"]
+      }
+    }]
