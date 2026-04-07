@@ -1,0 +1,215 @@
+/* Подключаем красивый шрифт */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+:root {
+    color-scheme: light;
+}
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f2f2f7; /* Приятный серый фон как в iOS */
+    margin: 0;
+    padding: 0;
+    padding-bottom: 90px; /* Отступ для нижнего меню */
+    -webkit-tap-highlight-color: transparent; /* Убирает синее выделение при клике на телефоне */
+}
+
+/* Шапка приложения */
+.top-bar {
+    background: #ffffff;
+    padding: 16px 20px;
+    font-size: 20px;
+    font-weight: 700;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.05);
+    color: #1c1c1e;
+}
+
+.container {
+    padding: 16px;
+}
+
+/* Карточки */
+.card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+    margin-bottom: 16px;
+}
+
+/* Формы ввода */
+.form-group {
+    margin-bottom: 16px;
+}
+.form-control {
+    width: 100%;
+    padding: 14px;
+    background-color: #f2f2f7 !important; /* Жестко светлый фон */
+    color: #1c1c1e !important; /* Жестко темный текст */
+    border: 1px solid #e5e5ea;
+    border-radius: 12px;
+    font-size: 16px;
+    box-sizing: border-box;
+    font-family: inherit;
+    transition: 0.2s;
+    -webkit-appearance: none; /* Убирает системные стили iOS */
+}
+.form-control:focus {
+    background-color: #ffffff !important;
+    border-color: #007aff;
+    outline: none;
+}
+/* Защита текста в лейблах */
+.form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #8e8e93 !important;
+    margin-bottom: 8px;
+}
+
+/* Кнопки */
+.btn {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.btn-primary {
+    background: #007aff; /* iOS Синий */
+    color: #ffffff;
+    box-shadow: 0 4px 10px rgba(0, 122, 255, 0.3);
+}
+.btn-primary:active {
+    transform: scale(0.98);
+    background: #0062cc;
+}
+.btn-danger {
+    background: #ffe5e5;
+    color: #ff3b30;
+}
+
+/* Экраны (Вкладки) */
+.tab-content {
+    display: none;
+    animation: fadeIn 0.2s ease-out;
+}
+.tab-content.active {
+    display: block;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.98); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* Нижнее меню (Bottom Nav) */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid #e5e5ea;
+    display: flex;
+    justify-content: space-around;
+    padding: 12px 0 25px 0; /* Отступ снизу для современных телефонов */
+    z-index: 100;
+}
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #8e8e93;
+    text-decoration: none;
+    cursor: pointer;
+    transition: 0.2s;
+    width: 33%;
+    
+    /* Лечим зависание кнопок */
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+}
+
+/* Пропускаем клик сквозь иконку и текст */
+.nav-item i, .nav-item span {
+    pointer-events: none; 
+}
+
+.nav-item i {
+    font-size: 24px;
+    margin-bottom: 4px;
+}
+
+.nav-item span {
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.nav-item.active {
+    color: #007aff; /* Активная иконка синяя */
+}
+
+/* Статус загрузки */
+.status-text { margin-top: 15px; font-weight: 600; text-align: center; font-size: 14px;}
+.loader { text-align: center; color: #8e8e93; font-size: 14px; margin-bottom: 15px; font-weight: 600;}
+
+/* ПОЛНОЭКРАННАЯ ЗАГРУЗКА (Overlay) */
+.global-loader {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(5px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    display: none;
+}
+.global-loader.active {
+    display: flex; /* Показываем, когда нужно */
+}
+.global-loader i {
+    font-size: 50px;
+    color: #007aff;
+    margin-bottom: 20px;
+}
+.global-loader .loader-text {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1c1c1e;
+}
+/* КАСТОМНЫЕ ВЫПАДАЮЩИЕ СПИСКИ (Вместо Datalist) */
+.custom-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #e5e5ea;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none; /* Скрыты по умолчанию */
+}
+.custom-dropdown div {
+    padding: 12px 15px;
+    border-bottom: 1px solid #f2f2f7;
+    font-size: 14px;
+    color: #1c1c1e;
+    cursor: pointer;
+}
+.custom-dropdown div:active {
+    background-color: #f2f2f7;
+}

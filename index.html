@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="color-scheme" content="light only">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Вход</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="styles.css">
+    <!-- Подключаем иконки для загрузки -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { display: flex; justify-content: center; align-items: center; height: 100vh; padding: 0; }
+        .login-card { width: 90%; max-width: 350px; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <!-- ЭКРАН ЗАГРУЗКИ -->
+    <div id="globalLoader" class="global-loader">
+        <i class="fa-solid fa-circle-notch fa-spin"></i>
+        <div id="loaderText" class="loader-text">Загрузка...</div>
+    </div>
+
+    <div class="card login-card">
+        <div style="background: #e5f1ff; color: #007aff; width: 70px; height: 70px; border-radius: 35px; display: flex; align-items: center; justify-content: center; font-size: 30px; margin: 0 auto 20px auto;">
+            <i class="fa-solid fa-building-user"></i>
+        </div>
+        <h2 style="margin-top: 0;">Гильдия Сервис</h2>
+        
+        <div class="form-group">
+            <input type="text" class="form-control" id="userName" placeholder="Ваше ФИО (как в базе)" autocomplete="off">
+        </div>
+        <div class="form-group">
+            <input type="password" class="form-control" id="userPin" placeholder="ПИН-код" pattern="[0-9]*" inputmode="numeric">
+        </div>
+        
+        <button class="btn btn-primary" onclick="login()">Войти в систему</button>
+        <div id="status" class="status-text"></div>
+    </div>
+
+    <script>
+           window.onload = function() {
+            const userStr = localStorage.getItem("currentUser");
+            if (userStr) {
+                const user = JSON.parse(userStr);
+                // Если уже вошел - мгновенно кидаем обратно без сохранения в историю (replace)
+                if (user.role === "диспетчер") window.location.replace("dispatcher.html");
+                else if (user.role === "мастер") window.location.replace("master.html");
+                else if (user.role === "шеф") window.location.replace("boss.html");
+            }
+        };
+        
+        // Управление экраном загрузки
+        function showLoader(text) {
+            document.getElementById("loaderText").innerText = text;
+            document.getElementById("globalLoader").classList.add("active");
+        }
+        function hideLoader() {
+            document.getElementById("globalLoader").classList.remove("active");
+        }
+
+        const URL_GOOGLE_SERVER = "https://script.google.com/macros/s/AKfycby7iLGZuySy2ZtphSWBgk0bkRteCTo7jn71apvREIXJVIw-ssVZvFwoeD1zgx3Slhi99A/exec";
+
+                async function login() {
+            const nameInput = document.getElementById("userName").value.trim();
+            const pinInput = document.getElementById("userPin").value.trim();
+            const statusText = document.getElementById("status");
+
+            if (!nameInput || !pinInput) {
+                statusText.innerText = "Заполните ФИО и ПИН-код";
+                statusText.style.color = "#ff3b30";
+                return;
+            }
+
+            statusText.innerText = "";
+            showLoader("Проверка данных...");
+
+            // Формируем закрытый POST запрос
+            const loginData = {
+                action: "login",
+                name: nameInput,
+                pin: pinInput
+            };
+
+            try {
+                // Отправляем ФИО и ПИН на сервер
+                const response = await fetch(URL_GOOGLE_SERVER, {
+                    method: "POST",
+                    body: JSON.stringify(loginData),
+                    headers: { "Content-Type": "text/plain;charset=utf-8" }
+                });
+                
+                const result = await response.json();
+
+                // Сервер ответил Успехом!
+                if (result.status === "success") {
+                    // Сохраняем в телефон безопасные данные (БЕЗ ПИНА)
+                    localStorage.setItem("currentUser", JSON.stringify(result.user));
+                    showLoader("Успешно! Входим...");
+                    
+                    setTimeout(() => {
+                        if (result.user.role === "диспетчер") window.location.replace("dispatcher.html");
+                        else if (result.user.role === "мастер") window.location.replace("master.html");
+                        else if (result.user.role === "шеф") window.location.replace("boss.html");
+                    }, 500);
+                } else {
+                    // Сервер ответил Ошибкой (Неверный ПИН)
+                    hideLoader();
+                    statusText.innerText = "Неверное ФИО или ПИН-код";
+                    statusText.style.color = "#ff3b30";
+                }
+            } catch (error) {
+                hideLoader();
+                statusText.innerText = "Ошибка связи с сервером.";
+                statusText.style.color = "#ff3b30";
+            }
+        }
+    </script>
+    <script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js')
+            .then(() => console.log('Service Worker зарегистрирован'))
+            .catch(err => console.log('Ошибка SW', err));
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+const CACHE_NAME = 'gkh-cache-v1';
+
+// При установке приложения кэшируем главный экран и стили
+self.addEventListener('install', (event) => {
+    event.waitUntil(
+        caches.open(CACHE_NAME).then((cache) => {
+            return cache.addAll([
+                './index.html',
+                './styles.css'
+            ]);
+        })
+    );
+});
+
+// Если нет интернета - пытаемся отдать закэшированную версию
+self.addEventListener('fetch', (event) => {
+    event.respondWith(
+        fetch(event.request).catch(() => caches.match(event.request))
+    );
+});
