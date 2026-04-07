@@ -1,7 +1,7 @@
 // === ПОДКЛЮЧАЕМ ONESIGNAL В НАШ PWA ===
 importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
 
-const CACHE_NAME = 'gkh-cache-v2';
+const CACHE_NAME = 'gkh-cache-v3';
 
 // При установке приложения кэшируем главный экран и стили
 self.addEventListener('install', (event) => {
