@@ -254,11 +254,12 @@
             // === МАГИЯ ДЛЯ КНОПКИ "НАЗАД" ===
             if (!window.location.hash) {
                 history.replaceState({tab: 'tasks'}, "", "#tasks");
-                applyTab('tasks'); // <--- ДОБАВИЛИ ЭТУ СТРОЧКУ!
             } else {
                 let hashTab = window.location.hash.replace('#', '');
                 applyTab(hashTab);
             }
+
+            await loadTickets();
 
         window.addEventListener('popstate', (event) => {
             // Если открыт отчет, кнопка назад просто закроет его!
