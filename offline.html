@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Нет подключения</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: #f2f2f7;
+        }
+        .offline-card {
+            text-align: center;
+            padding: 40px 30px;
+            background: white;
+            border-radius: 20px;
+            max-width: 320px;
+            width: 90%;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        .offline-icon {
+            font-size: 60px;
+            color: #d1d1d6;
+            margin-bottom: 20px;
+        }
+        .offline-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1c1c1e;
+            margin-bottom: 10px;
+        }
+        .offline-desc {
+            font-size: 14px;
+            color: #8e8e93;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+        .btn-retry {
+            background: #007aff;
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+        }
+        .btn-retry:active {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-card">
+        <div class="offline-icon">
+            <i class="fa-solid fa-wifi"></i>
+        </div>
+        <div class="offline-title">Нет подключения</div>
+        <div class="offline-desc">
+            Проверьте подключение к интернету и попробуйте снова
+        </div>
+        <button class="btn-retry" onclick="retry()">
+            <i class="fa-solid fa-rotate-right"></i> Повторить
+        </button>
+    </div>
+
+    <script>
+        function retry() {
+            // Пробуем вернуться на предыдущую страницу
+            if (navigator.onLine) {
+                // Если интернет появился — возвращаем назад
+                window.history.back();
+            } else {
+                // Если нет — перезагружаем текущую страницу
+                window.location.reload();
+            }
+        }
+
+        // Автоматически возвращаем пользователя когда интернет появился
+        window.addEventListener('online', () => {
+            window.history.back();
+        });
+    </script>
+</body>
+</html>
