@@ -5,14 +5,99 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="color-scheme" content="light only">
     <meta name="robots" content="noindex, nofollow">
-    <title>Вход</title>
+    <meta name="theme-color" content="#007aff">
+    <title>Вход | Гильдия Сервис</title>
+    
+    <!-- Подключение манифеста -->
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="styles.css">
-    <!-- Подключаем иконки для загрузки -->
+    <!-- Иконки FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
-        body { display: flex; justify-content: center; align-items: center; height: 100vh; padding: 0; }
-        .login-card { width: 90%; max-width: 350px; text-align: center; }
+        /* Базовые стили */
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f2f2f7; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0; 
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* Карточка входа */
+        .login-card { 
+            width: 100%; 
+            max-width: 350px; 
+            text-align: center; 
+            background: white;
+            padding: 30px 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        /* Логотип (SVG контейнер) */
+        .logo-container {
+            width: 80px; 
+            height: 80px; 
+            margin: 0 auto 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Поля ввода */
+        .form-group { margin-bottom: 15px; }
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            font-size: 16px;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .form-control:focus { border-color: #007aff; }
+
+        /* Кнопки */
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            margin-top: 10px;
+        }
+        .btn-primary { background: #007aff; color: white; }
+        .btn-primary:active { opacity: 0.8; }
+        
+        /* Контейнер кнопки установки PWA */
+        #installContainer { 
+            margin-top: 20px; 
+            display: none; /* Скрыто по умолчанию */
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Статус и лоадер */
+        .status-text { margin-top: 15px; font-size: 14px; min-height: 20px; }
+        .global-loader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.9);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 9999;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s;
+        }
+        .global-loader.active { opacity: 1; pointer-events: all; }
+        .fa-spin { font-size: 40px; color: #007aff; margin-bottom: 10px; }
+        .loader-text { color: #555; font-weight: 500; }
     </style>
 </head>
 <body>
@@ -24,35 +109,59 @@
     </div>
 
     <div class="card login-card">
-        <div style="background: #e5f1ff; color: #007aff; width: 70px; height: 70px; border-radius: 35px; display: flex; align-items: center; justify-content: center; font-size: 30px; margin: 0 auto 20px auto;">
-            <i class="fa-solid fa-building-user"></i>
+        <!-- SVG ЛОГОТИП (Встроенный) -->
+        <div class="logo-container">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 50px; height: 50px;">
+                <path d="M12 2L2 7V12C2 17.55 6.84 22.25 12 23.5C17.16 22.25 22 17.55 22 12V7L12 2Z" fill="#E5F1FF"/>
+                <path d="M12 22C16.9706 22 21 17.9706 21 13C21 8.02944 16.9706 4 12 4C7.02944 4 3 8.02944 3 13C3 17.9706 7.02944 22 12 22Z" stroke="#007AFF" stroke-width="2"/>
+                <path d="M9 13L11 15L15 11" stroke="#007AFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <rect x="8" y="17" width="8" height="2" rx="1" fill="#007AFF"/>
+            </svg>
         </div>
-        <h2 style="margin-top: 0;">Гильдия Сервис</h2>
+
+        <h2 style="margin-top: 0; color: #333;">Гильдия Сервис</h2>
         
         <div class="form-group">
-            <input type="text" class="form-control" id="userName" placeholder="Ваше ФИО (как в базе)" autocomplete="off">
+            <input type="text" class="form-control" id="userName" placeholder="Ваше ФИО" autocomplete="off">
         </div>
         <div class="form-group">
             <input type="password" class="form-control" id="userPin" placeholder="ПИН-код" pattern="[0-9]*" inputmode="numeric">
         </div>
         
         <button class="btn btn-primary" onclick="login()">Войти в систему</button>
+        
+        <!-- КНОПКА УСТАНОВКИ ПРИЛОЖЕНИЯ (PWA) -->
+        <div id="installContainer">
+            <button id="installBtn" class="btn" style="background: #28a745; color: white;">
+                <i class="fa-solid fa-download"></i> Установить приложение
+            </button>
+        </div>
+
         <div id="status" class="status-text"></div>
     </div>
 
     <script>
-           window.onload = function() {
+        // === 1. ПРОВЕРКА АВТОРИЗАЦИИ ПРИ ЗАГРУЗКЕ ===
+        window.onload = function() {
             const userStr = localStorage.getItem("currentUser");
             if (userStr) {
-                const user = JSON.parse(userStr);
-                // Если уже вошел - мгновенно кидаем обратно без сохранения в историю (replace)
-                if (user.role === "диспетчер") window.location.replace("dispatcher.html");
-                else if (user.role === "мастер") window.location.replace("master.html");
-                else if (user.role === "шеф") window.location.replace("boss.html");
+                try {
+                    const user = JSON.parse(userStr);
+                    if (user.role === "диспетчер") window.location.replace("dispatcher.html");
+                    else if (user.role === "мастер") window.location.replace("master.html");
+                    else if (user.role === "шеф") window.location.replace("boss.html");
+                } catch(e) { console.error("Ошибка парсинга пользователя", e); }
+            }
+            
+            // Регистрация Service Worker
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js')
+                    .then(() => console.log('Service Worker зарегистрирован'))
+                    .catch(err => console.log('Ошибка SW', err));
             }
         };
-        
-        // Управление экраном загрузки
+
+        // === 2. ЛОГИКА ЗАГРУЗКИ ===
         function showLoader(text) {
             document.getElementById("loaderText").innerText = text;
             document.getElementById("globalLoader").classList.add("active");
@@ -63,7 +172,7 @@
 
         const URL_GOOGLE_SERVER = "https://script.google.com/macros/s/AKfycbxfMMoR5LATkWt4HeT8XCxjOipYSay-c_9YVZExPPZ9edVLciR4YbHrqjadC_nSdFGfjg/exec";
 
-                async function login() {
+        async function login() {
             const nameInput = document.getElementById("userName").value.trim();
             const pinInput = document.getElementById("userPin").value.trim();
             const statusText = document.getElementById("status");
@@ -77,15 +186,9 @@
             statusText.innerText = "";
             showLoader("Проверка данных...");
 
-            // Формируем закрытый POST запрос
-            const loginData = {
-                action: "login",
-                name: nameInput,
-                pin: pinInput
-            };
+            const loginData = { action: "login", name: nameInput, pin: pinInput };
 
             try {
-                // Отправляем ФИО и ПИН на сервер
                 const response = await fetch(URL_GOOGLE_SERVER, {
                     method: "POST",
                     body: JSON.stringify(loginData),
@@ -94,9 +197,7 @@
                 
                 const result = await response.json();
 
-                // Сервер ответил Успехом!
                 if (result.status === "success") {
-                    // Сохраняем в телефон безопасные данные (БЕЗ ПИНА)
                     localStorage.setItem("currentUser", JSON.stringify(result.user));
                     showLoader("Успешно! Входим...");
                     
@@ -106,7 +207,6 @@
                         else if (result.user.role === "шеф") window.location.replace("boss.html");
                     }, 500);
                 } else {
-                    // Сервер ответил Ошибкой (Неверный ПИН)
                     hideLoader();
                     statusText.innerText = "Неверное ФИО или ПИН-код";
                     statusText.style.color = "#ff3b30";
@@ -117,44 +217,63 @@
                 statusText.style.color = "#ff3b30";
             }
         }
-    </script>
-<script>
-    // 1. Регистрация Service Worker
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js')
-            .then(() => console.log('Service Worker зарегистрирован'))
-            .catch(err => console.log('Ошибка SW', err));
-    }
 
-    // 2. Логика кнопки установки (PWA)
-    let deferredPrompt;
-
-    window.addEventListener('beforeinstallprompt', (e) => {
-        // Не даем браузеру показать системный баннер сразу
-        e.preventDefault();
-        // Сохраняем событие
-        deferredPrompt = e;
-        
-        // Показываем нашу кнопку установки (создадим её ниже)
+        // === 3. ЛОГИКА PWA УСТАНОВКИ (Android/iOS) ===
+        let deferredPrompt;
+        const installContainer = document.getElementById('installContainer');
         const installBtn = document.getElementById('installBtn');
-        if (installBtn) {
-            installBtn.style.display = 'block';
-        }
-    });
 
-    async function installApp() {
-        if (!deferredPrompt) return;
-        
-        // Показываем стандартное окно установки
-        deferredPrompt.prompt();
-        
-        const { outcome } = await deferredPrompt.userChoice;
-        console.log(`Результат установки: ${outcome}`);
-        
-        // Больше не показываем кнопку
-        deferredPrompt = null;
-        document.getElementById('installBtn').style.display = 'none';
-    }
-</script>
+        // Слушаем событие готовности к установке (работает на Android/Chrome)
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault(); // Отменяем нативный промпт
+            deferredPrompt = e; // Сохраняем событие
+            if (installContainer) installContainer.style.display = 'block'; // Показываем кнопку
+            console.log('PWA: Кнопка установки активирована');
+        });
+
+        // Обработка клика по кнопке "Установить"
+        if (installBtn) {
+            installBtn.addEventListener('click', async () => {
+                if (!deferredPrompt) return;
+                
+                deferredPrompt.prompt(); // Вызываем диалог
+                
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`PWA: Выбор пользователя: ${outcome}`);
+                
+                // Скрываем кнопку после попытки установки
+                if (installContainer) installContainer.style.display = 'none';
+                deferredPrompt = null;
+            });
+        }
+
+        // Специальная обработка для iOS (так как там нет beforeinstallprompt)
+        function isIos() {
+            const ua = window.navigator.userAgent;
+            return /iphone|ipad|ipod/.test(ua.toLowerCase()) && !window.MSStream;
+        }
+
+        function isStandalone() {
+            return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+        }
+
+        if (isIos() && !isStandalone()) {
+            if (installContainer) {
+                installContainer.style.display = 'block';
+                if (installBtn) {
+                    installBtn.innerHTML = '<i class="fa-solid fa-share-from-square"></i> Инструкция для iOS';
+                    installBtn.style.background = '#007aff';
+                    installBtn.onclick = function() {
+                        alert(' Чтобы установить приложение:\n\n1. Нажмите кнопку "Поделиться" внизу браузера (квадрат со стрелкой) ↗️\n2. В меню выберите "На экран «Домой»" \n3. Нажмите "Добавить"');
+                    };
+                }
+            }
+        }
+
+        // Если уже запущено как приложение - скрываем кнопку
+        if (isStandalone() && installContainer) {
+            installContainer.style.display = 'none';
+        }
+    </script>
 </body>
 </html>
