@@ -259,6 +259,349 @@
             color: #ff9500;
             font-size: 14px;
         }
+        
+    .master-hero {
+        background: linear-gradient(135deg, #ff9500 0%, #ff5e3a 100%);
+        border-radius: 20px;
+        padding: 24px;
+        text-align: center;
+        color: white;
+        margin-bottom: 16px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 8px 30px rgba(255, 94, 58, 0.3);
+    }
+    
+    .master-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+        animation: shimmer 3s infinite;
+    }
+    
+    @keyframes shimmer {
+        0%, 100% { transform: rotate(0deg); }
+        50% { transform: rotate(180deg); }
+    }
+    
+    .master-avatar {
+        width: 80px;
+        height: 80px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 16px;
+        font-size: 36px;
+        color: #ff9500;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        position: relative;
+        z-index: 1;
+    }
+    
+    .master-name {
+        font-size: 24px;
+        font-weight: 800;
+        margin: 0 0 6px 0;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .master-role {
+        font-size: 14px;
+        opacity: 0.9;
+        font-weight: 500;
+        position: relative;
+        z-index: 1;
+    }
+    
+    /* Push-уведомления сразу после */
+    .push-card {
+        background: white;
+        border-radius: 16px;
+        padding: 16px 20px;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        border: 2px solid transparent;
+        transition: all 0.3s;
+    }
+    
+    .push-card:hover {
+        border-color: #007aff;
+        transform: translateY(-2px);
+    }
+    
+    .push-info {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+    
+    .push-icon {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, #e5f1ff, #cce4ff);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        color: #007aff;
+    }
+    
+    .push-text h4 {
+        margin: 0;
+        font-size: 15px;
+        color: #1c1c1e;
+        font-weight: 600;
+    }
+    
+    .push-text p {
+        margin: 4px 0 0 0;
+        font-size: 12px;
+        color: #8e8e93;
+    }
+    
+    /* ===== ДОСТИЖЕНИЯ - HERO БЛОК ===== */
+    .achievement-hero {
+        background: linear-gradient(145deg, #1c1c1e 0%, #2c2c2e 100%);
+        border-radius: 24px;
+        padding: 24px;
+        margin-bottom: 16px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+    
+    .achievement-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #ff9500, #ff5e3a, #ff9500);
+        background-size: 200% 100%;
+        animation: gradientMove 3s ease infinite;
+    }
+    
+    @keyframes gradientMove {
+        0%, 100% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+    }
+    
+    .achievement-header {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    
+    .achievement-title {
+        font-size: 13px;
+        color: #8e8e93;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 700;
+        margin: 0 0 8px 0;
+    }
+    
+    /* Круговой прогресс */
+    .rank-circle {
+        position: relative;
+        width: 180px;
+        height: 180px;
+        margin: 0 auto 20px;
+    }
+    
+    .rank-circle svg {
+        transform: rotate(-90deg);
+        width: 180px;
+        height: 180px;
+    }
+    
+    .rank-circle-bg {
+        fill: none;
+        stroke: rgba(255,255,255,0.1);
+        stroke-width: 12;
+    }
+    
+    .rank-circle-progress {
+        fill: none;
+        stroke: url(#rankGradient);
+        stroke-width: 12;
+        stroke-linecap: round;
+        stroke-dasharray: 440;
+        stroke-dashoffset: 440;
+        transition: stroke-dashoffset 1s ease-out;
+        filter: drop-shadow(0 0 8px rgba(255, 149, 0, 0.5));
+    }
+    
+    .rank-circle-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+    }
+    
+    .rank-icon {
+        font-size: 42px;
+        margin-bottom: 8px;
+        display: block;
+        animation: bounce 2s infinite;
+    }
+    
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-6px); }
+    }
+    
+    .rank-name {
+        font-size: 16px;
+        font-weight: 800;
+        color: white;
+        margin: 0;
+    }
+    
+    .rank-level {
+        font-size: 11px;
+        color: #8e8e93;
+        margin: 4px 0 0 0;
+    }
+    
+    /* Прогресс до следующего ранга */
+    .next-rank {
+        background: rgba(255,255,255,0.08);
+        border-radius: 14px;
+        padding: 14px 16px;
+        margin-top: 16px;
+    }
+    
+    .next-rank-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+    
+    .next-rank-label {
+        font-size: 12px;
+        color: #c7c7cc;
+        font-weight: 500;
+    }
+    
+    .next-rank-value {
+        font-size: 12px;
+        color: #ff9500;
+        font-weight: 700;
+    }
+    
+    .progress-bar {
+        height: 8px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #ff9500, #ff5e3a);
+        border-radius: 4px;
+        width: 0%;
+        transition: width 1s ease-out;
+    }
+    
+    /* ===== СТАТИСТИКА ===== */
+    .stats-grid-new {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 16px;
+        padding: 16px 12px;
+        text-align: center;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        transition: transform 0.2s;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #ff9500, #ff5e3a);
+    }
+    
+    .stat-card:active {
+        transform: scale(0.96);
+    }
+    
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 10px;
+        font-size: 18px;
+        color: #ff9500;
+    }
+    
+    .stat-value {
+        font-size: 22px;
+        font-weight: 800;
+        color: #1c1c1e;
+        margin: 0 0 4px 0;
+    }
+    
+    .stat-label {
+        font-size: 10px;
+        color: #8e8e93;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        line-height: 1.3;
+    }
+    
+    /* Кнопка выхода */
+    .logout-btn {
+        background: linear-gradient(135deg, #ff3b30, #ff2d55);
+        color: white;
+        border: none;
+        padding: 16px 24px;
+        border-radius: 16px;
+        font-size: 16px;
+        font-weight: 700;
+        width: 100%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        box-shadow: 0 6px 20px rgba(255, 59, 48, 0.3);
+        transition: all 0.2s;
+    }
+    
+    .logout-btn:active {
+        transform: scale(0.98);
+        box-shadow: 0 4px 15px rgba(255, 59, 48, 0.25);
+    }
     </style>
 
     <!-- ONESIGNAL PUSH NOTIFICATIONS -->
@@ -387,53 +730,95 @@
         </div>
 
         <!-- ЭКРАН 2: ПРОФИЛЬ -->
-        <div id="tab-profile" class="tab-content">
-            <div id="loadingProfile" class="inline-loader" style="display: none;">
-                <i class="fa-solid fa-circle-notch fa-spin"></i><br>Считаем успехи...
+<div id="tab-profile" class="tab-content">
+    <div id="loadingProfile" class="inline-loader" style="display: none;">
+        <i class="fa-solid fa-circle-notch fa-spin"></i><br>Считаем успехи...
+    </div>
+    
+    <div id="profileContent" style="display: none;">
+        <!-- Карточка мастера -->
+        <div class="master-hero">
+            <div class="master-avatar">
+                <i class="fa-solid fa-user-gear"></i>
+            </div>
+            <h2 class="master-name" id="profileName">Загрузка...</h2>
+            <p class="master-role">Мастер Гильдии</p>
+        </div>
+        
+        <!-- Push-уведомления -->
+        <div class="push-card">
+            <div class="push-info">
+                <div class="push-icon">
+                    <i class="fa-regular fa-bell"></i>
+                </div>
+                <div class="push-text">
+                    <h4>Push-уведомления</h4>
+                    <p>О новых заявках от диспетчера</p>
+                </div>
+            </div>
+            <button id="btnPush" class="btn" style="width: auto; padding: 10px 18px; font-size: 13px; background: #e5f1ff; color: #007aff; border-radius: 12px; font-weight: 600;" onclick="enablePush()">Включить</button>
+        </div>
+        
+        <!-- Достижения HERO -->
+        <div class="achievement-hero" id="achievementHero">
+            <div class="achievement-header">
+                <p class="achievement-title">Ваш ранг</p>
             </div>
             
-            <div id="profileContent" style="display: none;">
-                <div class="card" style="text-align: center; margin-bottom: 15px; border-bottom: 4px solid #ff9500;">
-                    <h2 style="margin: 0 0 5px 0; color: #1c1c1e;" id="profileName">Загрузка...</h2>
-                    <p style="margin: 0; color: #8e8e93; font-weight: 600;">Мастер</p>
+            <div class="rank-circle">
+                <svg viewBox="0 0 180 180">
+                    <defs>
+                        <linearGradient id="rankGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#ff9500"/>
+                            <stop offset="100%" style="stop-color:#ff5e3a"/>
+                        </linearGradient>
+                    </defs>
+                    <circle class="rank-circle-bg" cx="90" cy="90" r="70"/>
+                    <circle class="rank-circle-progress" id="rankProgress" cx="90" cy="90" r="70"/>
+                </svg>
+                <div class="rank-circle-content">
+                    <span class="rank-icon" id="rankIcon">🥉</span>
+                    <h3 class="rank-name" id="rankName">Новичок</h3>
+                    <p class="rank-level" id="rankLevel">Уровень 1</p>
                 </div>
-                
-                <div class="card" style="background: linear-gradient(135deg, #ff9500, #ff5e3a); color: white; border: none; margin-bottom: 15px;">
-                    <h3 style="margin: 0 0 5px 0;"><i class="fa-solid fa-star"></i> Золотые руки!</h3>
-                    <p style="margin: 0; font-size: 14px; opacity: 0.9;">Спасибо за вашу работу. Жильцы ценят ваш труд!</p>
+            </div>
+            
+            <div class="next-rank">
+                <div class="next-rank-header">
+                    <span class="next-rank-label">До следующего ранга</span>
+                    <span class="next-rank-value" id="nextRankValue">0 / 20</span>
                 </div>
-
-                <div class="badge-card" id="achievementBadge">
-                    <div class="badge-icon"><i class="fa-solid fa-medal" id="badgeIcon"></i></div>
-                    <div class="badge-text">
-                        <h4 id="badgeTitle">Загружаем ранг...</h4>
-                        <p id="badgeDesc">...</p>
-                    </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
                 </div>
-
-                <div class="stats-grid">
-                    <div class="stat-box">
-                        <div class="stat-num" id="statTickets">0</div>
-                        <div class="stat-label">Заявок выполнено<br><span style="color:#007aff; font-size:10px;">в этом месяце</span></div>
-                    </div>
-                </div>
-
-                <div class="card" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 15px 20px;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <div style="background: #fff5e5; color: #ff9500; width: 40px; height: 40px; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 20px;">
-                            <i class="fa-regular fa-bell"></i>
-                        </div>
-                        <div style="text-align: left;">
-                            <h4 style="margin: 0; font-size: 15px; color: #1c1c1e;">Push-уведомления</h4>
-                            <p style="margin: 0; font-size: 12px; color: #8e8e93;">О новых заявках</p>
-                        </div>
-                    </div>
-                    <button id="btnPush" class="btn" style="width: auto; padding: 8px 16px; font-size: 13px; background: #e5f1ff; color: #007aff;" onclick="enablePush()">Включить</button>
-                </div>
-
-                <button class="btn btn-danger" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Выйти из аккаунта</button>
             </div>
         </div>
+        
+        <!-- Статистика -->
+        <div class="stats-grid-new">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fa-solid fa-check-double"></i></div>
+                <div class="stat-value" id="statTotal">0</div>
+                <div class="stat-label">Всего выполнено</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fa-solid fa-calendar-check"></i></div>
+                <div class="stat-value" id="statMonth">0</div>
+                <div class="stat-label">В этом месяце</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fa-solid fa-star"></i></div>
+                <div class="stat-value" id="statRating">5.0</div>
+                <div class="stat-label">Рейтинг</div>
+            </div>
+        </div>
+        
+        <button class="logout-btn" onclick="logout()">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            Выйти из аккаунта
+        </button>
+    </div>
+</div>
     </div>
 
     <!-- ЭКРАН ОТЧЕТА -->
@@ -585,26 +970,72 @@
         }
 
         function renderMasterStats(stats) {
-            document.getElementById("statTickets").innerText = stats.monthlyTickets;
-            const titleEl = document.getElementById("badgeTitle");
-            const descEl = document.getElementById("badgeDesc");
-            const iconEl = document.getElementById("badgeIcon");
-            const totalAllTime = stats.allTimeTickets;
-
-            if (totalAllTime < 20) {
-                titleEl.innerText = "Новичок 🥉";
-                descEl.innerText = `Выполнено заявок: ${totalAllTime} шт. Цель: 20`;
-                iconEl.className = "fa-solid fa-seedling"; iconEl.style.color = "#8d6e63";
-            } else if (totalAllTime < 50) {
-                titleEl.innerText = "Опытный мастер 🥈";
-                descEl.innerText = `Выполнено: ${totalAllTime} шт. Цель: 50`;
-                iconEl.className = "fa-solid fa-shield-halved"; iconEl.style.color = "#78909c";
-            } else {
-                titleEl.innerText = "Легенда ГИЛЬДИИ 🥇";
-                descEl.innerText = `Ваш профиль сияет золотом. Выполнено заявок: ${totalAllTime} шт.`;
-                iconEl.className = "fa-solid fa-crown"; iconEl.style.color = "#ffb300";
-            }
-        }
+    const totalAllTime = stats.allTimeTickets;
+    const monthlyTickets = stats.monthlyTickets;
+    
+    // Обновляем статистику
+    document.getElementById("statTotal").innerText = totalAllTime;
+    document.getElementById("statMonth").innerText = monthlyTickets;
+    
+    // Определяем ранг
+    const rankIcon = document.getElementById("rankIcon");
+    const rankName = document.getElementById("rankName");
+    const rankLevel = document.getElementById("rankLevel");
+    const progressFill = document.getElementById("progressFill");
+    const nextRankValue = document.getElementById("nextRankValue");
+    const rankProgress = document.getElementById("rankProgress");
+    
+    let rank, icon, target, level;
+    
+    if (totalAllTime < 20) {
+        rank = "Новичок";
+        icon = "🥉";
+        target = 20;
+        level = 1;
+    } else if (totalAllTime < 50) {
+        rank = "Опытный мастер";
+        icon = "🥈";
+        target = 50;
+        level = 2;
+    } else if (totalAllTime < 100) {
+        rank = "Профессионал";
+        icon = "🥇";
+        target = 100;
+        level = 3;
+    } else {
+        rank = "Легенда Гильдии";
+        icon = "👑";
+        target = 100;
+        level = "MAX";
+    }
+    
+    rankName.innerText = rank;
+    rankIcon.innerText = icon;
+    rankLevel.innerText = `Уровень ${level}`;
+    
+    // Рассчитываем прогресс
+    const prevTarget = level === 1 ? 0 : level === 2 ? 20 : level === 3 ? 50 : 100;
+    const progress = level === "MAX" ? 100 : Math.min(100, ((totalAllTime - prevTarget) / (target - prevTarget)) * 100);
+    
+    // Анимация прогресс-бара
+    setTimeout(() => {
+        progressFill.style.width = progress + "%";
+    }, 100);
+    
+    // Анимация круга (440 = 2 * PI * 70)
+    const offset = 440 - (progress / 100) * 440;
+    setTimeout(() => {
+        rankProgress.style.strokeDashoffset = offset;
+    }, 100);
+    
+    // Текст прогресса
+    if (level === "MAX") {
+        nextRankValue.innerText = "Максимальный ранг!";
+        progressFill.style.width = "100%";
+    } else {
+        nextRankValue.innerText = `${totalAllTime} / ${target}`;
+    }
+}
 
         async function loadTickets() {
             const cachedTickets = localStorage.getItem("cachedMasterTickets_" + currentUser.name);
