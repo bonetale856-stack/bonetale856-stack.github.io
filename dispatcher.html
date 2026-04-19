@@ -17,7 +17,6 @@
         .edit-btn { background: #f2f2f7; color: #007aff; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 12px; margin-left: 4px;}
         .close-btn { background: #fff0f0; color: #ff3b30; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 12px; margin-left: 4px;}
 
-        /* ===== МОДАЛКИ ===== */
         #editModal, #closeTicketModal {
             display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.5); z-index: 1000;
@@ -32,7 +31,6 @@
             margin: auto;
         }
 
-        /* ===== ФОРМА ЗАКРЫТИЯ ===== */
         .free-toggle {
             background: #f2f2f7; padding: 14px 16px; border-radius: 12px;
             display: flex; align-items: center; margin-bottom: 14px;
@@ -62,38 +60,8 @@
             margin-bottom: 6px; font-size: 13px;
         }
 
-        /* ===== СЧЁТЧИК ЗАЯВОК В МЕНЮ ===== */
-        .nav-badge {
-            position: absolute; top: 2px; right: 12px;
-            background: #ff3b30; color: white;
-            font-size: 10px; font-weight: 800;
-            min-width: 16px; height: 16px;
-            border-radius: 8px; padding: 0 4px;
-            display: flex; align-items: center; justify-content: center;
-            line-height: 1;
-        }
         .nav-item { position: relative; }
 
-        /* ===== ТАБЫ ВНУТРИ ВКЛАДКИ ===== */
-        .inner-tabs {
-            display: flex; gap: 0; margin-bottom: 16px;
-            background: #f2f2f7; border-radius: 12px; padding: 3px;
-        }
-        .inner-tab {
-            flex: 1; padding: 9px 6px; border: none; border-radius: 10px;
-            background: transparent; font-size: 13px; font-weight: 600;
-            color: #8e8e93; cursor: pointer; transition: all 0.2s;
-            display: flex; align-items: center; justify-content: center; gap: 5px;
-        }
-        .inner-tab.active { background: white; color: #007aff; box-shadow: 0 1px 6px rgba(0,0,0,0.1); }
-        .inner-tab .count-pill {
-            background: #e5f1ff; color: #007aff;
-            border-radius: 8px; padding: 1px 6px; font-size: 11px; font-weight: 700;
-        }
-        .inner-tab.active.done-tab { color: #34c759; }
-        .inner-tab.active.done-tab .count-pill { background: #e8f5e9; color: #34c759; }
-
-        /* ===== ПРОФИЛЬ ===== */
         .profile-hero {
             background: linear-gradient(135deg, #007aff 0%, #0055d4 100%);
             border-radius: 20px; padding: 30px 20px 25px;
@@ -193,7 +161,6 @@
             text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 8px 4px;
         }
 
-        /* Пустой экран */
         .empty-state {
             text-align: center; padding: 50px 20px; color: #8e8e93;
         }
@@ -238,40 +205,25 @@
             </div>
         </div>
 
-        <!-- ЭКРАН 2: ЗАЯВКИ (НОВЫЕ + ЗАКРЫТЫЕ) -->
-        <div id="tab-list" class="tab-content">
-            <!-- Внутренние табы -->
-            <div class="inner-tabs">
-                <button class="inner-tab active" id="innerTab-new" onclick="switchInnerTab('new')">
-                    <i class="fa-solid fa-bolt"></i> Новые
-                    <span class="count-pill" id="countNew">0</span>
-                </button>
-                <button class="inner-tab done-tab" id="innerTab-done" onclick="switchInnerTab('done')">
-                    <i class="fa-solid fa-check-double"></i> Закрытые
-                    <span class="count-pill" id="countDone">0</span>
-                </button>
-            </div>
-
-            <!-- Контейнер новых -->
-            <div id="listNew">
-                <div id="ticketsContainerNew"></div>
-                <div id="noTicketsMsgNew" class="empty-state" style="display:none;">
-                    <i class="fa-solid fa-circle-notch fa-spin"></i>
-                    <p>Загрузка...</p>
-                </div>
-            </div>
-
-            <!-- Контейнер закрытых -->
-            <div id="listDone" style="display:none;">
-                <div id="ticketsContainerDone"></div>
-                <div id="noTicketsMsgDone" class="empty-state" style="display:none;">
-                    <i class="fa-solid fa-circle-notch fa-spin"></i>
-                    <p>Загрузка...</p>
-                </div>
+        <!-- ЭКРАН 2: НОВЫЕ ЗАЯВКИ -->
+        <div id="tab-new" class="tab-content">
+            <div id="ticketsContainerNew"></div>
+            <div id="noTicketsMsgNew" class="empty-state">
+                <i class="fa-solid fa-circle-notch fa-spin"></i>
+                <p>Загрузка...</p>
             </div>
         </div>
 
-        <!-- ЭКРАН 3: ПРОФИЛЬ -->
+        <!-- ЭКРАН 3: ЗАКРЫТЫЕ ЗАЯВКИ -->
+        <div id="tab-done" class="tab-content">
+            <div id="ticketsContainerDone"></div>
+            <div id="noTicketsMsgDone" class="empty-state">
+                <i class="fa-solid fa-circle-notch fa-spin"></i>
+                <p>Загрузка...</p>
+            </div>
+        </div>
+
+        <!-- ЭКРАН 4: ПРОФИЛЬ -->
         <div id="tab-profile" class="tab-content">
             <div class="profile-hero profile-animate">
                 <div class="profile-avatar"><i class="fa-solid fa-headset"></i></div>
@@ -395,7 +347,6 @@
                 <i class="fa-solid fa-circle-check" style="color:#34c759;"></i> Закрыть заявку
             </h3>
 
-            <!-- Инфо о заявке -->
             <div style="background:#f2f2f7; border-radius:12px; padding:12px 14px; margin-bottom:14px;">
                 <div id="closeAddress" style="font-weight:700; color:#1c1c1e; margin-bottom:4px;"></div>
                 <div id="closeProblem" style="font-size:13px; color:#3a3a3c;"></div>
@@ -442,11 +393,22 @@
         <div class="nav-item active" onclick="switchTab('create')" id="nav-create">
             <i class="fa-solid fa-plus"></i><span>Создать</span>
         </div>
-        <div class="nav-item" onclick="switchTab('list')" id="nav-list">
-            <i class="fa-solid fa-folder-open"></i>
-            <span id="nav-badge-wrap" style="position:relative; display:inline-block;">
-                Заявки<span class="nav-badge" id="navBadge" style="display:none;"></span>
+        <div class="nav-item" onclick="switchTab('new')" id="nav-new">
+            <i class="fa-solid fa-bolt"></i>
+            <span style="position:relative;">
+                Новые
+                <span id="navBadge" style="
+                    position: absolute; top: -8px; right: -14px;
+                    background: #ff3b30; color: white;
+                    font-size: 10px; font-weight: 800;
+                    min-width: 16px; height: 16px;
+                    border-radius: 8px; padding: 0 4px;
+                    display: none; align-items: center; justify-content: center;
+                "></span>
             </span>
+        </div>
+        <div class="nav-item" onclick="switchTab('done')" id="nav-done">
+            <i class="fa-solid fa-check-double"></i><span>Закрытые</span>
         </div>
         <div class="nav-item" onclick="switchTab('profile')" id="nav-profile">
             <i class="fa-solid fa-user"></i><span>Профиль</span>
@@ -462,9 +424,7 @@
         let myTicketsArray = [];
         let currentEditId  = null;
         let currentCloseId = null;
-        let currentInnerTab = 'new'; // Какой внутренний таб активен
 
-        // ===== ИНИЦИАЛИЗАЦИЯ =====
         window.onload = async function () {
             const userStr = localStorage.getItem("currentUser");
             if (!userStr) { window.location.replace("index.html"); return; }
@@ -479,7 +439,6 @@
                 applyTab(window.location.hash.replace('#', ''));
             }
 
-            // Грузим базы данных
             fetch(URL_GOOGLE_SERVER + "?action=getAddresses")
                 .then(r => r.json())
                 .then(addrs => { allAddresses = addrs.map(a => String(a).trim()); });
@@ -490,7 +449,6 @@
                     allMasters = users.filter(u => u.role === "мастер").map(u => String(u.name).trim());
                 });
 
-            // Закрываем дропдауны при клике вне
             document.addEventListener('click', function (e) {
                 const ids = ['address','masterInput','editAddress','editMaster'];
                 const dropIds = ['customAddressList','customMasterList','customEditAddressList','customEditMasterList'];
@@ -503,7 +461,6 @@
             });
         };
 
-        // ===== КНОПКА "НАЗАД" =====
         window.addEventListener('popstate', (event) => {
             applyTab(event.state && event.state.tab ? event.state.tab : 'create');
         });
@@ -516,27 +473,25 @@
         function applyTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            
             const tabEl = document.getElementById('tab-' + tabName);
             const navEl = document.getElementById('nav-' + tabName);
             if (tabEl) tabEl.classList.add('active');
             if (navEl) navEl.classList.add('active');
-            const titles = { 'create': 'Новая заявка', 'list': 'История заявок', 'profile': 'Профиль' };
+
+            const titles = {
+                'create':  'Новая заявка',
+                'new':     'Активные заявки',
+                'done':    'Закрытые заявки',
+                'profile': 'Профиль'
+            };
             document.getElementById('headerTitle').innerText = titles[tabName] || 'Служба ЖКХ';
-            if (tabName === 'list') loadMyTickets();
+
+            if (tabName === 'new')     loadMyTickets('new');
+            if (tabName === 'done')    loadMyTickets('done');
             if (tabName === 'profile') loadStats();
         }
 
-        // ===== ВНУТРЕННИЕ ТАБЫ (НОВЫЕ / ЗАКРЫТЫЕ) =====
-        function switchInnerTab(tabName) {
-            currentInnerTab = tabName;
-
-            document.getElementById('innerTab-new').classList.toggle('active', tabName === 'new');
-            document.getElementById('innerTab-done').classList.toggle('active', tabName === 'done');
-            document.getElementById('listNew').style.display  = tabName === 'new'  ? 'block' : 'none';
-            document.getElementById('listDone').style.display = tabName === 'done' ? 'block' : 'none';
-        }
-
-        // ===== СОЗДАНИЕ ЗАЯВКИ =====
         async function sendTicket() {
             const address = document.getElementById("address").value.trim();
             const problem = document.getElementById("problem").value.trim();
@@ -574,19 +529,27 @@
             }
         }
 
-        // ===== ЗАГРУЗКА ЗАЯВОК =====
-        async function loadMyTickets() {
-            // Показываем лоадеры
-            showLoader('new');
-            showLoader('done');
+        async function loadMyTickets(type) {
+            const containerNew  = document.getElementById("ticketsContainerNew");
+            const containerDone = document.getElementById("ticketsContainerDone");
+            const msgNew        = document.getElementById("noTicketsMsgNew");
+            const msgDone       = document.getElementById("noTicketsMsgDone");
 
-            // Сначала рисуем из кэша
-            const cached = localStorage.getItem("cachedDispatcherTickets_" + currentUser.name);
-            if (cached) {
-                renderTicketsList(JSON.parse(cached));
+            if (type === 'new') {
+                if (!containerNew.innerHTML.trim()) {
+                    msgNew.style.display = 'block';
+                    msgNew.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><p>Загрузка...</p>';
+                }
+            } else {
+                if (!containerDone.innerHTML.trim()) {
+                    msgDone.style.display = 'block';
+                    msgDone.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><p>Загрузка...</p>';
+                }
             }
 
-            // Потом идём за свежими данными
+            const cached = localStorage.getItem("cachedDispatcherTickets_" + currentUser.name);
+            if (cached) renderTicketsList(JSON.parse(cached));
+
             try {
                 const res = await fetch(URL_GOOGLE_SERVER + "?action=getDispatcherTickets&dispatcherName=" + encodeURIComponent(currentUser.name));
                 const freshTickets = await res.json();
@@ -594,39 +557,18 @@
                 renderTicketsList(freshTickets);
             } catch (e) {
                 if (!cached) {
-                    showError('new');
-                    showError('done');
+                    msgNew.innerHTML  = '<i class="fa-solid fa-wifi-slash"></i><h3>Нет сети</h3>';
+                    msgDone.innerHTML = '<i class="fa-solid fa-wifi-slash"></i><h3>Нет сети</h3>';
                 }
             }
-        }
-
-        function showLoader(type) {
-            const msg = document.getElementById('noTicketsMsg' + (type === 'new' ? 'New' : 'Done'));
-            const container = document.getElementById('ticketsContainer' + (type === 'new' ? 'New' : 'Done'));
-            if (!container.innerHTML.trim()) {
-                msg.style.display = 'block';
-                msg.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><p>Загрузка...</p>';
-            }
-        }
-
-        function showError(type) {
-            const msg = document.getElementById('noTicketsMsg' + (type === 'new' ? 'New' : 'Done'));
-            msg.style.display = 'block';
-            msg.innerHTML = '<i class="fa-solid fa-wifi-slash"></i><h3>Нет сети</h3><p>Проверьте интернет</p>';
         }
 
         function renderTicketsList(ticketsArray) {
             myTicketsArray = ticketsArray;
 
-            // Разбиваем на новые и закрытые
             const newTickets  = ticketsArray.filter(t => t.status === "Новая");
             const doneTickets = ticketsArray.filter(t => t.status !== "Новая");
 
-            // Обновляем счётчики в табах
-            document.getElementById('countNew').innerText  = newTickets.length;
-            document.getElementById('countDone').innerText = doneTickets.length;
-
-            // Бейдж на кнопке меню
             const badge = document.getElementById('navBadge');
             if (newTickets.length > 0) {
                 badge.style.display = 'flex';
@@ -635,17 +577,8 @@
                 badge.style.display = 'none';
             }
 
-            // Рисуем новые
-            renderGroup(newTickets, 'ticketsContainerNew', 'noTicketsMsgNew',
-                '<i class="fa-solid fa-bolt"></i><h3>Нет новых заявок</h3><p>Все заявки обработаны!</p>',
-                true
-            );
-
-            // Рисуем закрытые
-            renderGroup(doneTickets, 'ticketsContainerDone', 'noTicketsMsgDone',
-                '<i class="fa-solid fa-check-double"></i><h3>Нет закрытых заявок</h3><p>Закрытые заявки появятся здесь</p>',
-                false
-            );
+            renderGroup(newTickets, 'ticketsContainerNew', 'noTicketsMsgNew', '<i class="fa-solid fa-bolt"></i><h3>Нет активных заявок</h3><p>Все заявки обработаны!</p>', true);
+            renderGroup(doneTickets, 'ticketsContainerDone', 'noTicketsMsgDone', '<i class="fa-solid fa-check-double"></i><h3>Нет закрытых заявок</h3><p>Закрытые заявки появятся здесь</p>', false);
         }
 
         function renderGroup(tickets, containerId, msgId, emptyHtml, isNew) {
@@ -666,7 +599,6 @@
                 const badgeClass = isNew ? "status-new" : "status-done";
                 const statusText = isNew ? "Новая" : "Выполнено";
 
-                // Для новых — кнопки действий, для закрытых — метка
                 const actionHtml = isNew
                     ? `<div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;">
                            <button class="edit-btn" onclick="openEditModal(${ticket.id})">
@@ -692,7 +624,6 @@
             });
         }
 
-        // ===== РЕДАКТИРОВАНИЕ =====
         function openEditModal(id) {
             currentEditId = id;
             const ticket = myTicketsArray.find(t => t.id == id);
@@ -728,7 +659,11 @@
                 closeEditModal();
                 btn.disabled = false;
                 btn.innerHTML = '💾 Сохранить изменения';
-                loadMyTickets();
+                
+                // ИСПРАВЛЕНО: обновляем оба экрана
+                localStorage.removeItem("cachedDispatcherTickets_" + currentUser.name);
+                loadMyTickets('new');
+                loadMyTickets('done');
             } catch (e) {
                 alert("Ошибка сохранения. Проверьте интернет.");
                 btn.disabled = false;
@@ -736,7 +671,6 @@
             }
         }
 
-        // ===== ЗАКРЫТИЕ ЗАЯВКИ =====
         function openCloseModal(id) {
             currentCloseId = id;
             const ticket = myTicketsArray.find(t => t.id == id);
@@ -751,7 +685,7 @@
             document.getElementById("closeDelivery").value     = "0";
             document.getElementById("closeTotal").innerText    = "0";
 
-            toggleCloseMoney(); // Показываем блок сумм
+            toggleCloseMoney();
             document.getElementById("closeTicketModal").style.display = "flex";
 
             setTimeout(() => document.getElementById("closeDescription").focus(), 150);
@@ -796,15 +730,14 @@
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Закрываем...';
 
-            // Находим мастера этой заявки — он нужен для записи в Отчёты
             const ticket = myTicketsArray.find(t => t.id == currentCloseId);
             const masterName = ticket ? ticket.master : "";
 
             const closeData = {
-                action:       "submitReport",   // Используем тот же action что и у мастера!
+                action:       "submitReport",
                 ticketId:     currentCloseId,
-                masterName:   masterName,        // Мастер из заявки
-                closedBy:     currentUser.name,  // Кто закрыл (диспетчер)
+                masterName:   masterName,
+                closedBy:     currentUser.name,
                 description:  desc,
                 paymentType:  isFree ? "Бесплатно" : "Платно",
                 workCost:     workCost,
@@ -825,9 +758,9 @@
                 btn.innerHTML = '<i class="fa-solid fa-check-double"></i> Закрыть заявку';
                 closeCloseModal();
 
-                // Инвалидируем кэш чтобы следующий запрос был свежим
                 localStorage.removeItem("cachedDispatcherTickets_" + currentUser.name);
-                loadMyTickets();
+                loadMyTickets('new');
+                loadMyTickets('done');
 
             } catch (e) {
                 alert("Ошибка при закрытии заявки. Проверьте интернет.");
@@ -836,7 +769,6 @@
             }
         }
 
-        // ===== ПРОФИЛЬ / СТАТИСТИКА =====
         async function loadStats() {
             const cached = localStorage.getItem("cachedDispatcherStats_" + currentUser.name);
             if (cached) renderDispatcherStats(JSON.parse(cached));
@@ -898,7 +830,6 @@
             document.getElementById("progressNext").innerText    = level.max === Infinity ? "∞" : level.max;
         }
 
-        // ===== ПОИСК АДРЕСОВ И МАСТЕРОВ =====
         function buildDropdown(inputId, listId, source, limit) {
             const input = document.getElementById(inputId).value.toLowerCase();
             const list  = document.getElementById(listId);
