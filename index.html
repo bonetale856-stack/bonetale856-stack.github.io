@@ -8,14 +8,11 @@
     <meta name="theme-color" content="#007aff">
     <title>Вход | Гильдия Сервис</title>
     
-    <!-- Подключение манифеста -->
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="styles.css">
-    <!-- Иконки FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* Базовые стили */
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: #f2f2f7; 
@@ -28,7 +25,6 @@
             box-sizing: border-box;
         }
 
-        /* Карточка входа */
         .login-card { 
             width: 100%; 
             max-width: 350px; 
@@ -41,7 +37,6 @@
             z-index: 1;
         }
 
-        /* Логотип */
         .logo-container {
             width: 80px; 
             height: 80px; 
@@ -61,7 +56,6 @@
             object-fit: cover;
         }
 
-        /* Поля ввода */
         .form-group { margin-bottom: 15px; }
         .form-control {
             width: 100%;
@@ -75,7 +69,6 @@
         }
         .form-control:focus { border-color: #007aff; }
 
-        /* Кнопки */
         .btn {
             width: 100%;
             padding: 14px;
@@ -90,7 +83,6 @@
         .btn-primary { background: #007aff; color: white; }
         .btn-primary:active { opacity: 0.8; }
         
-        /* Контейнер кнопки установки PWA */
         #installContainer { 
             margin-top: 20px; 
             display: none;
@@ -98,7 +90,6 @@
         }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Статус и лоадер */
         .status-text { margin-top: 15px; font-size: 14px; min-height: 20px; }
         .global-loader {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -111,7 +102,7 @@
         .fa-spin { font-size: 40px; color: #007aff; margin-bottom: 10px; }
         .loader-text { color: #555; font-weight: 500; }
 
-        /* --- СТИЛИ ДЛЯ МОДАЛЬНОГО ОКНА ИНСТРУКЦИИ (iOS Guide) --- */
+        /* МОДАЛЬНОЕ ОКНО */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.8);
@@ -155,7 +146,6 @@
             display: flex; align-items: center; justify-content: center;
         }
 
-        /* Стили инструкции внутри модалки */
         .ios-guide-body {
             padding: 50px 20px;
             background-color: #0a0a0f;
@@ -247,7 +237,6 @@
             justify-content: center;
         }
         
-        /* Мини телефон */
         .mini-phone {
             width: 80px;
             height: 140px;
@@ -341,39 +330,6 @@
             background: rgba(102,126,234,0.3);
             border-radius: 4px;
             padding: 2px 3px;
-        }
-        
-        .mini-sheet {
-            position: absolute;
-            bottom: 0; left: 0; right: 0;
-            background: #1c1c1e;
-            border-radius: 8px 8px 0 0;
-            padding: 5px 4px;
-        }
-        
-        .mini-sheet-handle {
-            width: 18px;
-            height: 2px;
-            background: #48484a;
-            border-radius: 1px;
-            margin: 0 auto 4px;
-        }
-        
-        .mini-sheet-item {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            padding: 3px 4px;
-            border-radius: 4px;
-            font-size: 5.5px;
-            color: rgba(255,255,255,0.6);
-            margin-bottom: 2px;
-            background: #2c2c2e;
-        }
-        
-        .mini-sheet-item.hi {
-            background: rgba(102,126,234,0.3);
-            color: #a5b4fc;
         }
         
         .mini-homescreen {
@@ -470,7 +426,6 @@
             0%, 100% { box-shadow: 0 0 0 1.5px rgba(255,217,61,0.7), 0 0 8px rgba(255,217,61,0.3); }
             50% { box-shadow: 0 0 0 2.5px rgba(255,217,61,0.4), 0 0 14px rgba(255,217,61,0.5); }
         }
-        @keyframes addedShimmer { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
         
         @media (max-width: 600px) {
             .step { flex-direction: column; }
@@ -481,14 +436,12 @@
 </head>
 <body>
 
-    <!-- ЭКРАН ЗАГРУЗКИ -->
     <div id="globalLoader" class="global-loader">
         <i class="fa-solid fa-circle-notch fa-spin"></i>
         <div id="loaderText" class="loader-text">Загрузка...</div>
     </div>
 
     <div class="card login-card">
-        <!-- ЛОГОТИП ПРИЛОЖЕНИЯ -->
         <div class="logo-container">
             <img src="icon-192.png" alt="Logo" class="logo-img" onerror="this.style.display='none'; this.parentElement.innerHTML='<svg viewBox=\'0 0 24 24\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\' style=\'width:50px;height:50px;\'><path d=\'M12 2L2 7V12C2 17.55 6.84 22.25 12 23.5C17.16 22.25 22 17.55 22 12V7L12 2Z\' fill=\'#E5F1FF\'/><path d=\'M12 22C16.9706 22 21 17.9706 21 13C21 8.02944 16.9706 4 12 4C7.02944 4 3 8.02944 3 13C3 17.9706 7.02944 22 12 22Z\' stroke=\'#007AFF\' stroke-width=\'2\'/><path d=\'M9 13L11 15L15 11\' stroke=\'#007AFF\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/><rect x=\'8\' y=\'17\' width=\'8\' height=\'2\' rx=\'1\' fill=\'#007AFF\'/></svg>'">
         </div>
@@ -504,7 +457,6 @@
         
         <button class="btn btn-primary" onclick="login()">Войти в систему</button>
         
-        <!-- КНОПКА УСТАНОВКИ ПРИЛОЖЕНИЯ (PWA) -->
         <div id="installContainer">
             <button id="installBtn" class="btn" style="background: #28a745; color: white;">
                 <i class="fa-solid fa-download"></i> Установить приложение
@@ -514,7 +466,7 @@
         <div id="status" class="status-text"></div>
     </div>
 
-    <!-- МОДАЛЬНОЕ ОКНО С ИНСТРУКЦИЕЙ ДЛЯ iOS -->
+    <!-- МОДАЛЬНОЕ ОКНО iOS -->
     <div id="iosModal" class="modal-overlay">
         <div class="modal-content">
             <button class="close-modal" onclick="closeIosModal()">&times;</button>
@@ -536,9 +488,7 @@
 
                     <!-- ШАГ 1 -->
                     <div class="step">
-                        <div class="step-left">
-                            <div class="step-badge">1</div>
-                        </div>
+                        <div class="step-left"><div class="step-badge">1</div></div>
                         <div class="step-content">
                             <div class="step-title">Откройте страницу в Safari</div>
                             <div class="step-desc">Запустите браузер <strong>Safari</strong> и перейдите на нужный сайт. Важно использовать именно Safari — другие браузеры не поддерживают эту функцию</div>
@@ -557,10 +507,7 @@
                                     </div>
                                     <div class="mini-safari-bar">
                                         <svg width="5" height="8" viewBox="0 0 5 8" fill="none"><path d="M4 1L1 4L4 7" stroke="rgba(255,255,255,0.4)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                                        <div class="mini-url">
-                                            <svg style="display:inline;vertical-align:middle;" width="4" height="5" viewBox="0 0 4 5" fill="none"><rect x="0.3" y="2.2" width="3.4" height="2.5" rx="0.6" stroke="rgba(255,255,255,0.5)" stroke-width="0.6" fill="none"/><path d="M1 2.2V1.5A1 1 0 0 1 3 1.5V2.2" stroke="rgba(255,255,255,0.5)" stroke-width="0.6" fill="none"/></svg>
-                                            gildia.app
-                                        </div>
+                                        <div class="mini-url">gildia.app</div>
                                     </div>
                                     <div class="mini-page">
                                         <div class="mini-line f dark" style="height:5px;margin-bottom:4px;"></div>
@@ -587,9 +534,7 @@
 
                     <!-- ШАГ 2а -->
                     <div class="step">
-                        <div class="step-left">
-                            <div class="step-badge">2</div>
-                        </div>
+                        <div class="step-left"><div class="step-badge">2</div></div>
                         <div class="step-content">
                             <div class="step-title">Нажмите кнопку «Поделиться»</div>
                             <div class="step-desc">Найдите кнопку
@@ -633,7 +578,6 @@
                         </div>
                     </div>
 
-                    <!-- ИЛИ -->
                     <div class="or-divider">
                         <div class="or-line"></div>
                         <span class="or-text">ЕСЛИ НЕТ КНОПКИ — ТАК</span>
@@ -795,8 +739,10 @@
                                         <div style="background:white;border-radius:8px;padding:6px;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
                                             <div style="font-size:5.5px;color:#000;font-weight:600;text-align:center;margin-bottom:6px;">На экран «Домой»</div>
                                             <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+                                                <!-- ИКОНКА С ЗАГЛУШКОЙ -->
                                                 <div style="width:28px;height:28px;border-radius:7px;overflow:hidden;flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,0.2);background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;">
-                                                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2V12M2 7H12" stroke="white" stroke-width="1.5"/></svg>
+                                                    <img src="icon-192.png" width="28" height="28" style="display:block;width:100%;height:100%;object-fit:cover;" 
+                                                        onerror="this.style.display='none';this.parentNode.style.background='linear-gradient(135deg,#667eea,#764ba2)';this.parentNode.innerHTML='<svg width=\'28\' height=\'28\' viewBox=\'0 0 28 28\' fill=\'none\'><path d=\'M14 6V22M6 14H22\' stroke=\'white\' stroke-width=\'2.5\' stroke-linecap=\'round\'/></svg>'"/>
                                                 </div>
                                                 <div>
                                                     <div style="font-size:5.5px;color:#000;font-weight:600;">Гильдия Сервис</div>
@@ -846,8 +792,10 @@
                                         <div class="mini-icon" style="background:#4d96ff;"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><circle cx="4" cy="4" r="3.3" stroke="white" stroke-width="0.7" fill="none"/><line x1="4" y1="1" x2="4" y2="7" stroke="white" stroke-width="0.6" opacity="0.6"/><line x1="1" y1="4" x2="7" y2="4" stroke="white" stroke-width="0.6" opacity="0.6"/></svg></div>
                                         <div class="mini-icon" style="background:#f093fb;"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" stroke="white" stroke-width="0.7" fill="none"/><circle cx="4" cy="4" r="1.5" stroke="white" stroke-width="0.7" fill="none"/></svg></div>
                                         <div class="mini-icon" style="background:#4ecdc4;"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 7L4 1L6.5 7H1.5Z" stroke="white" stroke-width="0.7" fill="none"/></svg></div>
+                                        <!-- НОВАЯ ИКОНКА С ЗАГЛУШКОЙ -->
                                         <div class="mini-icon new-app" style="border-radius:5px;overflow:hidden;background:linear-gradient(135deg,#667eea,#764ba2);">
-                                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M5 1V9M1 5H9" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+                                            <img src="icon-192.png" width="14" height="14" style="display:block;width:100%;height:100%;object-fit:cover;" 
+                                                onerror="this.style.display='none';this.parentNode.innerHTML='<svg width=\'10\' height=\'10\' viewBox=\'0 0 10 10\' fill=\'none\'><path d=\'M5 1V9M1 5H9\' stroke=\'white\' stroke-width=\'1.5\' stroke-linecap=\'round\'/></svg>'"/>
                                         </div>
                                         <div class="mini-icon" style="background:#e17055;"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><circle cx="4" cy="3" r="2" stroke="white" stroke-width="0.7" fill="none"/><path d="M1 7.5C1 5.8 2.3 5 4 5C5.7 5 7 5.8 7 7.5" stroke="white" stroke-width="0.7" fill="none" stroke-linecap="round"/></svg></div>
                                     </div>
@@ -877,7 +825,6 @@
     </div>
 
     <script>
-        // === 1. ПРОВЕРКА АВТОРИЗАЦИИ ПРИ ЗАГРУЗКЕ ===
         window.onload = function() {
             const userStr = localStorage.getItem("currentUser");
             if (userStr) {
@@ -889,7 +836,6 @@
                 } catch(e) { console.error("Ошибка парсинга пользователя", e); }
             }
             
-            // Регистрация Service Worker
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('sw.js')
                     .then(() => console.log('Service Worker зарегистрирован'))
@@ -897,7 +843,6 @@
             }
         };
 
-        // === 2. ЛОГИКА ЗАГРУЗКИ ===
         function showLoader(text) {
             document.getElementById("loaderText").innerText = text;
             document.getElementById("globalLoader").classList.add("active");
@@ -954,7 +899,6 @@
             }
         }
 
-        // === 3. ЛОГИКА PWA УСТАНОВКИ (Android/iOS) ===
         let deferredPrompt;
         const installContainer = document.getElementById('installContainer');
         const installBtn = document.getElementById('installBtn');
@@ -1009,7 +953,8 @@
                 installContainer.style.display = 'block';
                 if (installBtn) {
                     installBtn.innerHTML = '<i class="fa-solid fa-share-from-square"></i> Инструкция для iOS';
-                    installBtn.style.background = '#007aff';
+                    // КНОПКА ЗЕЛЁНАЯ
+                    installBtn.style.background = '#28a745';
                     installBtn.onclick = openIosModal;
                 }
             }
