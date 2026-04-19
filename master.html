@@ -62,6 +62,168 @@
             background: #34c759;
             color: white;
         }
+
+        /* ===== ТЁМНАЯ ФОРМА ОТЧЁТА ===== */
+        #reportScreen {
+            background: #ffffff;
+        }
+
+        #reportScreen .card {
+            background: #1c1c1e;
+            border: none;
+            border-radius: 12px;
+            color: #ffffff;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        #reportScreen #reportAddress {
+            color: #ffffff;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        #reportScreen #reportProblem {
+            color: #c7c7cc;
+            font-size: 14px;
+        }
+
+        #reportScreen .form-group {
+            margin-bottom: 16px;
+        }
+
+        #reportScreen .form-group label {
+            display: block;
+            color: #1c1c1e;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        #reportScreen .form-control {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #1c1c1e;
+            border-radius: 12px;
+            background: #ffffff;
+            color: #1c1c1e;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        #reportScreen .form-control:focus {
+            outline: none;
+            border-color: #007aff;
+        }
+
+        #reportScreen .form-control::placeholder {
+            color: #8e8e93;
+        }
+
+        /* Чекбокс "Бесплатно" в тёмном стиле */
+        #reportScreen .free-toggle {
+            background: #1c1c1e;
+            border: 2px solid #3a3a3c;
+            padding: 16px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+            cursor: pointer;
+        }
+
+        #reportScreen .free-toggle input {
+            transform: scale(1.5);
+            margin-right: 15px;
+            accent-color: #34c759;
+        }
+
+        #reportScreen .free-toggle span {
+            font-weight: 600;
+            color: #34c759;
+            font-size: 16px;
+        }
+
+        /* Итого блок */
+        #reportScreen .total-price {
+            background: #1c1c1e;
+            border: 2px solid #3a3a3c;
+            color: #007aff;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 20px;
+            font-weight: 700;
+            text-align: right;
+            margin-bottom: 16px;
+        }
+
+        /* Кнопка в тёмном стиле */
+        #reportScreen .btn-primary {
+            background: #34c759;
+            color: #ffffff;
+            border: none;
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        #reportScreen .btn-primary:disabled {
+            opacity: 0.6;
+        }
+
+        /* Кнопка "Назад" */
+        #reportScreen .btn:first-child {
+            background: #f2f2f7;
+            color: #007aff;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        /* ===== ПЛАШКА УВЕДОМЛЕНИЙ ===== */
+        .push-reminder {
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            border-left: 4px solid #ff9500;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            display: none;
+            cursor: pointer;
+            transition: transform 0.15s;
+        }
+        .push-reminder:active {
+            transform: scale(0.98);
+        }
+        .push-reminder.show {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .push-reminder i {
+            font-size: 24px;
+            color: #ff9500;
+        }
+        .push-reminder-text h4 {
+            margin: 0 0 4px 0;
+            font-size: 14px;
+            color: #1c1c1e;
+        }
+        .push-reminder-text p {
+            margin: 0;
+            font-size: 12px;
+            color: #8e8e93;
+        }
+        .push-reminder-arrow {
+            margin-left: auto;
+            color: #ff9500;
+            font-size: 14px;
+        }
     </style>
 
     <!-- ONESIGNAL PUSH NOTIFICATIONS -->
@@ -102,13 +264,12 @@
         updatePushUI();
       });
       
-            // Обработка клика по push-уведомлению
+      // Обработка клика по push-уведомлению
       OneSignalDeferred.push(async function(OneSignal) {
           OneSignal.Notifications.addEventListener("click", function(event) {
               if (currentUser) {
                   localStorage.removeItem("cachedMasterTickets_" + currentUser.name);
               }
-              // Переключаемся на вкладку "Задачи" при клике по уведомлению
               switchTab('tasks');
           });
       });
@@ -155,6 +316,16 @@
         
         <!-- ЭКРАН 1: ЗАДАЧИ -->
         <div id="tab-tasks" class="tab-content active">
+            <!-- ПЛАШКА УВЕДОМЛЕНИЙ -->
+            <div class="push-reminder" id="pushReminder" onclick="switchTab('profile')">
+                <i class="fa-regular fa-bell"></i>
+                <div class="push-reminder-text">
+                    <h4>Включите уведомления</h4>
+                    <p>Чтобы не пропустить новые заявки</p>
+                </div>
+                <i class="fa-solid fa-chevron-right push-reminder-arrow"></i>
+            </div>
+
             <div id="loadingTasks" class="inline-loader" style="display: none;">
                 <i class="fa-solid fa-circle-notch fa-spin"></i><br>Поиск задач...
             </div>
@@ -234,7 +405,8 @@
     <div class="container" id="reportScreen" style="display: none; padding-bottom: 20px;">
         <button class="btn" style="background: #f2f2f7; color: #007aff; margin-bottom: 15px;" onclick="closeReport()"><i class="fa-solid fa-chevron-left"></i> Назад к списку</button>
         
-        <div class="card" style="background: #f9f9f9; border-left: 4px solid #007aff;">
+        <!-- Удалены inline-стили, чтобы работала тёмная тема из CSS -->
+        <div class="card">
             <div id="reportAddress" style="font-weight: 700; margin-bottom: 5px;"></div>
             <div id="reportProblem" style="font-size: 14px; color: #555;"></div>
         </div>
@@ -299,7 +471,6 @@
             window.addEventListener('offline', () => showToast(false));
             window.addEventListener('online', () => showToast(true));
 
-            // Проверяем при загрузке
             if (!navigator.onLine) showToast(false);
         })();
         // ===== КОНЕЦ OFFLINE TOAST =====
@@ -573,6 +744,28 @@
             localStorage.removeItem("currentUser");
             window.location.href = "index.html";
         }
+
+        // ===== ПЛАШКА УВЕДОМЛЕНИЙ (ИСПРАВЛЕННЫЙ КОД) =====
+        function checkPushReminder() {
+            const reminder = document.getElementById("pushReminder");
+            if (!reminder) return;
+            
+            window.OneSignalDeferred.push(function(OneSignal) {
+                const isSubscribed = OneSignal.User.PushSubscription.optedIn;
+                if (!isSubscribed) {
+                    reminder.classList.add("show");
+                } else {
+                    reminder.classList.remove("show");
+                }
+            });
+        }
+
+        // Обёртка для loadTickets - теперь функция существует!
+        const originalLoadTickets = loadTickets;
+        loadTickets = async function() {
+            await originalLoadTickets();
+            checkPushReminder();
+        };
     </script>
 </body>
 </html>
