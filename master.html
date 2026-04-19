@@ -10,7 +10,42 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .ticket-card { border-left: 4px solid #ff9500; cursor: pointer; transition: 0.2s; }
+        /* Бейдж для незакрытых заявок */
+        .ticket-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #ff3b30;
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 6px 10px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    box-shadow: 0 2px 8px rgba(255, 59, 48, 0.3);
+    animation: pulse 2s infinite;
+}
+
+        .ticket-badge i {
+    font-size: 12px;
+}
+
+       @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+         /* Чтобы бейдж позиционировался корректно */
+        .ticket-card {
+    position: relative;
+    border-left: 4px solid #ff9500;
+    cursor: pointer;
+    transition: 0.2s;
+}
         .ticket-card:active { background: #f9f9f9; transform: scale(0.98); }
         .ticket-date { font-size: 12px; color: #8e8e93; margin-bottom: 8px;}
         .ticket-address { font-size: 16px; font-weight: 700; color: #1c1c1e; margin-bottom: 4px;}
@@ -643,23 +678,28 @@
         }
 
         function renderMasterTickets(tickets) {
-            const container = document.getElementById("ticketsContainer");
-            const msg = document.getElementById("emptyMsg");
-            container.innerHTML = "";
-            msg.style.display = "none";
-            if (tickets.length === 0) { msg.style.display = "block"; return; }
-            tickets.forEach(ticket => {
-                const div = document.createElement("div");
-                div.className = "card ticket-card";
-                div.innerHTML = `
-                    <div class="ticket-date"><i class="fa-regular fa-clock"></i> ${ticket.date}</div>
-                    <div class="ticket-address">${ticket.address}</div>
-                    <div class="ticket-problem"><i class="fa-solid fa-wrench" style="color:#8e8e93;"></i> ${ticket.problem}</div>
-                `;
-                div.onclick = () => openReportForm(ticket);
-                container.appendChild(div);
-            });
-        }
+    const container = document.getElementById("ticketsContainer");
+    const msg = document.getElementById("emptyMsg");
+    container.innerHTML = "";
+    msg.style.display = "none";
+    if (tickets.length === 0) { msg.style.display = "block"; return; }
+    
+    tickets.forEach(ticket => {
+        const div = document.createElement("div");
+        div.className = "card ticket-card";
+        div.innerHTML = `
+            <div class="ticket-badge">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span>Закройте заявку</span>
+            </div>
+            <div class="ticket-date"><i class="fa-regular fa-clock"></i> ${ticket.date}</div>
+            <div class="ticket-address">${ticket.address}</div>
+            <div class="ticket-problem"><i class="fa-solid fa-wrench" style="color:#8e8e93;"></i> ${ticket.problem}</div>
+        `;
+        div.onclick = () => openReportForm(ticket);
+        container.appendChild(div);
+    });
+}
 
         function openReportForm(ticket) {
             activeTicketId = ticket.id;
