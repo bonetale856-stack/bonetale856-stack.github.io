@@ -17,6 +17,7 @@
         .edit-btn { background: #f2f2f7; color: #007aff; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 12px; margin-left: 4px;}
         .close-btn { background: #fff0f0; color: #ff3b30; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 12px; margin-left: 4px;}
 
+        /* ===== МОДАЛКИ ===== */
         #editModal, #closeTicketModal {
             display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.5); z-index: 1000;
@@ -31,6 +32,7 @@
             margin: auto;
         }
 
+        /* ===== ФОРМА ЗАКРЫТИЯ ===== */
         .free-toggle {
             background: #f2f2f7; padding: 14px 16px; border-radius: 12px;
             display: flex; align-items: center; margin-bottom: 14px;
@@ -60,8 +62,20 @@
             margin-bottom: 6px; font-size: 13px;
         }
 
+        /* ===== БЕЙДЖ НА КНОПКЕ "НОВЫЕ" ===== */
         .nav-item { position: relative; }
+        .nav-badge {
+            position: absolute; top: -8px; right: -14px;
+            background: #ff3b30; color: white;
+            font-size: 10px; font-weight: 800;
+            min-width: 16px; height: 16px;
+            border-radius: 8px; padding: 0 4px;
+            display: none; align-items: center; justify-content: center;
+            line-height: 1;
+        }
+        .nav-badge.show { display: flex; }
 
+        /* ===== ПРОФИЛЬ ===== */
         .profile-hero {
             background: linear-gradient(135deg, #007aff 0%, #0055d4 100%);
             border-radius: 20px; padding: 30px 20px 25px;
@@ -161,9 +175,8 @@
             text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 8px 4px;
         }
 
-        .empty-state {
-            text-align: center; padding: 50px 20px; color: #8e8e93;
-        }
+        /* Пустой экран */
+        .empty-state { text-align: center; padding: 50px 20px; color: #8e8e93; }
         .empty-state i { font-size: 48px; margin-bottom: 12px; display: block; color: #d1d1d6; }
         .empty-state h3 { margin: 0 0 6px; color: #3a3a3c; }
         .empty-state p { margin: 0; font-size: 13px; }
@@ -396,15 +409,7 @@
         <div class="nav-item" onclick="switchTab('new')" id="nav-new">
             <i class="fa-solid fa-bolt"></i>
             <span style="position:relative;">
-                Новые
-                <span id="navBadge" style="
-                    position: absolute; top: -8px; right: -14px;
-                    background: #ff3b30; color: white;
-                    font-size: 10px; font-weight: 800;
-                    min-width: 16px; height: 16px;
-                    border-radius: 8px; padding: 0 4px;
-                    display: none; align-items: center; justify-content: center;
-                "></span>
+                Новые<span class="nav-badge" id="navBadge"></span>
             </span>
         </div>
         <div class="nav-item" onclick="switchTab('done')" id="nav-done">
@@ -418,20 +423,24 @@
     <script>
         const URL_GOOGLE_SERVER = "https://script.google.com/macros/s/AKfycbxfMMoR5LATkWt4HeT8XCxjOipYSay-c_9YVZExPPZ9edVLciR4YbHrqjadC_nSdFGfjg/exec";
 
-        let allAddresses  = [];
-        let allMasters    = [];
-        let currentUser   = null;
+        // Микро-кэш DOM
+        const $ = (id) => document.getElementById(id);
+
+        let allAddresses   = [];
+        let allMasters     = [];
+        let currentUser    = null;
         let myTicketsArray = [];
         let currentEditId  = null;
         let currentCloseId = null;
 
+        // ===== ИНИЦИАЛИЗАЦИЯ =====
         window.onload = async function () {
             const userStr = localStorage.getItem("currentUser");
             if (!userStr) { window.location.replace("index.html"); return; }
             currentUser = JSON.parse(userStr);
             if (currentUser.role !== "диспетчер") { window.location.replace("index.html"); return; }
 
-            document.getElementById("profileName").innerText = currentUser.name;
+            $("profileName").innerText = currentUser.name;
 
             if (!window.location.hash) {
                 history.replaceState({ tab: 'create' }, "", "#create");
@@ -439,28 +448,32 @@
                 applyTab(window.location.hash.replace('#', ''));
             }
 
-            fetch(URL_GOOGLE_SERVER + "?action=getAddresses")
-                .then(r => r.json())
-                .then(addrs => { allAddresses = addrs.map(a => String(a).trim()); });
+            // Параллельная загрузка адресов и мастеров
+            try {
+                const [addrs, users] = await Promise.all([
+                    fetch(URL_GOOGLE_SERVER + "?action=getAddresses").then(r => r.json()),
+                    fetch(URL_GOOGLE_SERVER).then(r => r.json())
+                ]);
+                allAddresses = addrs.map(a => String(a).trim());
+                allMasters   = users.filter(u => u.role === "мастер").map(u => String(u.name).trim());
+            } catch (e) {
+                console.log("Ошибка загрузки справочников", e);
+            }
 
-            fetch(URL_GOOGLE_SERVER)
-                .then(r => r.json())
-                .then(users => {
-                    allMasters = users.filter(u => u.role === "мастер").map(u => String(u.name).trim());
-                });
-
+            // Закрываем дропдауны при клике вне
             document.addEventListener('click', function (e) {
-                const ids = ['address','masterInput','editAddress','editMaster'];
+                const ids     = ['address','masterInput','editAddress','editMaster'];
                 const dropIds = ['customAddressList','customMasterList','customEditAddressList','customEditMasterList'];
                 ids.forEach((id, i) => {
                     if (e.target.id !== id) {
-                        const el = document.getElementById(dropIds[i]);
+                        const el = $(dropIds[i]);
                         if (el) el.style.display = 'none';
                     }
                 });
             });
         };
 
+        // ===== КНОПКА "НАЗАД" =====
         window.addEventListener('popstate', (event) => {
             applyTab(event.state && event.state.tab ? event.state.tab : 'create');
         });
@@ -473,9 +486,9 @@
         function applyTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            
-            const tabEl = document.getElementById('tab-' + tabName);
-            const navEl = document.getElementById('nav-' + tabName);
+
+            const tabEl = $('tab-' + tabName);
+            const navEl = $('nav-' + tabName);
             if (tabEl) tabEl.classList.add('active');
             if (navEl) navEl.classList.add('active');
 
@@ -485,18 +498,18 @@
                 'done':    'Закрытые заявки',
                 'profile': 'Профиль'
             };
-            document.getElementById('headerTitle').innerText = titles[tabName] || 'Служба ЖКХ';
+            $('headerTitle').innerText = titles[tabName] || 'Служба ЖКХ';
 
-            if (tabName === 'new')     loadMyTickets('new');
-            if (tabName === 'done')    loadMyTickets('done');
+            if (tabName === 'new' || tabName === 'done') loadMyTickets();
             if (tabName === 'profile') loadStats();
         }
 
+        // ===== СОЗДАНИЕ ЗАЯВКИ =====
         async function sendTicket() {
-            const address = document.getElementById("address").value.trim();
-            const problem = document.getElementById("problem").value.trim();
-            const master  = document.getElementById("masterInput").value.trim();
-            const btn     = document.getElementById("btnSubmitTicket");
+            const address = $("address").value.trim();
+            const problem = $("problem").value.trim();
+            const master  = $("masterInput").value.trim();
+            const btn     = $("btnSubmitTicket");
 
             if (!address || !problem || !master) { alert("Заполните все поля!"); return; }
             if (!allAddresses.includes(address)) { alert("❌ Такого адреса нет в базе! Выберите из списка."); return; }
@@ -515,9 +528,13 @@
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa-solid fa-check"></i> Готово!';
                 btn.style.background = "#34c759";
-                document.getElementById("address").value    = "";
-                document.getElementById("problem").value    = "";
-                document.getElementById("masterInput").value = "";
+                $("address").value     = "";
+                $("problem").value     = "";
+                $("masterInput").value = "";
+
+                // Кэш устарел — чистим
+                localStorage.removeItem("cachedDispatcherTickets_" + currentUser.name);
+
                 setTimeout(() => {
                     btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить заявку';
                     btn.style.background = "#007aff";
@@ -529,27 +546,22 @@
             }
         }
 
-        async function loadMyTickets(type) {
-            const containerNew  = document.getElementById("ticketsContainerNew");
-            const containerDone = document.getElementById("ticketsContainerDone");
-            const msgNew        = document.getElementById("noTicketsMsgNew");
-            const msgDone       = document.getElementById("noTicketsMsgDone");
+        // ===== ЗАГРУЗКА ЗАЯВОК (ОБЩАЯ ДЛЯ ОБЕИХ ВКЛАДОК) =====
+        async function loadMyTickets() {
+            const containerNew  = $("ticketsContainerNew");
+            const containerDone = $("ticketsContainerDone");
 
-            if (type === 'new') {
-                if (!containerNew.innerHTML.trim()) {
-                    msgNew.style.display = 'block';
-                    msgNew.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><p>Загрузка...</p>';
-                }
-            } else {
-                if (!containerDone.innerHTML.trim()) {
-                    msgDone.style.display = 'block';
-                    msgDone.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><p>Загрузка...</p>';
-                }
+            // Лоадер показываем только если контейнеры пусты
+            if (!containerNew.innerHTML.trim())  showLoader('New');
+            if (!containerDone.innerHTML.trim()) showLoader('Done');
+
+            // Сначала кэш
+            const cached = localStorage.getItem("cachedDispatcherTickets_" + currentUser.name);
+            if (cached) {
+                try { renderTicketsList(JSON.parse(cached)); } catch (e) {}
             }
 
-            const cached = localStorage.getItem("cachedDispatcherTickets_" + currentUser.name);
-            if (cached) renderTicketsList(JSON.parse(cached));
-
+            // Потом свежие данные
             try {
                 const res = await fetch(URL_GOOGLE_SERVER + "?action=getDispatcherTickets&dispatcherName=" + encodeURIComponent(currentUser.name));
                 const freshTickets = await res.json();
@@ -557,10 +569,22 @@
                 renderTicketsList(freshTickets);
             } catch (e) {
                 if (!cached) {
-                    msgNew.innerHTML  = '<i class="fa-solid fa-wifi-slash"></i><h3>Нет сети</h3>';
-                    msgDone.innerHTML = '<i class="fa-solid fa-wifi-slash"></i><h3>Нет сети</h3>';
+                    showError('New');
+                    showError('Done');
                 }
             }
+        }
+
+        function showLoader(suffix) {
+            const msg = $('noTicketsMsg' + suffix);
+            msg.style.display = 'block';
+            msg.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><p>Загрузка...</p>';
+        }
+
+        function showError(suffix) {
+            const msg = $('noTicketsMsg' + suffix);
+            msg.style.display = 'block';
+            msg.innerHTML = '<i class="fa-solid fa-wifi-slash"></i><h3>Нет сети</h3><p>Проверьте интернет</p>';
         }
 
         function renderTicketsList(ticketsArray) {
@@ -569,21 +593,31 @@
             const newTickets  = ticketsArray.filter(t => t.status === "Новая");
             const doneTickets = ticketsArray.filter(t => t.status !== "Новая");
 
-            const badge = document.getElementById('navBadge');
+            // Бейдж на кнопке "Новые"
+            const badge = $('navBadge');
             if (newTickets.length > 0) {
-                badge.style.display = 'flex';
+                badge.classList.add('show');
                 badge.innerText = newTickets.length > 99 ? '99+' : newTickets.length;
             } else {
-                badge.style.display = 'none';
+                badge.classList.remove('show');
             }
 
-            renderGroup(newTickets, 'ticketsContainerNew', 'noTicketsMsgNew', '<i class="fa-solid fa-bolt"></i><h3>Нет активных заявок</h3><p>Все заявки обработаны!</p>', true);
-            renderGroup(doneTickets, 'ticketsContainerDone', 'noTicketsMsgDone', '<i class="fa-solid fa-check-double"></i><h3>Нет закрытых заявок</h3><p>Закрытые заявки появятся здесь</p>', false);
+            renderGroup(
+                newTickets, 'ticketsContainerNew', 'noTicketsMsgNew',
+                '<i class="fa-solid fa-bolt"></i><h3>Нет активных заявок</h3><p>Все заявки обработаны!</p>',
+                true
+            );
+
+            renderGroup(
+                doneTickets, 'ticketsContainerDone', 'noTicketsMsgDone',
+                '<i class="fa-solid fa-check-double"></i><h3>Нет закрытых заявок</h3><p>Закрытые заявки появятся здесь</p>',
+                false
+            );
         }
 
         function renderGroup(tickets, containerId, msgId, emptyHtml, isNew) {
-            const container = document.getElementById(containerId);
-            const msg       = document.getElementById(msgId);
+            const container = $(containerId);
+            const msg       = $(msgId);
             container.innerHTML = "";
             msg.style.display = "none";
 
@@ -593,6 +627,7 @@
                 return;
             }
 
+            const frag = document.createDocumentFragment();
             tickets.forEach(ticket => {
                 const div = document.createElement("div");
                 div.className = "card";
@@ -620,33 +655,35 @@
                         <div><i class="fa-solid fa-helmet-safety"></i> ${ticket.master}</div>
                         ${actionHtml}
                     </div>`;
-                container.appendChild(div);
+                frag.appendChild(div);
             });
+            container.appendChild(frag);
         }
 
+        // ===== РЕДАКТИРОВАНИЕ =====
         function openEditModal(id) {
             currentEditId = id;
             const ticket = myTicketsArray.find(t => t.id == id);
             if (ticket) {
-                document.getElementById("editAddress").value = ticket.address;
-                document.getElementById("editProblem").value = ticket.problem;
-                document.getElementById("editMaster").value  = ticket.master;
-                document.getElementById("editModal").style.display = "flex";
+                $("editAddress").value = ticket.address;
+                $("editProblem").value = ticket.problem;
+                $("editMaster").value  = ticket.master;
+                $("editModal").style.display = "flex";
             }
         }
 
-        function closeEditModal() { document.getElementById("editModal").style.display = "none"; }
+        function closeEditModal() { $("editModal").style.display = "none"; }
 
         async function saveEdit() {
-            const newAddress = document.getElementById("editAddress").value.trim();
-            const newProblem = document.getElementById("editProblem").value.trim();
-            const newMaster  = document.getElementById("editMaster").value.trim();
+            const newAddress = $("editAddress").value.trim();
+            const newProblem = $("editProblem").value.trim();
+            const newMaster  = $("editMaster").value.trim();
 
             if (!newAddress || !newProblem || !newMaster) { alert("Заполните все поля!"); return; }
             if (!allAddresses.includes(newAddress)) { alert("❌ Такого адреса нет в базе!"); return; }
             if (!allMasters.includes(newMaster))    { alert("❌ Такого мастера нет!"); return; }
 
-            const btn = document.getElementById("btnSaveEdit");
+            const btn = $("btnSaveEdit");
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Сохраняем...';
 
@@ -659,11 +696,9 @@
                 closeEditModal();
                 btn.disabled = false;
                 btn.innerHTML = '💾 Сохранить изменения';
-                
-                // ИСПРАВЛЕНО: обновляем оба экрана
+                // Инвалидируем кэш и перезагружаем
                 localStorage.removeItem("cachedDispatcherTickets_" + currentUser.name);
-                loadMyTickets('new');
-                loadMyTickets('done');
+                loadMyTickets();
             } catch (e) {
                 alert("Ошибка сохранения. Проверьте интернет.");
                 btn.disabled = false;
@@ -671,62 +706,63 @@
             }
         }
 
+        // ===== ЗАКРЫТИЕ ЗАЯВКИ =====
         function openCloseModal(id) {
             currentCloseId = id;
             const ticket = myTicketsArray.find(t => t.id == id);
             if (!ticket) return;
 
-            document.getElementById("closeAddress").innerText  = "📍 " + ticket.address;
-            document.getElementById("closeProblem").innerText  = ticket.problem;
-            document.getElementById("closeDescription").value  = "";
-            document.getElementById("closeIsFree").checked     = false;
-            document.getElementById("closeWork").value         = "0";
-            document.getElementById("closeMaterial").value     = "0";
-            document.getElementById("closeDelivery").value     = "0";
-            document.getElementById("closeTotal").innerText    = "0";
+            $("closeAddress").innerText = "📍 " + ticket.address;
+            $("closeProblem").innerText = ticket.problem;
+            $("closeDescription").value = "";
+            $("closeIsFree").checked    = false;
+            $("closeWork").value        = "0";
+            $("closeMaterial").value    = "0";
+            $("closeDelivery").value    = "0";
+            $("closeTotal").innerText   = "0";
 
             toggleCloseMoney();
-            document.getElementById("closeTicketModal").style.display = "flex";
+            $("closeTicketModal").style.display = "flex";
 
-            setTimeout(() => document.getElementById("closeDescription").focus(), 150);
+            setTimeout(() => $("closeDescription").focus(), 150);
         }
 
         function closeCloseModal() {
-            document.getElementById("closeTicketModal").style.display = "none";
+            $("closeTicketModal").style.display = "none";
             currentCloseId = null;
         }
 
         function toggleCloseMoney() {
-            const isFree = document.getElementById("closeIsFree").checked;
-            document.getElementById("closeMoneyBlock").style.display = isFree ? "none" : "block";
+            const isFree = $("closeIsFree").checked;
+            $("closeMoneyBlock").style.display = isFree ? "none" : "block";
             if (!isFree) calcCloseTotal();
         }
 
         function calcCloseTotal() {
-            const w = parseInt(document.getElementById("closeWork").value)     || 0;
-            const m = parseInt(document.getElementById("closeMaterial").value) || 0;
-            const d = parseInt(document.getElementById("closeDelivery").value) || 0;
-            document.getElementById("closeTotal").innerText = w + m + d;
+            const w = parseInt($("closeWork").value, 10)     || 0;
+            const m = parseInt($("closeMaterial").value, 10) || 0;
+            const d = parseInt($("closeDelivery").value, 10) || 0;
+            $("closeTotal").innerText = w + m + d;
         }
 
         async function confirmCloseTicket() {
             if (!currentCloseId) return;
 
-            const desc   = document.getElementById("closeDescription").value.trim();
-            const isFree = document.getElementById("closeIsFree").checked;
+            const desc   = $("closeDescription").value.trim();
+            const isFree = $("closeIsFree").checked;
 
             if (!desc) {
                 alert("Напишите описание выполненных работ!");
-                document.getElementById("closeDescription").focus();
+                $("closeDescription").focus();
                 return;
             }
 
-            const workCost     = isFree ? 0 : (parseInt(document.getElementById("closeWork").value)     || 0);
-            const materialCost = isFree ? 0 : (parseInt(document.getElementById("closeMaterial").value) || 0);
-            const deliveryCost = isFree ? 0 : (parseInt(document.getElementById("closeDelivery").value) || 0);
+            const workCost     = isFree ? 0 : (parseInt($("closeWork").value, 10)     || 0);
+            const materialCost = isFree ? 0 : (parseInt($("closeMaterial").value, 10) || 0);
+            const deliveryCost = isFree ? 0 : (parseInt($("closeDelivery").value, 10) || 0);
             const totalCost    = isFree ? 0 : (workCost + materialCost + deliveryCost);
 
-            const btn = document.getElementById("btnConfirmClose");
+            const btn = $("btnConfirmClose");
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Закрываем...';
 
@@ -758,9 +794,9 @@
                 btn.innerHTML = '<i class="fa-solid fa-check-double"></i> Закрыть заявку';
                 closeCloseModal();
 
+                // Один запрос вместо двух
                 localStorage.removeItem("cachedDispatcherTickets_" + currentUser.name);
-                loadMyTickets('new');
-                loadMyTickets('done');
+                loadMyTickets();
 
             } catch (e) {
                 alert("Ошибка при закрытии заявки. Проверьте интернет.");
@@ -769,10 +805,11 @@
             }
         }
 
+        // ===== ПРОФИЛЬ / СТАТИСТИКА =====
         async function loadStats() {
             const cached = localStorage.getItem("cachedDispatcherStats_" + currentUser.name);
             if (cached) renderDispatcherStats(JSON.parse(cached));
-            else document.getElementById("badgeTitle").innerText = "Загрузка...";
+            else $("badgeTitle").innerText = "Загрузка...";
 
             try {
                 const res   = await fetch(URL_GOOGLE_SERVER + "?action=getDispatcherStats&dispatcherName=" + encodeURIComponent(currentUser.name));
@@ -780,7 +817,7 @@
                 localStorage.setItem("cachedDispatcherStats_" + currentUser.name, JSON.stringify(stats));
                 renderDispatcherStats(stats);
             } catch (e) {
-                if (!cached) document.getElementById("badgeTitle").innerText = "Ошибка загрузки";
+                if (!cached) $("badgeTitle").innerText = "Ошибка загрузки";
             }
         }
 
@@ -791,21 +828,23 @@
             let openCount = 0, closedCount = 0;
             const cachedTickets = localStorage.getItem("cachedDispatcherTickets_" + currentUser.name);
             if (cachedTickets) {
-                const arr = JSON.parse(cachedTickets);
-                openCount   = arr.filter(t => t.status === "Новая").length;
-                closedCount = arr.filter(t => t.status !== "Новая").length;
+                try {
+                    const arr = JSON.parse(cachedTickets);
+                    openCount   = arr.filter(t => t.status === "Новая").length;
+                    closedCount = arr.filter(t => t.status !== "Новая").length;
+                } catch (e) { closedCount = total; }
             } else {
                 closedCount = total;
             }
             const rate = total > 0 ? Math.round((closedCount / total) * 100) : 0;
 
-            document.getElementById("statMonthly").innerText = monthly;
-            document.getElementById("statAllTime").innerText = total;
-            document.getElementById("statOpen").innerText    = openCount;
-            document.getElementById("statClosed").innerText  = closedCount;
-            document.getElementById("actOpen").innerText     = openCount;
-            document.getElementById("actClosed").innerText   = closedCount;
-            document.getElementById("actRate").innerText     = rate + "%";
+            $("statMonthly").innerText = monthly;
+            $("statAllTime").innerText = total;
+            $("statOpen").innerText    = openCount;
+            $("statClosed").innerText  = closedCount;
+            $("actOpen").innerText     = openCount;
+            $("actClosed").innerText   = closedCount;
+            $("actRate").innerText     = rate + "%";
 
             const levels = [
                 { min: 0,   max: 50,       title: "Надёжный тыл 🥉",       desc: "Отличное начало! Продолжайте в том же духе.",            icon: "fa-headset",          iconColor: "#8d6e63", bg: "#efebe9", barColor: "linear-gradient(90deg,#8d6e63,#bcaaa4)" },
@@ -815,38 +854,41 @@
             ];
             const level = levels.find(l => total >= l.min && total < l.max) || levels[levels.length - 1];
 
-            document.getElementById("badgeTitle").innerText      = level.title;
-            document.getElementById("badgeDesc").innerText       = level.desc;
-            document.getElementById("badgeIcon").className       = "fa-solid " + level.icon;
-            document.getElementById("badgeIcon").style.color     = level.iconColor;
-            document.getElementById("badgeIconWrap").style.background = level.bg;
+            $("badgeTitle").innerText           = level.title;
+            $("badgeDesc").innerText            = level.desc;
+            $("badgeIcon").className            = "fa-solid " + level.icon;
+            $("badgeIcon").style.color          = level.iconColor;
+            $("badgeIconWrap").style.background = level.bg;
 
-            const fill        = document.getElementById("progressFill");
+            const fill = $("progressFill");
             fill.style.background = level.barColor;
             const progressMax = level.max === Infinity ? (total || 1) : level.max;
             const pct         = Math.min(100, Math.round((total / progressMax) * 100));
             setTimeout(() => { fill.style.width = pct + "%"; }, 100);
-            document.getElementById("progressCurrent").innerText = total;
-            document.getElementById("progressNext").innerText    = level.max === Infinity ? "∞" : level.max;
+            $("progressCurrent").innerText = total;
+            $("progressNext").innerText    = level.max === Infinity ? "∞" : level.max;
         }
 
+        // ===== ПОИСК АДРЕСОВ И МАСТЕРОВ =====
         function buildDropdown(inputId, listId, source, limit) {
-            const input = document.getElementById(inputId).value.toLowerCase();
-            const list  = document.getElementById(listId);
+            const input = $(inputId).value.toLowerCase();
+            const list  = $(listId);
             list.innerHTML = "";
             if (!input && source.length > 5) { list.style.display = "none"; return; }
             const filtered = source.filter(a => a.toLowerCase().includes(input)).slice(0, limit || 15);
             if (filtered.length > 0) {
+                const frag = document.createDocumentFragment();
                 filtered.forEach(val => {
                     const div = document.createElement("div");
                     div.innerText = val;
                     div.className = "dropdown-item";
                     div.onclick = () => {
-                        document.getElementById(inputId).value = val;
+                        $(inputId).value = val;
                         list.style.display = "none";
                     };
-                    list.appendChild(div);
+                    frag.appendChild(div);
                 });
+                list.appendChild(frag);
                 list.style.display = "block";
             } else { list.style.display = "none"; }
         }
