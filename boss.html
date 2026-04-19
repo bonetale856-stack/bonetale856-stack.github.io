@@ -6,300 +6,581 @@
     <meta name="color-scheme" content="light only">
     <meta name="robots" content="noindex, nofollow">
     <title>Шеф</title>
-  <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .money-card { background: linear-gradient(135deg, #34c759, #28a745); color: white; padding: 20px; border-radius: 16px; text-align: center; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(52, 199, 89, 0.3);}
-        .money-card h2 { margin: 0; font-size: 32px; font-weight: 800; }
-        .money-card p { margin: 5px 0 0 0; font-size: 13px; opacity: 0.9; text-transform: uppercase; font-weight: 600;}
-        
-        .top-list { list-style: none; padding: 0; margin: 0; }
-        .top-list li { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f2f2f7; font-size: 15px;}
-        .top-list li:last-child { border-bottom: none; }
-        .top-list li span:first-child { font-weight: 600; color: #1c1c1e; }
-        .top-list li span:last-child { color: #007aff; font-weight: bold; }
+        /* ===== ПРОФИЛЬ-HERO ===== */
+        .profile-hero {
+            background: linear-gradient(135deg, #1c1c1e 0%, #3a3a3c 100%);
+            border-radius: 20px; padding: 28px 20px 22px;
+            text-align: center; margin-bottom: 16px;
+            position: relative; overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+        }
+        .profile-hero::before { content:''; position:absolute; top:-40px; right:-40px; width:160px; height:160px; background:rgba(255,179,0,0.15); border-radius:50%; }
+        .profile-hero::after  { content:''; position:absolute; bottom:-30px; left:-30px; width:120px; height:120px; background:rgba(255,255,255,0.06); border-radius:50%; }
+        .profile-avatar {
+            width: 78px; height: 78px; border-radius: 50%;
+            background: linear-gradient(135deg,#ffb300,#ff8a00);
+            display:flex; align-items:center; justify-content:center;
+            margin: 0 auto 12px; border: 3px solid rgba(255,255,255,0.3);
+            font-size: 30px; color: white; position: relative; z-index: 1;
+            box-shadow: 0 4px 14px rgba(255,138,0,0.4);
+        }
+        .profile-hero h2 { margin: 0 0 4px; color: white; font-size: 22px; font-weight: 800; position: relative; z-index: 1;}
+        .profile-role-badge {
+            display: inline-block; background: rgba(255,179,0,0.25);
+            color: #ffd36b; padding: 4px 14px; border-radius: 20px;
+            font-size: 11px; font-weight: 700; letter-spacing: 0.5px;
+            text-transform: uppercase; margin-top: 4px; position: relative; z-index: 1;
+            border: 1px solid rgba(255,179,0,0.4);
+        }
 
-        /* Стили для заметок шефа */
-        .note-item { background: #f9f9f9; border: 1px solid #e5e5ea; border-radius: 12px; padding: 12px; margin-bottom: 10px; display: flex; align-items: flex-start; gap: 10px; transition: 0.2s;}
-        .note-item.done { opacity: 0.5; background: #f2f2f7; }
-        .note-item.done .note-text { text-decoration: line-through; color: #8e8e93; }
-        .note-checkbox { transform: scale(1.3); margin-top: 3px; cursor: pointer;}
-        .note-text { flex-grow: 1; font-size: 15px; color: #1c1c1e; word-break: break-word; line-height: 1.4;}
-        .note-copy-btn { background: #e5f1ff; color: #007aff; border: none; padding: 6px 10px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.2s;}
-        .note-copy-btn:active { background: #007aff; color: white; }
-        .note-delete { color: #ff3b30; cursor: pointer; padding: 5px; font-size: 16px;}
+        /* ===== ДЕНЬГИ MEGA CARD ===== */
+        .money-mega {
+            background: linear-gradient(135deg, #34c759 0%, #00a550 100%);
+            color: white; padding: 22px 20px; border-radius: 20px;
+            margin-bottom: 14px; position: relative; overflow: hidden;
+            box-shadow: 0 8px 24px rgba(52,199,89,0.35);
+        }
+        .money-mega::before { content:''; position:absolute; top:-30px; right:-30px; width:140px; height:140px; background:rgba(255,255,255,0.1); border-radius:50%; }
+        .money-mega-label { font-size: 12px; opacity: 0.9; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; position: relative; z-index: 1;}
+        .money-mega-value { font-size: 34px; font-weight: 900; line-height: 1; position: relative; z-index: 1;}
+        .money-mega-sub { font-size: 13px; opacity: 0.85; margin-top: 6px; position: relative; z-index: 1;}
 
-        .add-note-box { display: flex; gap: 10px; margin-bottom: 20px; }
-        .add-note-box input { flex-grow: 1; margin: 0; }
-        .add-note-box button { width: auto; margin: 0; padding: 0 20px; }
+        /* ===== STAT GRID ===== */
+        .stats-grid-4 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+        .stat-box-new {
+            background: white; border-radius: 16px; padding: 16px 12px;
+            text-align: center; border: 1.5px solid #f0f0f5;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+        }
+        .stat-icon-wrap { width: 40px; height: 40px; border-radius: 12px; display:flex; align-items:center; justify-content:center; margin: 0 auto 10px; font-size: 18px;}
+        .stat-num-new { font-size: 26px; font-weight: 900; line-height: 1; margin-bottom: 4px; }
+        .stat-label-new { font-size: 11px; color: #8e8e93; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;}
 
-        .ticket-card { border-left: 4px solid #ff3b30; }
+        .section-label { font-size: 11px; font-weight: 700; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.5px; margin: 14px 0 8px 4px; }
+
+        /* ===== ТОП ЛИСТ ===== */
+        .top-card { background: white; border-radius: 16px; padding: 14px 16px; margin-bottom: 14px; border: 1.5px solid #f0f0f5; box-shadow: 0 2px 10px rgba(0,0,0,0.04);}
+        .top-card h3 { margin: 0 0 12px; font-size: 15px; display: flex; align-items: center; gap: 8px; color: #1c1c1e;}
+        .top-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f5f5f5;}
+        .top-row:last-child { border-bottom: none; }
+        .top-rank { width: 26px; height: 26px; border-radius: 50%; background: #f2f2f7; color: #8e8e93; font-weight: 800; font-size: 12px; display:flex; align-items:center; justify-content:center; flex-shrink: 0;}
+        .top-rank.r1 { background: linear-gradient(135deg,#ffd700,#ffb300); color:white; box-shadow: 0 2px 6px rgba(255,179,0,0.4);}
+        .top-rank.r2 { background: linear-gradient(135deg,#c0c0c0,#a0a0a0); color:white;}
+        .top-rank.r3 { background: linear-gradient(135deg,#cd7f32,#a0522d); color:white;}
+        .top-name { flex: 1; font-size: 14px; font-weight: 600; color: #1c1c1e;}
+        .top-val { font-size: 13px; font-weight: 700; color: #007aff;}
+        .top-bar-mini { height: 4px; background: #f2f2f7; border-radius: 2px; margin-top: 4px; overflow: hidden;}
+        .top-bar-mini-fill { height: 100%; background: linear-gradient(90deg,#007aff,#00c2ff); border-radius: 2px;}
+
+        /* ===== КАРТОЧКА ЗАЯВКИ ===== */
+        .ticket-card-hot   { background: white; border-radius: 14px; padding: 14px; margin-bottom: 10px; border-left: 4px solid #ff3b30; box-shadow: 0 2px 10px rgba(0,0,0,0.04);}
+        .ticket-card-done  { background: white; border-radius: 14px; padding: 14px; margin-bottom: 10px; border-left: 4px solid #34c759; box-shadow: 0 2px 10px rgba(0,0,0,0.04);}
+        .ticket-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;}
+        .ticket-tag-hot  { font-size: 11px; color: #ff3b30; background:#fff0f0; padding:3px 8px; border-radius:8px; font-weight:700;}
+        .ticket-tag-done { font-size: 11px; color: #34c759; background:#e8f5e9; padding:3px 8px; border-radius:8px; font-weight:700;}
+        .ticket-time { font-size: 11px; color: #8e8e93;}
+        .ticket-addr { font-weight: 700; font-size: 15px; margin-bottom: 3px; color:#1c1c1e;}
+        .ticket-prob { font-size: 13px; color: #3a3a3c; margin-bottom: 8px; line-height: 1.4;}
+        .ticket-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 12px; border-top: 1px solid #f5f5f5; padding-top: 8px;}
+        .ticket-meta-row { color: #8e8e93; }
+        .ticket-meta-row b { color: #1c1c1e; font-weight: 600;}
+        .ticket-amount { font-size: 13px; color: #34c759; font-weight: 700; margin-top: 6px;}
+
+        /* ===== ПЛАН НА ДЕНЬ ===== */
+        .plan-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;}
+        .plan-date { font-size: 13px; color: #8e8e93; font-weight: 600;}
+
+        .add-note-box {
+            background: white; border-radius: 14px; padding: 12px;
+            margin-bottom: 16px; border: 1.5px solid #f0f0f5;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+        }
+        .add-note-row { display: flex; gap: 8px; }
+        .add-note-row input[type="text"] { flex: 1; margin: 0; padding: 10px 12px; border: 1.5px solid #e5e5ea; border-radius: 10px; font-size: 14px; box-sizing: border-box;}
+        .add-note-row input[type="time"] { width: 90px; margin: 0; padding: 10px 8px; border: 1.5px solid #e5e5ea; border-radius: 10px; font-size: 14px; box-sizing: border-box; text-align: center;}
+        .add-note-row button { width: 44px; height: 42px; margin: 0; padding: 0; border-radius: 10px; background: #007aff; color: white; border: none; font-size: 16px; cursor: pointer;}
+
+        .note-item {
+            background: white; border-radius: 14px; padding: 12px;
+            margin-bottom: 8px; display: flex; align-items: center; gap: 10px;
+            border: 1.5px solid #f0f0f5; box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+            transition: 0.2s;
+        }
+        .note-item.done { opacity: 0.55; background: #fafafa;}
+        .note-item.done .note-text { text-decoration: line-through; color: #8e8e93;}
+        .note-item.overdue { border-left: 4px solid #ff3b30; background: #fffafa;}
+        .note-item.soon    { border-left: 4px solid #ff9500;}
+        .note-checkbox { transform: scale(1.3); cursor: pointer; flex-shrink: 0; accent-color: #007aff;}
+        .note-time {
+            background: #e5f1ff; color: #007aff; font-weight: 700;
+            font-size: 13px; padding: 5px 9px; border-radius: 8px;
+            flex-shrink: 0; min-width: 50px; text-align: center;
+        }
+        .note-item.overdue .note-time { background: #fff0f0; color: #ff3b30;}
+        .note-item.soon    .note-time { background: #fff3e0; color: #ff9500;}
+        .note-time.empty   { background: #f2f2f7; color: #c7c7cc;}
+        .note-text { flex: 1; font-size: 14px; color: #1c1c1e; word-break: break-word; line-height: 1.35;}
+        .note-actions { display: flex; gap: 6px; flex-shrink: 0;}
+        .note-copy-btn, .note-delete-btn {
+            border: none; border-radius: 8px; cursor: pointer; font-size: 13px;
+            width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+        }
+        .note-copy-btn { background: #e5f1ff; color: #007aff;}
+        .note-delete-btn { background: #fff0f0; color: #ff3b30;}
+
+        /* ===== LOGOUT ===== */
+        .logout-btn {
+            display:flex; align-items:center; justify-content:center; gap:8px;
+            width: 100%; padding: 14px; background: white;
+            border: 1.5px solid #ffe5e5; border-radius: 14px;
+            color: #ff3b30; font-size: 15px; font-weight: 700;
+            cursor: pointer; margin: 16px 0 20px;
+        }
+
+        /* ===== EMPTY ===== */
+        .empty-state { text-align: center; padding: 40px 20px; color: #8e8e93;}
+        .empty-state i { font-size: 44px; margin-bottom: 10px; display: block; color: #d1d1d6;}
+        .empty-state h3 { margin: 0 0 4px; color: #3a3a3c; font-size: 16px;}
+        .empty-state p { margin: 0; font-size: 13px;}
+
+        /* ===== FILTER PILLS ===== */
+        .filter-pills { display: flex; gap: 6px; margin-bottom: 12px; overflow-x: auto; padding: 2px; -webkit-overflow-scrolling: touch;}
+        .filter-pill {
+            flex-shrink: 0; padding: 7px 14px; background: white;
+            border: 1.5px solid #e5e5ea; border-radius: 20px;
+            font-size: 12px; font-weight: 600; color: #3a3a3c;
+            cursor: pointer; transition: 0.15s; white-space: nowrap;
+        }
+        .filter-pill.active { background: #007aff; color: white; border-color: #007aff;}
+
+        @keyframes fadeIn { from {opacity:0; transform: translateY(6px);} to {opacity:1; transform: translateY(0);} }
+        .fadein { animation: fadeIn 0.3s both; }
     </style>
 </head>
 <body>
 
-    <div class="top-bar" id="headerTitle">Панель управления</div>
+    <div class="top-bar" id="headerTitle">Горящие заявки</div>
 
     <div class="container" id="mainContainer">
-        
-        <!-- ЭКРАН 1: СТАТИСТИКА -->
-        <div id="tab-stats" class="tab-content active">
-            <div id="loadingStats" class="loader" style="display: none;"><i class="fa-solid fa-circle-notch fa-spin"></i> Загрузка данных...</div>
-            
-            <div id="statsContent" style="display: none;">
-                <div class="money-card">
-                    <h2 id="bossMoney">0 ₽</h2>
-                    <p>С платных вызовов в этом месяце</p>
-                </div>
 
-                <div class="card">
-                    <h3 style="margin-top: 0; border-bottom: 2px solid #007aff; padding-bottom: 8px;"><i class="fa-solid fa-trophy" style="color:#ffb300;"></i> Топ Мастеров</h3>
-                    <ul class="top-list" id="topMastersList"></ul>
-                </div>
-
-                <div class="card">
-                    <h3 style="margin-top: 0; border-bottom: 2px solid #34c759; padding-bottom: 8px;"><i class="fa-solid fa-headset" style="color:#34c759;"></i> Топ Диспетчеров</h3>
-                    <ul class="top-list" id="topDispatchersList"></ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- ЭКРАН 2: В РАБОТЕ (Горящие) -->
-        <div id="tab-active" class="tab-content">
-            <div class="card" style="background: #fff0f0; color: #ff3b30; border: none; text-align: center; margin-bottom: 15px;">
-                <h3 style="margin: 0 0 5px 0;"><i class="fa-solid fa-fire"></i> В работе</h3>
-                <p style="margin: 0; font-size: 13px;">Заявки, на которые мастера еще не съездили.</p>
-            </div>
+        <!-- ЭКРАН 1: В РАБОТЕ (горящие) -->
+        <div id="tab-active" class="tab-content active">
+            <div class="filter-pills" id="activeFilters"></div>
             <div id="activeTicketsContainer"></div>
         </div>
 
-        <!-- ЭКРАН 3: БЛОКНОТ (План на день) -->
+        <!-- ЭКРАН 2: ЗАКРЫТЫЕ -->
+        <div id="tab-closed" class="tab-content">
+            <div class="filter-pills" id="closedFilters"></div>
+            <div id="closedTicketsContainer"></div>
+        </div>
+
+        <!-- ЭКРАН 3: ПЛАН НА ДЕНЬ -->
         <div id="tab-notes" class="tab-content">
+            <div class="plan-header">
+                <div>
+                    <div style="font-weight:800; font-size:17px; color:#1c1c1e;" id="planCountLabel">0 задач</div>
+                    <div class="plan-date" id="planDate"></div>
+                </div>
+                <button onclick="clearDoneNotes()" style="background:#f2f2f7;color:#8e8e93;border:none;padding:8px 12px;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;">
+                    <i class="fa-solid fa-broom"></i> Очистить
+                </button>
+            </div>
             <div class="add-note-box">
-                <input type="text" class="form-control" id="newNoteInput" placeholder="Новая задача (напр: Купить трубы)">
-                <button class="btn btn-primary" onclick="addNote()"><i class="fa-solid fa-plus"></i></button>
+                <div class="add-note-row">
+                    <input type="text" id="newNoteInput" placeholder="Что нужно сделать...">
+                    <input type="time" id="newNoteTime">
+                    <button onclick="addNote()"><i class="fa-solid fa-plus"></i></button>
+                </div>
             </div>
             <div id="notesContainer"></div>
         </div>
 
-        <!-- ЭКРАН 4: ПРОФИЛЬ -->
+        <!-- ЭКРАН 4: ПРОФИЛЬ (+ вся сводка) -->
         <div id="tab-profile" class="tab-content">
-            <div class="card" style="text-align: center;">
-                <div style="background: #e5e5ea; color: #1c1c1e; width: 60px; height: 60px; border-radius: 30px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 15px auto;">
-                    <i class="fa-solid fa-user-secret"></i>
-                </div>
-                <h2 style="margin: 0 0 5px 0; color: #1c1c1e;" id="profileName">Шеф</h2>
-                <p style="margin: 0 0 20px 0; color: #8e8e93; font-weight: 600;">Руководитель</p>
-                <button class="btn btn-danger" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Выйти</button>
+            <div class="profile-hero fadein">
+                <div class="profile-avatar"><i class="fa-solid fa-crown"></i></div>
+                <h2 id="profileName">Шеф</h2>
+                <div class="profile-role-badge">Руководитель</div>
             </div>
-        </div>
 
+            <div class="money-mega fadein">
+                <div class="money-mega-label"><i class="fa-solid fa-sack-dollar"></i> Касса месяца</div>
+                <div class="money-mega-value" id="bossMoney">0 ₽</div>
+                <div class="money-mega-sub">С платных вызовов</div>
+            </div>
+
+            <div class="stats-grid-4 fadein">
+                <div class="stat-box-new">
+                    <div class="stat-icon-wrap" style="background:#fff0f0;"><i class="fa-solid fa-fire" style="color:#ff3b30;"></i></div>
+                    <div class="stat-num-new" id="statActive" style="color:#ff3b30;">—</div>
+                    <div class="stat-label-new">В работе</div>
+                </div>
+                <div class="stat-box-new">
+                    <div class="stat-icon-wrap" style="background:#e8f5e9;"><i class="fa-solid fa-check-double" style="color:#34c759;"></i></div>
+                    <div class="stat-num-new" id="statClosedCount" style="color:#34c759;">—</div>
+                    <div class="stat-label-new">Закрыто</div>
+                </div>
+                <div class="stat-box-new">
+                    <div class="stat-icon-wrap" style="background:#e5f1ff;"><i class="fa-solid fa-helmet-safety" style="color:#007aff;"></i></div>
+                    <div class="stat-num-new" id="statMasters" style="color:#007aff;">—</div>
+                    <div class="stat-label-new">Мастеров</div>
+                </div>
+                <div class="stat-box-new">
+                    <div class="stat-icon-wrap" style="background:#f3e5f5;"><i class="fa-solid fa-headset" style="color:#af52de;"></i></div>
+                    <div class="stat-num-new" id="statDisps" style="color:#af52de;">—</div>
+                    <div class="stat-label-new">Диспетчеров</div>
+                </div>
+            </div>
+
+            <p class="section-label">🏆 Топ мастеров месяца</p>
+            <div class="top-card fadein">
+                <div id="topMastersList"></div>
+            </div>
+
+            <p class="section-label">🎧 Топ диспетчеров месяца</p>
+            <div class="top-card fadein">
+                <div id="topDispatchersList"></div>
+            </div>
+
+            <button class="logout-btn" onclick="logout()">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i> Выйти из аккаунта
+            </button>
+        </div>
     </div>
 
     <!-- НИЖНЕЕ МЕНЮ -->
-    <div class="bottom-nav" id="bottomNav">
-        <div class="nav-item active" onclick="switchTab('stats')" id="nav-stats"><i class="fa-solid fa-chart-pie"></i><span>Сводка</span></div>
-        <div class="nav-item" onclick="switchTab('active')" id="nav-active"><i class="fa-solid fa-fire"></i><span>В работе</span></div>
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab('active')" id="nav-active"><i class="fa-solid fa-fire"></i><span>В работе</span></div>
+        <div class="nav-item" onclick="switchTab('closed')" id="nav-closed"><i class="fa-solid fa-check-double"></i><span>Закрытые</span></div>
         <div class="nav-item" onclick="switchTab('notes')" id="nav-notes"><i class="fa-solid fa-list-check"></i><span>План</span></div>
-        <div class="nav-item" onclick="switchTab('profile')" id="nav-profile"><i class="fa-solid fa-user"></i><span>Профиль</span></div>
+        <div class="nav-item" onclick="switchTab('profile')" id="nav-profile"><i class="fa-solid fa-chart-pie"></i><span>Сводка</span></div>
     </div>
 
     <script>
-        
         const URL_GOOGLE_SERVER = "https://script.google.com/macros/s/AKfycbxfMMoR5LATkWt4HeT8XCxjOipYSay-c_9YVZExPPZ9edVLciR4YbHrqjadC_nSdFGfjg/exec";
-        
+        const $ = id => document.getElementById(id);
+
         let currentUser = null;
         let notes = [];
+        let bossData = null;
+        let activeFilter = 'all';   // all | dispatcher name | master name
+        let closedFilter = 'all';
 
-        window.onload = async function() {
+        window.onload = async function () {
             const userStr = localStorage.getItem("currentUser");
             if (!userStr) { window.location.replace("index.html"); return; }
             currentUser = JSON.parse(userStr);
             if (currentUser.role !== "шеф") { window.location.replace("index.html"); return; }
 
-            document.getElementById("profileName").innerText = currentUser.name;
-            
-            // ЗАЩИТА ОТ СВАЙПОВ
-            if (!window.location.hash) { history.replaceState({tab: 'stats'}, "", "#stats"); } 
-            else { applyTab(window.location.hash.replace('#', '')); }
+            $("profileName").innerText = currentUser.name;
+            updatePlanDate();
 
-            // Загружаем заметки из памяти телефона шефа
+            if (!window.location.hash) history.replaceState({ tab: 'active' }, "", "#active");
+            else applyTab(window.location.hash.replace('#', ''));
+
             const savedNotes = localStorage.getItem("bossNotes");
-            if (savedNotes) notes = JSON.parse(savedNotes);
+            if (savedNotes) { try { notes = JSON.parse(savedNotes); } catch(e){ notes=[]; } }
             renderNotes();
 
-            await loadBossData();
+            loadBossData();
+            // Обновляем подсветку просроченных задач каждую минуту
+            setInterval(renderNotes, 60000);
         };
 
-        window.addEventListener('popstate', (event) => {
-            if (event.state && event.state.tab) applyTab(event.state.tab);
-            else applyTab('stats');
-        });
+        window.addEventListener('popstate', (e) => applyTab(e.state && e.state.tab ? e.state.tab : 'active'));
 
         function switchTab(tabName) {
-            history.pushState({tab: tabName}, "", "#" + tabName);
+            history.pushState({ tab: tabName }, "", "#" + tabName);
             applyTab(tabName);
         }
 
         function applyTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-            
-            const tabEl = document.getElementById('tab-' + tabName);
-            const navEl = document.getElementById('nav-' + tabName);
-            if(tabEl) tabEl.classList.add('active');
-            if(navEl) navEl.classList.add('active');
-            
-            const titles = { 'stats': 'Панель управления', 'active': 'Горящие заявки', 'notes': 'План на день', 'profile': 'Настройки' };
-            document.getElementById('headerTitle').innerText = titles[tabName];
-            
-            if (tabName === 'stats' || tabName === 'active') loadBossData();
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            const tabEl = $('tab-' + tabName), navEl = $('nav-' + tabName);
+            if (tabEl) tabEl.classList.add('active');
+            if (navEl) navEl.classList.add('active');
+            const titles = { 'active':'Горящие заявки','closed':'Закрытые заявки','notes':'План на день','profile':'Сводка' };
+            $('headerTitle').innerText = titles[tabName] || 'Панель';
+            if (tabName === 'active' || tabName === 'closed' || tabName === 'profile') loadBossData();
         }
 
-        // ================= УМНАЯ ЗАГРУЗКА ИЗ ГУГЛА (С КЭШЕМ) =================
-        
+        // ===== ЗАГРУЗКА ДАННЫХ =====
         async function loadBossData() {
-            const loadingSpinner = document.getElementById("loadingStats");
-            const statsContent = document.getElementById("statsContent");
+            const cached = localStorage.getItem("cachedBossData");
+            if (cached) { try { bossData = JSON.parse(cached); renderAll(); } catch(e){} }
 
-            // 1. ИЩЕМ КЭШ В ТЕЛЕФОНЕ (МОМЕНТАЛЬНАЯ ОТРИСОВКА)
-            const cachedData = localStorage.getItem("cachedBossData");
-            if (cachedData) {
-                loadingSpinner.style.display = "none";
-                statsContent.style.display = "block";
-                renderBossData(JSON.parse(cachedData)); // Рисуем старые данные мгновенно
-            } else {
-                loadingSpinner.style.display = "block";
-                statsContent.style.display = "none";
-            }
-
-            // 2. ИДЕМ В ГУГЛ ЗА СВЕЖИМИ ДАННЫМИ (В ФОНЕ)
             try {
-                const response = await fetch(URL_GOOGLE_SERVER + "?action=getBossData");
-                const data = await response.json();
-                
-                loadingSpinner.style.display = "none";
-                statsContent.style.display = "block";
-                
-                // Сохраняем свежие данные в память
+                const res = await fetch(URL_GOOGLE_SERVER + "?action=getBossData");
+                const data = await res.json();
                 localStorage.setItem("cachedBossData", JSON.stringify(data));
-                
-                // Плавно обновляем экран свежими цифрами
-                renderBossData(data);
+                bossData = data;
+                renderAll();
             } catch (e) {
-                if (!cachedData) {
-                    loadingSpinner.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:red;"></i> Ошибка сети';
+                if (!cached) {
+                    $("activeTicketsContainer").innerHTML = `<div class="empty-state"><i class="fa-solid fa-wifi-slash"></i><h3>Нет сети</h3><p>Проверьте интернет</p></div>`;
                 }
             }
         }
 
-        // Вспомогательная функция отрисовки HTML
-        function renderBossData(data) {
-            // РИСУЕМ ДЕНЬГИ
-            document.getElementById("bossMoney").innerText = data.paidMoneyMonth + " ₽";
-
-            // РИСУЕМ ТОП МАСТЕРОВ
-            const mastersList = document.getElementById("topMastersList");
-            mastersList.innerHTML = "";
-            let mKeys = Object.keys(data.topMasters).sort((a,b) => data.topMasters[b] - data.topMasters[a]);
-            mKeys.forEach(k => mastersList.innerHTML += `<li><span>${k}</span> <span>${data.topMasters[k]} шт.</span></li>`);
-
-            // РИСУЕМ ТОП ДИСПЕТЧЕРОВ
-            const dispList = document.getElementById("topDispatchersList");
-            dispList.innerHTML = "";
-            let dKeys = Object.keys(data.topDispatchers).sort((a,b) => data.topDispatchers[b] - data.topDispatchers[a]);
-            dKeys.forEach(k => dispList.innerHTML += `<li><span>${k}</span> <span>${data.topDispatchers[k]} шт.</span></li>`);
-
-            // РИСУЕМ ГОРЯЩИЕ ЗАЯВКИ
-            const activeContainer = document.getElementById("activeTicketsContainer");
-            activeContainer.innerHTML = "";
-            if (data.activeTickets.length === 0) {
-                activeContainer.innerHTML = "<div class='card' style='text-align:center; color:#8e8e93;'>Сейчас нет горящих заявок. Все работают!</div>";
-            } else {
-                data.activeTickets.forEach(t => {
-                    activeContainer.innerHTML += `
-                        <div class="card ticket-card">
-                            <div style="font-size:12px; color:#ff3b30; font-weight:bold; margin-bottom:5px;"><i class="fa-regular fa-clock"></i> В ожидании</div>
-                            <div style="font-weight: bold; font-size: 16px; margin-bottom: 4px;">${t.address}</div>
-                            <div style="font-size: 14px; color: #3a3a3c; margin-bottom: 8px;">${t.problem}</div>
-                            <div style="font-size: 13px; color: #8e8e93; border-top: 1px solid #eee; padding-top: 8px;"><i class="fa-solid fa-helmet-safety"></i> Назначен: <b>${t.master}</b></div>
-                        </div>`;
-                });
-            }
+        function renderAll() {
+            if (!bossData) return;
+            renderMoney();
+            renderStats();
+            renderTopList('topMastersList', bossData.topMasters || {}, 'fa-helmet-safety', '#007aff');
+            renderTopList('topDispatchersList', bossData.topDispatchers || {}, 'fa-headset', '#af52de');
+            renderActive();
+            renderClosed();
         }
 
-        // ================= ЛОГИКА БЛОКНОТА (ЗАМЕТКИ) =================
-        function renderNotes() {
-            const container = document.getElementById("notesContainer");
+        function renderMoney() {
+            const m = bossData.paidMoneyMonth || 0;
+            $("bossMoney").innerText = Number(m).toLocaleString('ru-RU') + " ₽";
+        }
+
+        function renderStats() {
+            const active = (bossData.activeTickets || []).length;
+            const closed = (bossData.closedTickets || []).length;
+            $("statActive").innerText      = active;
+            $("statClosedCount").innerText = closed;
+            $("statMasters").innerText     = Object.keys(bossData.topMasters || {}).length;
+            $("statDisps").innerText       = Object.keys(bossData.topDispatchers || {}).length;
+        }
+
+        function renderTopList(containerId, obj, icon, color) {
+            const keys = Object.keys(obj).sort((a,b) => obj[b] - obj[a]);
+            const container = $(containerId);
             container.innerHTML = "";
-            if (notes.length === 0) {
-                container.innerHTML = "<p style='text-align:center; color:#8e8e93;'>План пуст. Добавьте первую задачу!</p>";
+            if (keys.length === 0) {
+                container.innerHTML = `<div style="text-align:center;color:#8e8e93;padding:14px;font-size:13px;">Пока нет данных</div>`;
                 return;
             }
-            
-            notes.forEach((note, index) => {
-                const div = document.createElement("div");
-                div.className = "note-item " + (note.done ? "done" : "");
-                
-                // ЭКШН-КНОПКА С КОПИРОВАНИЕМ
+            const max = obj[keys[0]] || 1;
+            keys.forEach((k, i) => {
+                const rank = i + 1;
+                const rankClass = rank <= 3 ? `r${rank}` : '';
+                const pct = Math.round((obj[k] / max) * 100);
+                const row = document.createElement('div');
+                row.className = 'top-row';
+                row.innerHTML = `
+                    <div class="top-rank ${rankClass}">${rank}</div>
+                    <div style="flex:1;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <span class="top-name"><i class="fa-solid ${icon}" style="color:${color};font-size:11px;margin-right:4px;"></i>${k}</span>
+                            <span class="top-val" style="color:${color};">${obj[k]} шт.</span>
+                        </div>
+                        <div class="top-bar-mini"><div class="top-bar-mini-fill" style="width:${pct}%;background:linear-gradient(90deg,${color},${color}aa);"></div></div>
+                    </div>`;
+                container.appendChild(row);
+            });
+        }
+
+        // ===== АКТИВНЫЕ ЗАЯВКИ =====
+        function renderActive() {
+            const tickets = bossData.activeTickets || [];
+            renderFilters('activeFilters', tickets, activeFilter, (v) => { activeFilter = v; renderActive(); });
+            const filtered = activeFilter === 'all' ? tickets : tickets.filter(t => t.dispatcher === activeFilter || t.master === activeFilter);
+            const container = $("activeTicketsContainer");
+            container.innerHTML = "";
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-mug-hot"></i><h3>Горящих нет</h3><p>Все работают!</p></div>`;
+                return;
+            }
+            filtered.forEach(t => {
+                const div = document.createElement('div');
+                div.className = 'ticket-card-hot fadein';
                 div.innerHTML = `
-                    <input type="checkbox" class="note-checkbox" ${note.done ? 'checked' : ''} onchange="toggleNote(${index})">
-                    <div class="note-text" id="note-text-${index}">${note.text}</div>
-                    <button class="note-copy-btn" onclick="copyNote(${index}, this)"><i class="fa-regular fa-copy"></i> Копия</button>
-                    <div class="note-delete" onclick="deleteNote(${index})"><i class="fa-solid fa-xmark"></i></div>
-                `;
+                    <div class="ticket-head">
+                        <span class="ticket-tag-hot"><i class="fa-regular fa-clock"></i> В ожидании</span>
+                        <span class="ticket-time">${formatDate(t.createdAt)}</span>
+                    </div>
+                    <div class="ticket-addr"><i class="fa-solid fa-location-dot" style="color:#ff3b30;font-size:12px;"></i> ${t.address}</div>
+                    <div class="ticket-prob">${t.problem}</div>
+                    <div class="ticket-meta">
+                        <div class="ticket-meta-row"><i class="fa-solid fa-headset"></i> Диспетчер: <b>${t.dispatcher || '—'}</b></div>
+                        <div class="ticket-meta-row"><i class="fa-solid fa-helmet-safety"></i> Мастер: <b>${t.master || '—'}</b></div>
+                    </div>`;
+                container.appendChild(div);
+            });
+        }
+
+        // ===== ЗАКРЫТЫЕ ЗАЯВКИ =====
+        function renderClosed() {
+            const tickets = bossData.closedTickets || [];
+            renderFilters('closedFilters', tickets, closedFilter, (v) => { closedFilter = v; renderClosed(); });
+            const filtered = closedFilter === 'all' ? tickets : tickets.filter(t => t.dispatcher === closedFilter || t.master === closedFilter || t.closedBy === closedFilter);
+            const container = $("closedTicketsContainer");
+            container.innerHTML = "";
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-check-double"></i><h3>Нет закрытых</h3><p>Закрытые заявки появятся здесь</p></div>`;
+                return;
+            }
+            filtered.forEach(t => {
+                const amount = t.totalCost ? `<div class="ticket-amount"><i class="fa-solid fa-ruble-sign"></i> ${Number(t.totalCost).toLocaleString('ru-RU')} ₽ ${t.paymentType === 'Бесплатно' ? '(бесплатно)' : ''}</div>` : '';
+                const div = document.createElement('div');
+                div.className = 'ticket-card-done fadein';
+                div.innerHTML = `
+                    <div class="ticket-head">
+                        <span class="ticket-tag-done"><i class="fa-solid fa-check"></i> Выполнено</span>
+                        <span class="ticket-time">${formatDate(t.closedAt || t.createdAt)}</span>
+                    </div>
+                    <div class="ticket-addr"><i class="fa-solid fa-location-dot" style="color:#34c759;font-size:12px;"></i> ${t.address}</div>
+                    <div class="ticket-prob">${t.problem || ''}</div>
+                    <div class="ticket-meta">
+                        <div class="ticket-meta-row"><i class="fa-solid fa-headset"></i> Создал: <b>${t.dispatcher || '—'}</b></div>
+                        <div class="ticket-meta-row"><i class="fa-solid fa-helmet-safety"></i> Мастер: <b>${t.master || '—'}</b></div>
+                        <div class="ticket-meta-row" style="grid-column: span 2;"><i class="fa-solid fa-flag-checkered"></i> Закрыл: <b>${t.closedBy || t.master || '—'}</b></div>
+                    </div>
+                    ${amount}`;
+                container.appendChild(div);
+            });
+        }
+
+        // ===== ФИЛЬТРЫ ПО ДИСПЕТЧЕРАМ / МАСТЕРАМ =====
+        function renderFilters(containerId, tickets, current, onChange) {
+            const container = $(containerId);
+            const disps   = [...new Set(tickets.map(t => t.dispatcher).filter(Boolean))];
+            const masters = [...new Set(tickets.map(t => t.master).filter(Boolean))];
+            container.innerHTML = '';
+            const add = (label, val) => {
+                const p = document.createElement('div');
+                p.className = 'filter-pill' + (current === val ? ' active' : '');
+                p.innerText = label;
+                p.onclick = () => onChange(val);
+                container.appendChild(p);
+            };
+            add('Все', 'all');
+            disps.forEach(d => add('🎧 ' + d, d));
+            masters.forEach(m => add('🔧 ' + m, m));
+        }
+
+        function formatDate(v) {
+            if (!v) return '';
+            try {
+                const d = new Date(v);
+                if (isNaN(d.getTime())) return v;
+                return d.toLocaleString('ru-RU', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+            } catch(e) { return v; }
+        }
+
+        // ===== ПЛАН НА ДЕНЬ =====
+        function updatePlanDate() {
+            const d = new Date();
+            $("planDate").innerText = d.toLocaleDateString('ru-RU', { weekday:'long', day:'numeric', month:'long' });
+        }
+
+        function nowMinutes() {
+            const d = new Date();
+            return d.getHours() * 60 + d.getMinutes();
+        }
+        function timeToMinutes(t) {
+            if (!t) return null;
+            const [h, m] = t.split(':').map(Number);
+            return h * 60 + m;
+        }
+
+        function renderNotes() {
+            const sorted = [...notes].sort((a, b) => {
+                if (a.done !== b.done) return a.done ? 1 : -1;
+                const ta = timeToMinutes(a.time), tb = timeToMinutes(b.time);
+                if (ta === null && tb === null) return 0;
+                if (ta === null) return 1;
+                if (tb === null) return -1;
+                return ta - tb;
+            });
+
+            const container = $("notesContainer");
+            container.innerHTML = "";
+
+            const activeCount = notes.filter(n => !n.done).length;
+            $("planCountLabel").innerText = activeCount === 0 ? 'Всё сделано 🎉' : `${activeCount} ${plural(activeCount,['задача','задачи','задач'])}`;
+
+            if (notes.length === 0) {
+                container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-clipboard-check"></i><h3>План пуст</h3><p>Добавьте первую задачу</p></div>`;
+                return;
+            }
+
+            const now = nowMinutes();
+            sorted.forEach(note => {
+                const realIndex = notes.indexOf(note);
+                let extraClass = note.done ? 'done' : '';
+                const tMin = timeToMinutes(note.time);
+                if (!note.done && tMin !== null) {
+                    if (tMin < now) extraClass += ' overdue';
+                    else if (tMin - now <= 30) extraClass += ' soon';
+                }
+                const timeHtml = note.time
+                    ? `<div class="note-time">${note.time}</div>`
+                    : `<div class="note-time empty"><i class="fa-regular fa-clock"></i></div>`;
+
+                const div = document.createElement('div');
+                div.className = 'note-item ' + extraClass;
+                div.innerHTML = `
+                    <input type="checkbox" class="note-checkbox" ${note.done ? 'checked' : ''} onchange="toggleNote(${realIndex})">
+                    ${timeHtml}
+                    <div class="note-text">${escapeHtml(note.text)}</div>
+                    <div class="note-actions">
+                        <button class="note-copy-btn" onclick="copyNote(${realIndex}, this)"><i class="fa-regular fa-copy"></i></button>
+                        <button class="note-delete-btn" onclick="deleteNote(${realIndex})"><i class="fa-solid fa-xmark"></i></button>
+                    </div>`;
                 container.appendChild(div);
             });
             localStorage.setItem("bossNotes", JSON.stringify(notes));
         }
 
+        function plural(n, forms) {
+            const mod10 = n % 10, mod100 = n % 100;
+            if (mod10 === 1 && mod100 !== 11) return forms[0];
+            if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return forms[1];
+            return forms[2];
+        }
+
+        function escapeHtml(s) {
+            return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        }
+
         function addNote() {
-            const input = document.getElementById("newNoteInput");
+            const input = $("newNoteInput");
+            const timeInput = $("newNoteTime");
             const text = input.value.trim();
-            if (text) {
-                notes.unshift({ text: text, done: false }); // Добавляем наверх списка
-                input.value = "";
-                renderNotes();
-            }
-        }
-
-        function toggleNote(index) {
-            notes[index].done = !notes[index].done;
+            if (!text) return;
+            notes.push({ text, time: timeInput.value || '', done: false, createdAt: Date.now() });
+            input.value = "";
+            timeInput.value = "";
             renderNotes();
         }
 
-        function deleteNote(index) {
-            notes.splice(index, 1);
+        function toggleNote(i) { notes[i].done = !notes[i].done; renderNotes(); }
+        function deleteNote(i) { notes.splice(i, 1); renderNotes(); }
+
+        function clearDoneNotes() {
+            if (!notes.some(n => n.done)) return;
+            if (!confirm('Удалить все выполненные задачи?')) return;
+            notes = notes.filter(n => !n.done);
             renderNotes();
         }
 
-        // МАГИЯ КОПИРОВАНИЯ В БУФЕР ОБМЕНА (ДЛЯ WHATSAPP)
-        function copyNote(index, btnElement) {
-            const textToCopy = notes[index].text;
-            navigator.clipboard.writeText(textToCopy).then(() => {
-                // Визуальный эффект успешного копирования
-                const originalHTML = btnElement.innerHTML;
-                btnElement.innerHTML = '<i class="fa-solid fa-check"></i> В буфере!';
-                btnElement.style.background = "#34c759";
-                btnElement.style.color = "white";
-                setTimeout(() => {
-                    btnElement.innerHTML = originalHTML;
-                    btnElement.style.background = "#e5f1ff";
-                    btnElement.style.color = "#007aff";
-                }, 1500);
-            }).catch(err => {
-                alert("Ошибка копирования: " + err);
+        function copyNote(i, btn) {
+            const n = notes[i];
+            const text = n.time ? `${n.time} — ${n.text}` : n.text;
+            navigator.clipboard.writeText(text).then(() => {
+                const orig = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+                btn.style.background = "#34c759"; btn.style.color = "white";
+                setTimeout(() => { btn.innerHTML = orig; btn.style.background=""; btn.style.color=""; }, 1200);
             });
         }
 
         function logout() { localStorage.removeItem("currentUser"); window.location.replace("index.html"); }
     </script>
-      <script>
+    <script>
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js')
-                .then(() => console.log('Service Worker зарегистрирован'))
-                .catch(err => console.log('Ошибка SW', err));
+            navigator.serviceWorker.register('sw.js').catch(() => {});
         }
     </script>
 </body>
