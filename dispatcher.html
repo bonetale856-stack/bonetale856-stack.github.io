@@ -3,34 +3,198 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-     <meta name="robots" content="noindex, nofollow">
+    <meta name="robots" content="noindex, nofollow">
     <meta name="color-scheme" content="light only">
     <title>Диспетчер</title>
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* ===== ОБЩИЕ ===== */
         .status-badge { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; display: inline-block; margin-bottom: 8px;}
         .status-new { background: #e5f1ff; color: #007aff; }
         .status-done { background: #e8f5e9; color: #34c759; }
         .ticket-info { font-size: 13px; color: #8e8e93; margin-top: 8px; border-top: 1px solid #f2f2f7; padding-top: 8px; display: flex; justify-content: space-between; align-items: center;}
-        
-        .stats-grid { display: flex; gap: 10px; margin-bottom: 20px; }
-        .stat-box { flex: 1; background: #f9f9f9; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid #eee; }
-        .stat-num { font-size: 24px; font-weight: 800; color: #007aff; margin-bottom: 5px; }
-        .stat-label { font-size: 12px; color: #8e8e93; font-weight: 600; text-transform: uppercase;}
-        
-        .badge-card { background: linear-gradient(135deg, #e5f1ff, #bbdefb); padding: 15px; border-radius: 12px; display: flex; align-items: center; gap: 15px; margin-bottom: 20px;}
-        .badge-icon { font-size: 35px; color: #007aff; }
-        .badge-text h4 { margin: 0 0 5px 0; color: #1c1c1e; font-size: 16px;}
-        .badge-text p { margin: 0; font-size: 13px; color: #0d47a1;}
+        .edit-btn { background: #f2f2f7; color: #007aff; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 12px; margin-left: 4px;}
+        .close-btn { background: #fff0f0; color: #ff3b30; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 12px; margin-left: 4px;}
 
-        /* Кнопка редактирования в карточке */
-        .edit-btn { background: #f2f2f7; color: #007aff; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 12px;}
-        
-        /* Модальное окно редактирования */
-        #editModal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; padding: 20px;}
+        /* ===== МОДАЛКИ ===== */
+        #editModal, #closeTicketModal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; padding: 20px;}
         .modal-content { background: white; padding: 20px; border-radius: 16px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: fadeIn 0.2s;}
+
+        /* ===== ПРОФИЛЬ — ГЛАВНАЯ КАРТОЧКА ===== */
+        .profile-hero {
+            background: linear-gradient(135deg, #007aff 0%, #0055d4 100%);
+            border-radius: 20px;
+            padding: 30px 20px 25px;
+            text-align: center;
+            margin-bottom: 16px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,122,255,0.25);
+        }
+        .profile-hero::before {
+            content: '';
+            position: absolute;
+            top: -40px; right: -40px;
+            width: 160px; height: 160px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 50%;
+        }
+        .profile-hero::after {
+            content: '';
+            position: absolute;
+            bottom: -30px; left: -30px;
+            width: 120px; height: 120px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 50%;
+        }
+        .profile-avatar {
+            width: 80px; height: 80px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 14px;
+            border: 3px solid rgba(255,255,255,0.5);
+            font-size: 32px; color: white;
+            position: relative; z-index: 1;
+        }
+        .profile-hero h2 { margin: 0 0 4px; color: white; font-size: 22px; font-weight: 800; position: relative; z-index: 1;}
+        .profile-role-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            color: rgba(255,255,255,0.9);
+            padding: 4px 14px; border-radius: 20px;
+            font-size: 12px; font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-top: 6px;
+            position: relative; z-index: 1;
+        }
+        .profile-online-dot {
+            display: inline-block;
+            width: 8px; height: 8px;
+            background: #4cd964;
+            border-radius: 50%;
+            margin-right: 5px;
+            box-shadow: 0 0 6px #4cd964;
+        }
+
+        /* ===== ПРОФИЛЬ — СТАТИСТИКА ===== */
+        .stats-grid-4 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .stat-box-new {
+            background: white;
+            border-radius: 16px;
+            padding: 16px 12px;
+            text-align: center;
+            border: 1.5px solid #f0f0f5;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+            transition: transform 0.15s;
+        }
+        .stat-box-new:active { transform: scale(0.97); }
+        .stat-icon-wrap {
+            width: 40px; height: 40px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 10px;
+            font-size: 18px;
+        }
+        .stat-num-new { font-size: 28px; font-weight: 900; line-height: 1; margin-bottom: 4px; }
+        .stat-label-new { font-size: 11px; color: #8e8e93; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;}
+
+        /* ===== ПРОФИЛЬ — ДОСТИЖЕНИЕ ===== */
+        .achievement-card {
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 14px;
+            border: 1.5px solid #f0f0f5;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+        }
+        .achievement-header {
+            display: flex; align-items: center; gap: 14px; margin-bottom: 12px;
+        }
+        .achievement-icon-wrap {
+            width: 52px; height: 52px;
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px; flex-shrink: 0;
+        }
+        .achievement-title { font-size: 16px; font-weight: 800; color: #1c1c1e; margin: 0 0 3px;}
+        .achievement-subtitle { font-size: 12px; color: #8e8e93; margin: 0;}
+
+        /* Прогресс-бар */
+        .progress-wrap { margin-top: 4px; }
+        .progress-bar-bg {
+            background: #f2f2f7;
+            border-radius: 10px; height: 8px;
+            overflow: hidden; margin-bottom: 6px;
+        }
+        .progress-bar-fill {
+            height: 100%; border-radius: 10px;
+            background: linear-gradient(90deg, #007aff, #00c2ff);
+            transition: width 1s cubic-bezier(.4,0,.2,1);
+        }
+        .progress-labels { display: flex; justify-content: space-between; font-size: 11px; color: #8e8e93; font-weight: 600;}
+
+        /* ===== ПРОФИЛЬ — АКТИВНОСТЬ ===== */
+        .activity-card {
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 14px;
+            border: 1.5px solid #f0f0f5;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+        }
+        .activity-title { font-size: 14px; font-weight: 800; color: #1c1c1e; margin: 0 0 12px;}
+        .activity-row {
+            display: flex; align-items: center;
+            gap: 10px; padding: 8px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        .activity-row:last-child { border-bottom: none; }
+        .activity-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .activity-text { font-size: 13px; color: #3a3a3c; flex: 1; }
+        .activity-val { font-size: 13px; font-weight: 700; }
+
+        /* ===== КНОПКА ВЫХОДА ===== */
+        .logout-btn {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            width: 100%; padding: 14px;
+            background: white;
+            border: 1.5px solid #ffe5e5;
+            border-radius: 14px;
+            color: #ff3b30;
+            font-size: 15px; font-weight: 700;
+            cursor: pointer;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(255,59,48,0.07);
+            transition: background 0.15s;
+        }
+        .logout-btn:active { background: #fff0f0; }
+
+        /* ===== СЕКЦИЯ-ЗАГОЛОВОК ===== */
+        .section-label {
+            font-size: 11px; font-weight: 700;
+            color: #8e8e93; text-transform: uppercase;
+            letter-spacing: 0.5px; margin: 0 0 8px 4px;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Анимация появления блоков профиля */
+        .profile-animate {
+            animation: fadeIn 0.4s both;
+        }
+        .profile-animate:nth-child(2) { animation-delay: 0.07s; }
+        .profile-animate:nth-child(3) { animation-delay: 0.14s; }
+        .profile-animate:nth-child(4) { animation-delay: 0.21s; }
+        .profile-animate:nth-child(5) { animation-delay: 0.28s; }
     </style>
 </head>
 <body>
@@ -38,30 +202,24 @@
     <div class="top-bar" id="headerTitle">Новая заявка</div>
 
     <div class="container">
-        
-                <!-- ЭКРАН 1: СОЗДАТЬ ЗАЯВКУ -->
+
+        <!-- ЭКРАН 1: СОЗДАТЬ ЗАЯВКУ -->
         <div id="tab-create" class="tab-content active">
             <div class="card">
-                
                 <div class="form-group" style="position: relative;">
                     <label><i class="fa-solid fa-location-dot"></i> Адрес:</label>
                     <input type="text" class="form-control" id="address" placeholder="Начните вводить адрес..." oninput="filterAddresses()" onfocus="filterAddresses()">
-                    <!-- Наш красивый список -->
                     <div id="customAddressList" class="custom-dropdown"></div>
                 </div>
-
                 <div class="form-group">
                     <label><i class="fa-solid fa-triangle-exclamation"></i> Проблема:</label>
                     <textarea class="form-control" id="problem" rows="3" placeholder="Что случилось..."></textarea>
                 </div>
-
                 <div class="form-group" style="position: relative;">
                     <label><i class="fa-solid fa-helmet-safety"></i> Назначить мастера:</label>
                     <input type="text" class="form-control" id="masterInput" placeholder="Начните вводить ФИО..." oninput="filterMasters()" onfocus="filterMasters()">
-                    <!-- Наш красивый список -->
                     <div id="customMasterList" class="custom-dropdown"></div>
                 </div>
-
                 <button class="btn btn-primary" id="btnSubmitTicket" onclick="sendTicket()">
                     <i class="fa-solid fa-paper-plane"></i> Отправить заявку
                 </button>
@@ -79,31 +237,109 @@
 
         <!-- ЭКРАН 3: ПРОФИЛЬ -->
         <div id="tab-profile" class="tab-content">
-            <div class="card" style="text-align: center; margin-bottom: 15px; border-bottom: 4px solid #007aff;">
-                <h2 style="margin: 0 0 5px 0; color: #1c1c1e;" id="profileName">Загрузка...</h2>
-                <p style="margin: 0; color: #8e8e93; font-weight: 600;">Диспетчер</p>
-            </div>
 
-            <div class="badge-card" id="achievementBadge">
-                <div class="badge-icon"><i class="fa-solid fa-medal" id="badgeIcon"></i></div>
-                <div class="badge-text">
-                    <h4 id="badgeTitle">Загружаем статус...</h4><p id="badgeDesc">...</p>
+            <!-- Героическая карточка -->
+            <div class="profile-hero profile-animate">
+                <div class="profile-avatar">
+                    <i class="fa-solid fa-headset"></i>
+                </div>
+                <h2 id="profileName">Загрузка...</h2>
+                <div class="profile-role-badge">
+                    <span class="profile-online-dot"></span>Диспетчер
                 </div>
             </div>
 
-            <div class="stats-grid">
-                <div class="stat-box"><div class="stat-num" id="statMonthly">0</div><div class="stat-label">В этом месяце</div></div>
-                <div class="stat-box"><div class="stat-num" id="statAllTime" style="color: #34c759;">0</div><div class="stat-label">За всё время</div></div>
+            <!-- Статистика 2×2 -->
+            <p class="section-label profile-animate">Статистика</p>
+            <div class="stats-grid-4 profile-animate">
+                <div class="stat-box-new">
+                    <div class="stat-icon-wrap" style="background:#e5f1ff;">
+                        <i class="fa-solid fa-calendar-day" style="color:#007aff;"></i>
+                    </div>
+                    <div class="stat-num-new" id="statMonthly" style="color:#007aff;">—</div>
+                    <div class="stat-label-new">В этом месяце</div>
+                </div>
+                <div class="stat-box-new">
+                    <div class="stat-icon-wrap" style="background:#e8f5e9;">
+                        <i class="fa-solid fa-check-double" style="color:#34c759;"></i>
+                    </div>
+                    <div class="stat-num-new" id="statAllTime" style="color:#34c759;">—</div>
+                    <div class="stat-label-new">За всё время</div>
+                </div>
+                <div class="stat-box-new">
+                    <div class="stat-icon-wrap" style="background:#fff3e0;">
+                        <i class="fa-solid fa-bolt" style="color:#ff9500;"></i>
+                    </div>
+                    <div class="stat-num-new" id="statOpen" style="color:#ff9500;">—</div>
+                    <div class="stat-label-new">Открытых</div>
+                </div>
+                <div class="stat-box-new">
+                    <div class="stat-icon-wrap" style="background:#f3e5f5;">
+                        <i class="fa-solid fa-star" style="color:#af52de;"></i>
+                    </div>
+                    <div class="stat-num-new" id="statClosed" style="color:#af52de;">—</div>
+                    <div class="stat-label-new">Закрытых</div>
+                </div>
             </div>
-            <button class="btn btn-danger" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Выйти</button>
-        </div>
 
+            <!-- Достижение + прогресс -->
+            <p class="section-label profile-animate">Достижение</p>
+            <div class="achievement-card profile-animate" id="achievementBadge">
+                <div class="achievement-header">
+                    <div class="achievement-icon-wrap" id="badgeIconWrap" style="background:#e5f1ff;">
+                        <i class="fa-solid fa-medal" id="badgeIcon" style="color:#007aff;"></i>
+                    </div>
+                    <div>
+                        <div class="achievement-title" id="badgeTitle">Загружаем статус...</div>
+                        <div class="achievement-subtitle" id="badgeDesc">...</div>
+                    </div>
+                </div>
+                <div class="progress-wrap">
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" id="progressFill" style="width:0%;"></div>
+                    </div>
+                    <div class="progress-labels">
+                        <span id="progressCurrent">0</span>
+                        <span id="progressNext">50</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Активность -->
+            <p class="section-label profile-animate">Активность</p>
+            <div class="activity-card profile-animate" id="activityCard">
+                <div class="activity-title">📊 Разбивка по статусам</div>
+                <div class="activity-row">
+                    <div class="activity-dot" style="background:#007aff;"></div>
+                    <div class="activity-text">Новые (активные)</div>
+                    <div class="activity-val" id="actOpen" style="color:#007aff;">—</div>
+                </div>
+                <div class="activity-row">
+                    <div class="activity-dot" style="background:#34c759;"></div>
+                    <div class="activity-text">Закрытые</div>
+                    <div class="activity-val" id="actClosed" style="color:#34c759;">—</div>
+                </div>
+                <div class="activity-row">
+                    <div class="activity-dot" style="background:#ff9500;"></div>
+                    <div class="activity-text">Процент закрытия</div>
+                    <div class="activity-val" id="actRate" style="color:#ff9500;">—</div>
+                </div>
+            </div>
+
+            <!-- Выход -->
+            <button class="logout-btn profile-animate" onclick="logout()">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i> Выйти из аккаунта
+            </button>
+
+        </div>
     </div>
 
-       <!-- МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ -->
+    <!-- МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ -->
     <div id="editModal">
         <div class="modal-content">
-            <h3 style="margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px;">Редактировать заявку</h3>
+            <h3 style="margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+                <i class="fa-solid fa-pen" style="color:#007aff;"></i> Редактировать заявку
+            </h3>
             <div class="form-group" style="position: relative;">
                 <label>Адрес:</label>
                 <input type="text" class="form-control" id="editAddress" oninput="filterEditAddresses()" onfocus="filterEditAddresses()">
@@ -123,218 +359,207 @@
         </div>
     </div>
 
+    <!-- МОДАЛЬНОЕ ОКНО ЗАКРЫТИЯ ЗАЯВКИ -->
+    <div id="closeTicketModal">
+        <div class="modal-content">
+            <h3 style="margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+                <i class="fa-solid fa-circle-check" style="color:#34c759;"></i> Закрыть заявку
+            </h3>
+            <p style="color:#3a3a3c; font-size:15px; margin-bottom:20px;">
+                Вы уверены, что хотите закрыть эту заявку?<br>
+                <span style="font-size:13px; color:#8e8e93;">Это действие нельзя отменить.</span>
+            </p>
+            <button class="btn" id="btnConfirmClose" onclick="confirmCloseTicket()"
+                style="background:#34c759; color:white; margin-bottom:10px; font-weight:700;">
+                <i class="fa-solid fa-check"></i> Да, закрыть
+            </button>
+            <button class="btn" style="background:#f2f2f7; color:#ff3b30;" onclick="closeCloseModal()">Отмена</button>
+        </div>
+    </div>
+
     <!-- НИЖНЕЕ МЕНЮ -->
     <div class="bottom-nav">
-        <div class="nav-item active" onclick="switchTab('create')" id="nav-create"><i class="fa-solid fa-plus"></i><span>Создать</span></div>
-        <div class="nav-item" onclick="switchTab('list')" id="nav-list"><i class="fa-solid fa-folder-open"></i><span>Заявки</span></div>
-        <div class="nav-item" onclick="switchTab('profile')" id="nav-profile"><i class="fa-solid fa-user"></i><span>Профиль</span></div>
+        <div class="nav-item active" onclick="switchTab('create')" id="nav-create">
+            <i class="fa-solid fa-plus"></i><span>Создать</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('list')" id="nav-list">
+            <i class="fa-solid fa-folder-open"></i><span>Заявки</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('profile')" id="nav-profile">
+            <i class="fa-solid fa-user"></i><span>Профиль</span>
+        </div>
     </div>
 
     <script>
         const URL_GOOGLE_SERVER = "https://script.google.com/macros/s/AKfycbxfMMoR5LATkWt4HeT8XCxjOipYSay-c_9YVZExPPZ9edVLciR4YbHrqjadC_nSdFGfjg/exec";
-        
+
         let allAddresses = [];
         let allMasters = [];
         let currentUser = null;
-        let myTicketsArray = []; // Сохраняем загруженные заявки тут
+        let myTicketsArray = [];
         let currentEditId = null;
+        let currentCloseId = null; // ID заявки для закрытия
 
-         window.onload = async function() {
-    const userStr = localStorage.getItem("currentUser");
-    if (!userStr) { window.location.replace("index.html"); return; }
-    currentUser = JSON.parse(userStr);
-    if (currentUser.role !== "диспетчер") { window.location.replace("index.html"); return; }
+        // ===== ИНИЦИАЛИЗАЦИЯ =====
+        window.onload = async function () {
+            const userStr = localStorage.getItem("currentUser");
+            if (!userStr) { window.location.replace("index.html"); return; }
+            currentUser = JSON.parse(userStr);
+            if (currentUser.role !== "диспетчер") { window.location.replace("index.html"); return; }
 
-    document.getElementById("profileName").innerText = currentUser.name;
-    
-    // Магия для кнопки "Назад"
-    if (!window.location.hash) {
-        history.replaceState({tab: 'create'}, "", "#create");
-    } else {
-        let hashTab = window.location.hash.replace('#', '');
-        applyTab(hashTab);
-    }
+            document.getElementById("profileName").innerText = currentUser.name;
 
-    // === НОВАЯ ЗАГРУЗКА БАЗ (В ПАМЯТЬ) ===
- // 1. Грузим адреса (Превращаем в текст и отрезаем случайные пробелы из Гугла)
-    fetch(URL_GOOGLE_SERVER + "?action=getAddresses")
-        .then(r => r.json())
-        .then(addrs => {
-            allAddresses = addrs.map(a => String(a).trim()); 
-        });
-    
-    // 2. Грузим мастеров (То же самое)
-    fetch(URL_GOOGLE_SERVER)
-        .then(r => r.json())
-        .then(users => {
-            allMasters = users.filter(u => u.role === "мастер").map(u => String(u.name).trim());
-        });
-    
-    // 3. Закрываем списки при клике вне их (чтобы не висели)
-    document.addEventListener('click', function(e) {
-        if (e.target.id !== 'address') document.getElementById('customAddressList').style.display = 'none';
-        if (e.target.id !== 'masterInput') document.getElementById('customMasterList').style.display = 'none';
-    });
-};
-
-        // === МАГИЯ ДЛЯ КНОПКИ "НАЗАД" (Шаг 2) ===
-        // Слушаем свайп "Назад" на телефоне
-        window.addEventListener('popstate', (event) => {
-            if (event.state && event.state.tab) {
-                applyTab(event.state.tab); // Переключаем на предыдущую вкладку
+            if (!window.location.hash) {
+                history.replaceState({ tab: 'create' }, "", "#create");
             } else {
-                applyTab('create'); // Если истории нет - кидаем на первую вкладку
+                applyTab(window.location.hash.replace('#', ''));
             }
+
+            fetch(URL_GOOGLE_SERVER + "?action=getAddresses")
+                .then(r => r.json())
+                .then(addrs => { allAddresses = addrs.map(a => String(a).trim()); });
+
+            fetch(URL_GOOGLE_SERVER)
+                .then(r => r.json())
+                .then(users => { allMasters = users.filter(u => u.role === "мастер").map(u => String(u.name).trim()); });
+
+            document.addEventListener('click', function (e) {
+                if (e.target.id !== 'address') document.getElementById('customAddressList').style.display = 'none';
+                if (e.target.id !== 'masterInput') document.getElementById('customMasterList').style.display = 'none';
+                if (e.target.id !== 'editAddress') { let el = document.getElementById('customEditAddressList'); if (el) el.style.display = 'none'; }
+                if (e.target.id !== 'editMaster') { let el = document.getElementById('customEditMasterList'); if (el) el.style.display = 'none'; }
+            });
+        };
+
+        // ===== НАВИГАЦИЯ =====
+        window.addEventListener('popstate', (event) => {
+            applyTab(event.state && event.state.tab ? event.state.tab : 'create');
         });
 
-        // Когда кликаем по меню - записываем это в историю телефона
         function switchTab(tabName) {
-            history.pushState({tab: tabName}, "", "#" + tabName);
+            history.pushState({ tab: tabName }, "", "#" + tabName);
             applyTab(tabName);
         }
 
-        // Сама логика перекрашивания кнопок меню
         function applyTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-            
-            // Защита от ошибок
-            const tabElement = document.getElementById('tab-' + tabName);
-            const navElement = document.getElementById('nav-' + tabName);
-            if(tabElement) tabElement.classList.add('active');
-            if(navElement) navElement.classList.add('active');
-            
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            const tabEl = document.getElementById('tab-' + tabName);
+            const navEl = document.getElementById('nav-' + tabName);
+            if (tabEl) tabEl.classList.add('active');
+            if (navEl) navEl.classList.add('active');
             const titles = { 'create': 'Новая заявка', 'list': 'История заявок', 'profile': 'Профиль' };
             document.getElementById('headerTitle').innerText = titles[tabName] || 'Служба ЖКХ';
-
             if (tabName === 'list') loadMyTickets();
             if (tabName === 'profile') loadStats();
         }
 
-                async function sendTicket() {
+        // ===== СОЗДАНИЕ ЗАЯВКИ =====
+        async function sendTicket() {
             const address = document.getElementById("address").value.trim();
             const problem = document.getElementById("problem").value.trim();
             const master = document.getElementById("masterInput").value.trim();
             const btn = document.getElementById("btnSubmitTicket");
 
-            if (!address || !problem || !master) { 
-                alert("Заполните все поля!"); 
-                return; 
-            }
+            if (!address || !problem || !master) { alert("Заполните все поля!"); return; }
+            if (!allAddresses.includes(address)) { alert("❌ Ошибка: Такого адреса нет в базе! Выберите адрес из выпадающего списка."); return; }
+            if (!allMasters.includes(master)) { alert("❌ Ошибка: Такого мастера не существует! Выберите ФИО из выпадающего списка."); return; }
 
-            // === НОВАЯ ЗАЩИТА: ПРОВЕРКА АДРЕСА И МАСТЕРА ===
-            
-         // 1. Проверяем адрес по новому массиву
-if (!allAddresses.includes(address)) {
-    alert("❌ Ошибка: Такого адреса нет в базе! Выберите адрес из выпадающего списка.");
-    return;
-}
-
-// 2. Проверяем мастера по новому массиву
-if (!allMasters.includes(master)) {
-    alert("❌ Ошибка: Такого мастера не существует! Выберите ФИО из выпадающего списка.");
-    return;
-}
-            // ===============================================
-
-            // Блокируем кнопку
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Отправляем...';
 
-            const ticketData = { action: "createTicket", dispatcherName: currentUser.name, address: address, problem: problem, masterName: master };
             try {
-                const response = await fetch(URL_GOOGLE_SERVER, { method: "POST", body: JSON.stringify(ticketData), headers: { "Content-Type": "text/plain;charset=utf-8" }});
+                const response = await fetch(URL_GOOGLE_SERVER, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "createTicket", dispatcherName: currentUser.name, address, problem, masterName: master }),
+                    headers: { "Content-Type": "text/plain;charset=utf-8" }
+                });
                 await response.json();
-                
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa-solid fa-check"></i> Готово!';
                 btn.style.background = "#34c759";
-                
-                document.getElementById("address").value = ""; document.getElementById("problem").value = ""; document.getElementById("masterInput").value = "";
-                
-                setTimeout(() => { 
-                    btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить заявку'; 
-                    btn.style.background = "#007aff";
-                }, 2000);
-            } catch (error) { 
+                document.getElementById("address").value = "";
+                document.getElementById("problem").value = "";
+                document.getElementById("masterInput").value = "";
+                setTimeout(() => { btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить заявку'; btn.style.background = "#007aff"; }, 2000);
+            } catch (e) {
                 btn.disabled = false; btn.innerHTML = 'Ошибка. Повторить'; btn.style.background = "#ff3b30";
             }
         }
 
-                async function loadMyTickets() {
+        // ===== ЗАГРУЗКА ЗАЯВОК =====
+        async function loadMyTickets() {
             const container = document.getElementById("ticketsContainer");
             const msg = document.getElementById("noTicketsMsg");
-            
-            // 1. МАГИЯ КЭША: Пытаемся сразу показать то, что сохранили в прошлый раз!
-            const cachedTickets = localStorage.getItem("cachedDispatcherTickets_" + currentUser.name);
-            if (cachedTickets) {
-                renderTicketsList(JSON.parse(cachedTickets)); // Моментальная отрисовка!
+
+            const cached = localStorage.getItem("cachedDispatcherTickets_" + currentUser.name);
+            if (cached) {
+                renderTicketsList(JSON.parse(cached));
             } else {
-                // Если кэша нет (первый вход) - показываем лоадер
                 container.innerHTML = "";
                 msg.style.display = "block";
-                msg.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin" style="font-size: 30px; margin-bottom: 10px;"></i><p>Загрузка истории...</p>';
+                msg.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin" style="font-size:30px;margin-bottom:10px;"></i><p>Загрузка...</p>';
             }
 
-            // 2. Идем в Гугл за свежими данными (в фоне)
             try {
                 const response = await fetch(URL_GOOGLE_SERVER + "?action=getDispatcherTickets&dispatcherName=" + encodeURIComponent(currentUser.name));
                 const freshTickets = await response.json();
-                
-                // Сохраняем свежие данные в кэш телефона для следующего раза
                 localStorage.setItem("cachedDispatcherTickets_" + currentUser.name, JSON.stringify(freshTickets));
-                
-                // Отрисовываем свежий список
                 renderTicketsList(freshTickets);
-
-            } catch (error) { 
-                // Если нет интернета, а кэш пустой
-                if (!cachedTickets) msg.innerHTML = 'Ошибка сети. Проверьте интернет.'; 
+            } catch (e) {
+                if (!cached) msg.innerHTML = 'Ошибка сети. Проверьте интернет.';
             }
         }
 
-        // Вспомогательная функция, которая просто рисует HTML (чтобы не дублировать код)
         function renderTicketsList(ticketsArray) {
-            myTicketsArray = ticketsArray; // Обновляем глобальный массив для редактирования
+            myTicketsArray = ticketsArray;
             const container = document.getElementById("ticketsContainer");
             const msg = document.getElementById("noTicketsMsg");
-            
             msg.style.display = "none";
             container.innerHTML = "";
 
-            if (ticketsArray.length === 0) { 
-                msg.style.display = "block"; 
-                msg.innerHTML = '<i class="fa-solid fa-folder-open" style="font-size: 40px; margin-bottom: 15px; color: #d1d1d6;"></i><h3>Пусто</h3>';
-                return; 
+            if (ticketsArray.length === 0) {
+                msg.style.display = "block";
+                msg.innerHTML = '<i class="fa-solid fa-folder-open" style="font-size:40px;margin-bottom:15px;color:#d1d1d6;"></i><h3>Пусто</h3>';
+                return;
             }
 
             ticketsArray.forEach(ticket => {
                 const div = document.createElement("div");
                 div.className = "card";
-                let badgeClass = ticket.status === "Новая" ? "status-new" : "status-done";
-                
-                let editBtnHtml = ticket.status === "Новая" 
-                    ? `<button class="edit-btn" onclick="openEditModal(${ticket.id})"><i class="fa-solid fa-pen"></i> Изменить</button>` 
-                    : `<span style="color:#34c759; font-size:12px; font-weight:bold;"><i class="fa-solid fa-check-double"></i> Закрыта</span>`;
+                const badgeClass = ticket.status === "Новая" ? "status-new" : "status-done";
+
+                // Кнопки действий для новых заявок
+                let actionBtns = ticket.status === "Новая"
+                    ? `<div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;">
+                         <button class="edit-btn" onclick="openEditModal(${ticket.id})">
+                           <i class="fa-solid fa-pen"></i> Изменить
+                         </button>
+                         <button class="close-btn" onclick="openCloseModal(${ticket.id})">
+                           <i class="fa-solid fa-circle-xmark"></i> Закрыть
+                         </button>
+                       </div>`
+                    : `<span style="color:#34c759;font-size:12px;font-weight:bold;">
+                         <i class="fa-solid fa-check-double"></i> Закрыта
+                       </span>`;
 
                 div.innerHTML = `
                     <div class="status-badge ${badgeClass}">${ticket.status}</div>
-                    <div style="font-weight: bold; font-size: 16px; margin-bottom: 4px;">${ticket.address}</div>
-                    <div style="font-size: 14px; color: #3a3a3c;">${ticket.problem}</div>
+                    <div style="font-weight:bold;font-size:16px;margin-bottom:4px;">${ticket.address}</div>
+                    <div style="font-size:14px;color:#3a3a3c;">${ticket.problem}</div>
                     <div class="ticket-info">
                         <div><i class="fa-solid fa-helmet-safety"></i> ${ticket.master}</div>
-                        ${editBtnHtml}
-                    </div>
-                `;
+                        ${actionBtns}
+                    </div>`;
                 container.appendChild(div);
             });
         }
 
-        // --- ЛОГИКА РЕДАКТИРОВАНИЯ ---
+        // ===== РЕДАКТИРОВАНИЕ =====
         function openEditModal(id) {
             currentEditId = id;
             const ticket = myTicketsArray.find(t => t.id == id);
-            if(ticket) {
+            if (ticket) {
                 document.getElementById("editAddress").value = ticket.address;
                 document.getElementById("editProblem").value = ticket.problem;
                 document.getElementById("editMaster").value = ticket.master;
@@ -342,208 +567,225 @@ if (!allMasters.includes(master)) {
             }
         }
 
-        function closeEditModal() {
-            document.getElementById("editModal").style.display = "none";
-        }
+        function closeEditModal() { document.getElementById("editModal").style.display = "none"; }
 
-            async function saveEdit() {
+        async function saveEdit() {
             const newAddress = document.getElementById("editAddress").value.trim();
             const newProblem = document.getElementById("editProblem").value.trim();
             const newMaster = document.getElementById("editMaster").value.trim();
-            
-            // === ЗАЩИТА ПРИ РЕДАКТИРОВАНИИ ===
-          if (!allAddresses.includes(newAddress)) {
-          alert("❌ Ошибка: Такого адреса нет в базе!"); return;
-          }
-          if (!allMasters.includes(newMaster)) {
-         alert("❌ Ошибка: Такого мастера не существует!"); return;
-          }
-            // ==================================
+
+            if (!allAddresses.includes(newAddress)) { alert("❌ Ошибка: Такого адреса нет в базе!"); return; }
+            if (!allMasters.includes(newMaster)) { alert("❌ Ошибка: Такого мастера не существует!"); return; }
 
             const btn = document.getElementById("btnSaveEdit");
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Сохраняем...';
 
-            const editData = {
-                action: "editTicket",
-                ticketId: currentEditId,
-                address: newAddress,
-                problem: newProblem,
-                masterName: newMaster
-            };
-
             try {
-                await fetch(URL_GOOGLE_SERVER, { method: "POST", body: JSON.stringify(editData), headers: { "Content-Type": "text/plain;charset=utf-8" }});
+                await fetch(URL_GOOGLE_SERVER, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "editTicket", ticketId: currentEditId, address: newAddress, problem: newProblem, masterName: newMaster }),
+                    headers: { "Content-Type": "text/plain;charset=utf-8" }
+                });
                 closeEditModal();
                 btn.disabled = false;
                 btn.innerHTML = '💾 Сохранить изменения';
-                loadMyTickets(); 
-            } catch (error) {
+                loadMyTickets();
+            } catch (e) {
                 alert("Ошибка сохранения");
                 btn.disabled = false;
                 btn.innerHTML = '💾 Сохранить изменения';
             }
         }
-        // ---------------------------------
 
-                // Умная загрузка профиля (С кэшированием)
-        async function loadStats() {
-            const titleEl = document.getElementById("badgeTitle");
-            
-            // 1. Ищем старые данные в памяти телефона
-            const cachedStats = localStorage.getItem("cachedDispatcherStats_" + currentUser.name);
-            if (cachedStats) {
-                renderDispatcherStats(JSON.parse(cachedStats)); // Моментальная отрисовка
-            } else {
-                titleEl.innerText = "Загрузка..."; // Лоадер для первого раза
+        // ===== ЗАКРЫТИЕ ЗАЯВКИ ДИСПЕТЧЕРОМ =====
+        function openCloseModal(id) {
+            currentCloseId = id;
+            document.getElementById("closeTicketModal").style.display = "flex";
+        }
+
+        function closeCloseModal() {
+            document.getElementById("closeTicketModal").style.display = "none";
+            currentCloseId = null;
+        }
+
+        async function confirmCloseTicket() {
+            if (!currentCloseId) return;
+
+            const btn = document.getElementById("btnConfirmClose");
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Закрываем...';
+
+            try {
+                await fetch(URL_GOOGLE_SERVER, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        action: "closeTicket",      // Экшн для Google Script
+                        ticketId: currentCloseId,
+                        closedBy: currentUser.name  // Кто закрыл (для логов)
+                    }),
+                    headers: { "Content-Type": "text/plain;charset=utf-8" }
+                });
+
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Да, закрыть';
+                closeCloseModal();
+                loadMyTickets(); // Обновляем список
+            } catch (e) {
+                alert("Ошибка при закрытии заявки. Проверьте интернет.");
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Да, закрыть';
             }
+        }
 
-            // 2. Идем в Гугл за свежими цифрами в фоне
+        // ===== ПРОФИЛЬ / СТАТИСТИКА =====
+        async function loadStats() {
+            const cached = localStorage.getItem("cachedDispatcherStats_" + currentUser.name);
+            if (cached) renderDispatcherStats(JSON.parse(cached));
+            else document.getElementById("badgeTitle").innerText = "Загрузка...";
+
             try {
                 const response = await fetch(URL_GOOGLE_SERVER + "?action=getDispatcherStats&dispatcherName=" + encodeURIComponent(currentUser.name));
                 const stats = await response.json();
-
-                // Сохраняем в память
                 localStorage.setItem("cachedDispatcherStats_" + currentUser.name, JSON.stringify(stats));
-                
-                // Перерисовываем на свежее
                 renderDispatcherStats(stats);
-            } catch (error) { 
-                if (!cachedStats) titleEl.innerText = "Ошибка загрузки"; 
+            } catch (e) {
+                if (!cached) document.getElementById("badgeTitle").innerText = "Ошибка загрузки";
             }
         }
-        
-        // === ЖИВОЙ ПОИСК АДРЕСОВ ===
-function filterAddresses() {
-    const input = document.getElementById("address").value.toLowerCase();
-    const list = document.getElementById("customAddressList");
-    list.innerHTML = "";
-    
-    if (!input) { list.style.display = "none"; return; }
-    
-    // Ищем совпадения (максимум 15 штук)
-    const filtered = allAddresses.filter(a => a.toLowerCase().includes(input)).slice(0, 15);
-    
-    if (filtered.length > 0) {
-        filtered.forEach(a => {
-            let div = document.createElement("div");
-            div.innerText = a;
-            div.className = "dropdown-item"; // Для стилей
-            div.onclick = () => { 
-                document.getElementById("address").value = a; 
-                list.style.display = "none"; 
-            };
-            list.appendChild(div);
-        });
-        list.style.display = "block";
-    } else { 
-        list.style.display = "none"; 
-    }
-}
 
-// === ЖИВОЙ ПОИСК МАСТЕРОВ ===
-function filterMasters() {
-    const input = document.getElementById("masterInput").value.toLowerCase();
-    const list = document.getElementById("customMasterList");
-    list.innerHTML = "";
-    
-    if (!input && allMasters.length > 5) { list.style.display = "none"; return; }
-    
-    const filtered = allMasters.filter(m => m.toLowerCase().includes(input));
-    
-    if (filtered.length > 0) {
-        filtered.forEach(m => {
-            let div = document.createElement("div");
-            div.innerText = m;
-            div.className = "dropdown-item"; // Для стилей
-            div.onclick = () => { 
-                document.getElementById("masterInput").value = m; 
-                list.style.display = "none"; 
-            };
-            list.appendChild(div);
-        });
-        list.style.display = "block";
-    } else { 
-        list.style.display = "none"; 
-    }
-}
-
-        // Вспомогательная функция отрисовки
         function renderDispatcherStats(stats) {
-            document.getElementById("statMonthly").innerText = stats.monthlyTickets;
-            document.getElementById("statAllTime").innerText = stats.allTimeTickets;
+            const total = stats.allTimeTickets || 0;
+            const monthly = stats.monthlyTickets || 0;
 
-            const titleEl = document.getElementById("badgeTitle");
-            const descEl = document.getElementById("badgeDesc");
-            const iconEl = document.getElementById("badgeIcon");
-            
-            const t = stats.allTimeTickets;
-            if (t < 50) { 
-                titleEl.innerText = "Надежный тыл 🥉"; descEl.innerText = `До следующего достижения осталось: ${50 - t} заявок.`; iconEl.className = "fa-solid fa-headset"; iconEl.style.color = "#8d6e63"; 
-            } else if (t < 200) { 
-                titleEl.innerText = "Мастер логистики 🥈"; descEl.innerText = `Вы обработали уже более 200 заявок ! Ни одна заявка не потеряется когда вы на смене. Вы супер!`; iconEl.className = "fa-solid fa-satellite-dish"; iconEl.style.color = "#78909c"; 
-            } else { 
-                titleEl.innerText = "Вы опора компании 🥇"; descEl.innerText = `Вы контролируете весь город! Легендарный статус.`; iconEl.className = "fa-solid fa-microphone-lines"; iconEl.style.color = "#ffb300"; 
+            // Считаем открытые/закрытые из кэша заявок если есть
+            const cachedTickets = localStorage.getItem("cachedDispatcherTickets_" + currentUser.name);
+            let openCount = 0, closedCount = 0;
+            if (cachedTickets) {
+                const arr = JSON.parse(cachedTickets);
+                openCount = arr.filter(t => t.status === "Новая").length;
+                closedCount = arr.filter(t => t.status !== "Новая").length;
+            } else {
+                // Если заявок нет в кэше — используем total
+                closedCount = total;
             }
+            const rate = total > 0 ? Math.round((closedCount / total) * 100) : 0;
+
+            // Основные цифры
+            document.getElementById("statMonthly").innerText = monthly;
+            document.getElementById("statAllTime").innerText = total;
+            document.getElementById("statOpen").innerText = openCount;
+            document.getElementById("statClosed").innerText = closedCount;
+
+            // Активность
+            document.getElementById("actOpen").innerText = openCount;
+            document.getElementById("actClosed").innerText = closedCount;
+            document.getElementById("actRate").innerText = rate + "%";
+
+            // Достижения и прогресс
+            const levels = [
+                { min: 0,   max: 50,  title: "Надёжный тыл 🥉",       desc: "Отличное начало! Продолжайте в том же духе.", icon: "fa-headset",          iconColor: "#8d6e63", bg: "#efebe9", barColor: "linear-gradient(90deg,#8d6e63,#bcaaa4)" },
+                { min: 50,  max: 200, title: "Мастер логистики 🥈",    desc: "Ни одна заявка не потеряется, пока вы на смене!", icon: "fa-satellite-dish", iconColor: "#607d8b", bg: "#eceff1", barColor: "linear-gradient(90deg,#607d8b,#90a4ae)" },
+                { min: 200, max: 500, title: "Опора компании 🥇",      desc: "Вы контролируете весь город. Легендарный уровень!", icon: "fa-microphone-lines", iconColor: "#ffb300", bg: "#fff8e1", barColor: "linear-gradient(90deg,#ffb300,#ffe082)" },
+                { min: 500, max: Infinity, title: "Легенда службы 🏆", desc: "Высший статус. Вы — эталон диспетчерской службы!", icon: "fa-trophy",       iconColor: "#ff6b00", bg: "#fff3e0", barColor: "linear-gradient(90deg,#ff6b00,#ffcc02)" },
+            ];
+
+            const level = levels.find(l => total >= l.min && total < l.max) || levels[levels.length - 1];
+
+            document.getElementById("badgeTitle").innerText = level.title;
+            document.getElementById("badgeDesc").innerText = level.desc;
+
+            const iconEl = document.getElementById("badgeIcon");
+            iconEl.className = "fa-solid " + level.icon;
+            iconEl.style.color = level.iconColor;
+            document.getElementById("badgeIconWrap").style.background = level.bg;
+
+            // Прогресс-бар
+            const fill = document.getElementById("progressFill");
+            fill.style.background = level.barColor;
+            const progressMax = level.max === Infinity ? total : level.max;
+            const progressVal = Math.min(total, progressMax);
+            const pct = progressMax > 0 ? Math.round((progressVal / progressMax) * 100) : 100;
+            setTimeout(() => { fill.style.width = pct + "%"; }, 100); // Анимация
+
+            document.getElementById("progressCurrent").innerText = total;
+            document.getElementById("progressNext").innerText = level.max === Infinity ? "∞" : level.max;
+        }
+
+        // ===== ПОИСК =====
+        function filterAddresses() {
+            const input = document.getElementById("address").value.toLowerCase();
+            const list = document.getElementById("customAddressList");
+            list.innerHTML = "";
+            if (!input) { list.style.display = "none"; return; }
+            const filtered = allAddresses.filter(a => a.toLowerCase().includes(input)).slice(0, 15);
+            if (filtered.length > 0) {
+                filtered.forEach(a => {
+                    let div = document.createElement("div"); div.innerText = a; div.className = "dropdown-item";
+                    div.onclick = () => { document.getElementById("address").value = a; list.style.display = "none"; };
+                    list.appendChild(div);
+                });
+                list.style.display = "block";
+            } else { list.style.display = "none"; }
+        }
+
+        function filterMasters() {
+            const input = document.getElementById("masterInput").value.toLowerCase();
+            const list = document.getElementById("customMasterList");
+            list.innerHTML = "";
+            if (!input && allMasters.length > 5) { list.style.display = "none"; return; }
+            const filtered = allMasters.filter(m => m.toLowerCase().includes(input));
+            if (filtered.length > 0) {
+                filtered.forEach(m => {
+                    let div = document.createElement("div"); div.innerText = m; div.className = "dropdown-item";
+                    div.onclick = () => { document.getElementById("masterInput").value = m; list.style.display = "none"; };
+                    list.appendChild(div);
+                });
+                list.style.display = "block";
+            } else { list.style.display = "none"; }
+        }
+
+        function filterEditAddresses() {
+            const input = document.getElementById("editAddress").value.toLowerCase();
+            const list = document.getElementById("customEditAddressList");
+            list.innerHTML = "";
+            if (!input) { list.style.display = "none"; return; }
+            const filtered = allAddresses.filter(a => a.toLowerCase().includes(input)).slice(0, 15);
+            if (filtered.length > 0) {
+                filtered.forEach(a => {
+                    let div = document.createElement("div"); div.innerText = a; div.className = "dropdown-item";
+                    div.onclick = () => { document.getElementById("editAddress").value = a; list.style.display = "none"; };
+                    list.appendChild(div);
+                });
+                list.style.display = "block";
+            } else { list.style.display = "none"; }
+        }
+
+        function filterEditMasters() {
+            const input = document.getElementById("editMaster").value.toLowerCase();
+            const list = document.getElementById("customEditMasterList");
+            list.innerHTML = "";
+            if (!input && allMasters.length > 5) { list.style.display = "none"; return; }
+            const filtered = allMasters.filter(m => m.toLowerCase().includes(input));
+            if (filtered.length > 0) {
+                filtered.forEach(m => {
+                    let div = document.createElement("div"); div.innerText = m; div.className = "dropdown-item";
+                    div.onclick = () => { document.getElementById("editMaster").value = m; list.style.display = "none"; };
+                    list.appendChild(div);
+                });
+                list.style.display = "block";
+            } else { list.style.display = "none"; }
         }
 
         function logout() { localStorage.removeItem("currentUser"); window.location.href = "index.html"; }
-        
-        
-        // === ЖИВОЙ ПОИСК В ОКНЕ РЕДАКТИРОВАНИЯ ===
-function filterEditAddresses() {
-    const input = document.getElementById("editAddress").value.toLowerCase();
-    const list = document.getElementById("customEditAddressList");
-    list.innerHTML = "";
-    if (!input) { list.style.display = "none"; return; }
-    
-    const filtered = allAddresses.filter(a => a.toLowerCase().includes(input)).slice(0, 15);
-    if (filtered.length > 0) {
-        filtered.forEach(a => {
-            let div = document.createElement("div"); div.innerText = a; div.className = "dropdown-item";
-            div.onclick = () => { document.getElementById("editAddress").value = a; list.style.display = "none"; };
-            list.appendChild(div);
-        });
-        list.style.display = "block";
-    } else { list.style.display = "none"; }
-}
-
-function filterEditMasters() {
-    const input = document.getElementById("editMaster").value.toLowerCase();
-    const list = document.getElementById("customEditMasterList");
-    list.innerHTML = "";
-    if (!input && allMasters.length > 5) { list.style.display = "none"; return; }
-    
-    const filtered = allMasters.filter(m => m.toLowerCase().includes(input));
-    if (filtered.length > 0) {
-        filtered.forEach(m => {
-            let div = document.createElement("div"); div.innerText = m; div.className = "dropdown-item";
-            div.onclick = () => { document.getElementById("editMaster").value = m; list.style.display = "none"; };
-            list.appendChild(div);
-        });
-        list.style.display = "block";
-    } else { list.style.display = "none"; }
-}
-
-// Закрываем списки редактирования при клике вне их
-document.addEventListener('click', function(e) {
-    if (e.target.id !== 'editAddress') {
-        let el = document.getElementById('customEditAddressList');
-        if(el) el.style.display = 'none';
-    }
-    if (e.target.id !== 'editMaster') {
-        let el = document.getElementById('customEditMasterList');
-        if(el) el.style.display = 'none';
-    }
-});
-        
     </script>
-        <script>
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js')
-            .then(() => console.log('Service Worker зарегистрирован'))
-            .catch(err => console.log('Ошибка SW', err));
-    }
-</script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(() => console.log('Service Worker зарегистрирован'))
+                .catch(err => console.log('Ошибка SW', err));
+        }
+    </script>
 </body>
 </html>
