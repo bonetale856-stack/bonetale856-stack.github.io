@@ -22,6 +22,75 @@
         #editModal, #closeTicketModal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; padding: 20px;}
         .modal-content { background: white; padding: 20px; border-radius: 16px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: fadeIn 0.2s;}
 
+        /* Стили для формы закрытия */
+.free-toggle {
+    background: #f2f2f7;
+    padding: 16px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s;
+}
+
+.free-toggle:active {
+    transform: scale(0.98);
+}
+
+.free-toggle input {
+    transform: scale(1.5);
+    margin-right: 15px;
+    accent-color: #34c759;
+}
+
+.free-toggle span {
+    font-weight: 600;
+    color: #34c759;
+    font-size: 15px;
+}
+
+.total-price {
+    background: #e5f1ff;
+    color: #007aff;
+    padding: 16px;
+    border-radius: 12px;
+    font-size: 20px;
+    font-weight: 700;
+    text-align: right;
+    margin-bottom: 16px;
+    border: 2px solid #cce4ff;
+}
+
+/* Адаптация form-control для модального окна */
+.modal-content .form-control {
+    width: 100%;
+    padding: 12px 14px;
+    border: 2px solid #e5e5ea;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #1c1c1e;
+    font-size: 15px;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+    font-family: inherit;
+}
+
+.modal-content .form-control:focus {
+    outline: none;
+    border-color: #007aff;
+}
+
+.modal-content .form-group label {
+    display: block;
+    color: #1c1c1e;
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 14px;
+} 
+         
+         
         /* ===== ПРОФИЛЬ — ГЛАВНАЯ КАРТОЧКА ===== */
         .profile-hero {
             background: linear-gradient(135deg, #007aff 0%, #0055d4 100%);
@@ -360,22 +429,59 @@
     </div>
 
     <!-- МОДАЛЬНОЕ ОКНО ЗАКРЫТИЯ ЗАЯВКИ -->
-    <div id="closeTicketModal">
-        <div class="modal-content">
-            <h3 style="margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px;">
-                <i class="fa-solid fa-circle-check" style="color:#34c759;"></i> Закрыть заявку
-            </h3>
-            <p style="color:#3a3a3c; font-size:15px; margin-bottom:20px;">
-                Вы уверены, что хотите закрыть эту заявку?<br>
-                <span style="font-size:13px; color:#8e8e93;">Это действие нельзя отменить.</span>
-            </p>
-            <button class="btn" id="btnConfirmClose" onclick="confirmCloseTicket()"
-                style="background:#34c759; color:white; margin-bottom:10px; font-weight:700;">
-                <i class="fa-solid fa-check"></i> Да, закрыть
-            </button>
-            <button class="btn" style="background:#f2f2f7; color:#ff3b30;" onclick="closeCloseModal()">Отмена</button>
+    <!-- МОДАЛЬНОЕ ОКНО ЗАКРЫТИЯ ЗАЯВКИ -->
+<div id="closeTicketModal">
+    <div class="modal-content" style="max-width: 450px;">
+        <h3 style="margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+            <i class="fa-solid fa-circle-check" style="color:#34c759;"></i> Закрыть заявку
+        </h3>
+        
+        <!-- Карточка с инфо о заявке -->
+        <div class="card" style="background: #f2f2f7; border: none; margin-bottom: 15px; padding: 14px 16px;">
+            <div id="closeAddress" style="font-weight: 700; color: #1c1c1e; margin-bottom: 6px;"></div>
+            <div id="closeProblem" style="font-size: 14px; color: #3a3a3c;"></div>
         </div>
+
+        <!-- Описание работ -->
+        <div class="form-group">
+            <label>Описание выполненных работ:</label>
+            <textarea class="form-control" id="closeDescription" rows="3" placeholder="Что было сделано..."></textarea>
+        </div>
+        
+        <!-- Переключатель Бесплатно -->
+        <label class="free-toggle" style="background: #f2f2f7; border: 2px solid transparent;">
+            <input type="checkbox" id="closeIsFree" onchange="toggleCloseMoney()">
+            <span>В счет содержания жилья (Бесплатно)</span>
+        </label>
+        
+        <!-- Блок сумм -->
+        <div id="closeMoneyBlock">
+            <div class="form-group">
+                <label>Работа (руб):</label>
+                <input type="number" class="form-control" id="closeWork" value="0" oninput="calcCloseTotal()" inputmode="numeric">
+            </div>
+            <div class="form-group">
+                <label>Материалы (руб):</label>
+                <input type="number" class="form-control" id="closeMaterial" value="0" oninput="calcCloseTotal()" inputmode="numeric">
+            </div>
+            <div class="form-group">
+                <label>Доставка (руб):</label>
+                <input type="number" class="form-control" id="closeDelivery" value="0" oninput="calcCloseTotal()" inputmode="numeric">
+            </div>
+            
+            <div class="total-price" style="background: #e5f1ff; color: #007aff; border: 2px solid #cce4ff;">
+                Итого: <span id="closeTotal">0</span> ₽
+            </div>
+        </div>
+        
+        <!-- Кнопки -->
+        <button class="btn" id="btnConfirmClose" onclick="confirmCloseTicket()"
+            style="background:#34c759; color:white; margin-bottom:10px; font-weight:700;">
+            <i class="fa-solid fa-check-double"></i> Закрыть заявку
+        </button>
+        <button class="btn" style="background:#f2f2f7; color:#ff3b30;" onclick="closeCloseModal()">Отмена</button>
     </div>
+</div>
 
     <!-- НИЖНЕЕ МЕНЮ -->
     <div class="bottom-nav">
@@ -599,45 +705,105 @@
         }
 
         // ===== ЗАКРЫТИЕ ЗАЯВКИ ДИСПЕТЧЕРОМ =====
-        function openCloseModal(id) {
-            currentCloseId = id;
-            document.getElementById("closeTicketModal").style.display = "flex";
-        }
 
-        function closeCloseModal() {
-            document.getElementById("closeTicketModal").style.display = "none";
-            currentCloseId = null;
-        }
+function openCloseModal(id) {
+    currentCloseId = id;
+    const ticket = myTicketsArray.find(t => t.id == id);
+    
+    if (ticket) {
+        // Заполняем инфо о заявке
+        document.getElementById("closeAddress").innerText = "📍 " + ticket.address;
+        document.getElementById("closeProblem").innerText = ticket.problem;
+        
+        // Сбрасываем форму
+        document.getElementById("closeDescription").value = "";
+        document.getElementById("closeIsFree").checked = false;
+        document.getElementById("closeWork").value = "0";
+        document.getElementById("closeMaterial").value = "0";
+        document.getElementById("closeDelivery").value = "0";
+        
+        // Показываем блок сумм и считаем
+        toggleCloseMoney();
+        
+        // Показываем модалку
+        document.getElementById("closeTicketModal").style.display = "flex";
+        
+        // Фокус на описание
+        setTimeout(() => {
+            document.getElementById("closeDescription").focus();
+        }, 100);
+    }
+}
 
-        async function confirmCloseTicket() {
-            if (!currentCloseId) return;
+function closeCloseModal() {
+    document.getElementById("closeTicketModal").style.display = "none";
+    currentCloseId = null;
+}
 
-            const btn = document.getElementById("btnConfirmClose");
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Закрываем...';
+// Переключатель бесплатности
+function toggleCloseMoney() {
+    const isFree = document.getElementById("closeIsFree").checked;
+    document.getElementById("closeMoneyBlock").style.display = isFree ? "none" : "block";
+    if (!isFree) calcCloseTotal();
+}
 
-            try {
-                await fetch(URL_GOOGLE_SERVER, {
-                    method: "POST",
-                    body: JSON.stringify({
-                        action: "closeTicket",      // Экшн для Google Script
-                        ticketId: currentCloseId,
-                        closedBy: currentUser.name  // Кто закрыл (для логов)
-                    }),
-                    headers: { "Content-Type": "text/plain;charset=utf-8" }
-                });
+// Подсчёт суммы
+function calcCloseTotal() {
+    const w = parseInt(document.getElementById("closeWork").value) || 0;
+    const m = parseInt(document.getElementById("closeMaterial").value) || 0;
+    const d = parseInt(document.getElementById("closeDelivery").value) || 0;
+    document.getElementById("closeTotal").innerText = w + m + d;
+}
 
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-check"></i> Да, закрыть';
-                closeCloseModal();
-                loadMyTickets(); // Обновляем список
-            } catch (e) {
-                alert("Ошибка при закрытии заявки. Проверьте интернет.");
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-check"></i> Да, закрыть';
-            }
-        }
-
+// Отправка данных
+async function confirmCloseTicket() {
+    if (!currentCloseId) return;
+    
+    const desc = document.getElementById("closeDescription").value.trim();
+    const isFree = document.getElementById("closeIsFree").checked;
+    
+    // Валидация
+    if (!desc) {
+        alert("Напишите описание выполненных работ!");
+        document.getElementById("closeDescription").focus();
+        return;
+    }
+    
+    const btn = document.getElementById("btnConfirmClose");
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Закрываем...';
+    
+    // Формируем данные
+    const closeData = {
+        action: "closeTicket",
+        ticketId: currentCloseId,
+        closedBy: currentUser.name,
+        description: desc,
+        paymentType: isFree ? "Бесплатно" : "Платно",
+        workCost: isFree ? 0 : (parseInt(document.getElementById("closeWork").value) || 0),
+        materialCost: isFree ? 0 : (parseInt(document.getElementById("closeMaterial").value) || 0),
+        deliveryCost: isFree ? 0 : (parseInt(document.getElementById("closeDelivery").value) || 0),
+        totalCost: isFree ? 0 : parseInt(document.getElementById("closeTotal").innerText)
+    };
+    
+    try {
+        await fetch(URL_GOOGLE_SERVER, {
+            method: "POST",
+            body: JSON.stringify(closeData),
+            headers: { "Content-Type": "text/plain;charset=utf-8" }
+        });
+        
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-check-double"></i> Закрыть заявку';
+        closeCloseModal();
+        loadMyTickets(); // Обновляем список
+        
+    } catch (e) {
+        alert("Ошибка при закрытии заявки. Проверьте интернет.");
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-check-double"></i> Закрыть заявку';
+    }
+}
         // ===== ПРОФИЛЬ / СТАТИСТИКА =====
         async function loadStats() {
             const cached = localStorage.getItem("cachedDispatcherStats_" + currentUser.name);
