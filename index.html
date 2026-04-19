@@ -118,11 +118,42 @@
             }
         }
     </script>
-    <script>
+<script>
+    // 1. Регистрация Service Worker
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js')
             .then(() => console.log('Service Worker зарегистрирован'))
             .catch(err => console.log('Ошибка SW', err));
+    }
+
+    // 2. Логика кнопки установки (PWA)
+    let deferredPrompt;
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        // Не даем браузеру показать системный баннер сразу
+        e.preventDefault();
+        // Сохраняем событие
+        deferredPrompt = e;
+        
+        // Показываем нашу кнопку установки (создадим её ниже)
+        const installBtn = document.getElementById('installBtn');
+        if (installBtn) {
+            installBtn.style.display = 'block';
+        }
+    });
+
+    async function installApp() {
+        if (!deferredPrompt) return;
+        
+        // Показываем стандартное окно установки
+        deferredPrompt.prompt();
+        
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`Результат установки: ${outcome}`);
+        
+        // Больше не показываем кнопку
+        deferredPrompt = null;
+        document.getElementById('installBtn').style.display = 'none';
     }
 </script>
 </body>
