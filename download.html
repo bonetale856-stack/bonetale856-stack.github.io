@@ -911,7 +911,7 @@
                          bg: 'linear-gradient(135deg,#1a7a35 0%,#30d158 100%)',
                          shadow: 'rgba(48,209,88,0.35)' });
             [btn1, btn2].forEach(b => {
-                if (b) b.onclick = () => location.href = 'login.html';
+                if (b) b.onclick = () => location.href = 'index.html';
             });
             return true;
         }
@@ -929,7 +929,7 @@
 
     /* Клик */
     async function handleInstall() {
-        if (installed) { location.href = 'login.html'; return; }
+        if (installed) { location.href = 'index.html'; return; }
 
         if (isIOS()) { openModal(); return; }
 
