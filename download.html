@@ -824,16 +824,16 @@
 
 <script>
     let deferredPrompt = null;
-    let installed = false;
+    let installed      = false;
 
-    const btn1 = document.getElementById('installBtn');
-    const btn2 = document.getElementById('installBtn2');
-    const label1 = document.getElementById('btnLabel');
-    const label2 = document.getElementById('btnLabel2');
-    const svg1 = document.getElementById('btnSvg');
-    const svg2 = document.getElementById('btnSvg2');
-    const modal = document.getElementById('iosModal');
-    const toast = document.getElementById('toast');
+    const btn1    = document.getElementById('installBtn');
+    const btn2    = document.getElementById('installBtn2');
+    const label1  = document.getElementById('btnLabel');
+    const label2  = document.getElementById('btnLabel2');
+    const svg1    = document.getElementById('btnSvg');
+    const svg2    = document.getElementById('btnSvg2');
+    const modal   = document.getElementById('iosModal');
+    const toast   = document.getElementById('toast');
 
     const ICONS = {
         download: `<path d="M12 4v12M12 16l-4-4M12 16l4-4"/><path d="M4 20h16"/>`,
@@ -847,6 +847,27 @@
         el.innerHTML = ICONS[key];
     }
 
+    function setInstalled() {
+        installed = true;
+
+        // Меняем обе кнопки
+        label1.textContent = 'Приложение установлено';
+        label2.textContent = 'Приложение установлено';
+        setSvg(svg1, 'check', 'white');
+        setSvg(svg2, 'check', 'white');
+
+        [btn1, btn2].forEach(b => {
+            if (!b) return;
+            b.style.background = 'linear-gradient(135deg, #1a7a35 0%, #30d158 100%)';
+            b.style.boxShadow  = '0 8px 28px rgba(48,209,88,0.35)';
+            // Клик ничего не делает — просто отключаем
+            b.onclick    = () => {};
+            b.disabled   = true;
+            b.style.cursor = 'default';
+            b.style.opacity = '1'; // disabled делает 0.55, возвращаем
+        });
+    }
+
     function setButtons({ label, icon, color, bg, shadow }) {
         label1.textContent = label;
         label2.textContent = label;
@@ -856,7 +877,7 @@
             [btn1, btn2].forEach(b => {
                 if (!b) return;
                 b.style.background = bg;
-                b.style.boxShadow = `0 8px 28px ${shadow}`;
+                b.style.boxShadow  = `0 8px 28px ${shadow}`;
             });
         }
     }
@@ -867,90 +888,52 @@
         setTimeout(() => toast.classList.remove('show'), 2800);
     }
 
-    // Проверка: приложение уже установлено?
+    // Проверка: уже установлено (открыто как PWA)
     function checkInstalled() {
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches 
-                          || window.navigator.standalone === true;
-        
-        if (isStandalone) {
-            installed = true;
-            setButtons({ 
-                label: 'Открыть приложение', 
-                icon: 'check',
-                color: 'white',
-                bg: 'var(--success-gradient)',
-                shadow: 'var(--success-glow)'
-            });
-            [btn1, btn2].forEach(b => {
-                if (b) b.onclick = () => location.href = 'index.html';
-            });
+        const sa = window.matchMedia('(display-mode: standalone)').matches
+                || window.navigator.standalone === true;
+        if (sa) {
+            setInstalled();
             return true;
         }
         return false;
     }
 
-    // Попытка авто-редиректа в PWA после установки
-    function autoRedirectPWA() {
-        // Небольшая задержка, чтобы система успела зарегистрировать установку
-        setTimeout(() => {
-            // Проверяем, открылось ли приложение в standalone режиме
-            if (window.matchMedia('(display-mode: standalone)').matches) {
-                // Уже в PWA — редиректим на вход
-                window.location.href = 'index.html';
-            } else {
-                // Попытка перезагрузить страницу — иногда это переключает браузер в PWA
-                window.location.reload();
-            }
-        }, 800);
-    }
-
-    const isIOS = () => /iPhone|iPad|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isIOS    = () => /iPhone|iPad|iPod/.test(navigator.userAgent) && !window.MSStream;
     const isSafari = () => /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
+    // beforeinstallprompt — Android/Chrome
     window.addEventListener('beforeinstallprompt', e => {
         e.preventDefault();
         deferredPrompt = e;
     });
 
+    // Клик на кнопку
     async function handleInstall() {
-        if (installed) { 
-            location.href = 'index.html'; 
-            return; 
-        }
+        if (installed) return; // уже установлено — ничего не делаем
 
-        if (isIOS()) { 
-            openModal(); 
-            return; 
-        }
+        if (isIOS()) { openModal(); return; }
 
         if (deferredPrompt) {
-            [btn1, btn2].forEach(b => { 
-                if (b) { 
-                    b.classList.add('loading'); 
-                    b.disabled = true; 
-                } 
+            [btn1, btn2].forEach(b => {
+                if (b) { b.classList.add('loading'); b.disabled = true; }
             });
-            
             try {
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
-                
                 if (outcome === 'accepted') {
                     deferredPrompt = null;
-                    showToast('Приложение устанавливается…');
-                    // Запускаем попытку авто-перехода
-                    autoRedirectPWA();
+                    showToast('Устанавливаем приложение…');
                 } else {
                     showToast('Установка отменена');
+                    [btn1, btn2].forEach(b => {
+                        if (b) { b.classList.remove('loading'); b.disabled = false; }
+                    });
                 }
-            } catch(e) { 
-                console.error(e); 
-            } finally {
-                [btn1, btn2].forEach(b => { 
-                    if (b) { 
-                        b.classList.remove('loading'); 
-                        b.disabled = false; 
-                    } 
+            } catch(e) {
+                console.error(e);
+                [btn1, btn2].forEach(b => {
+                    if (b) { b.classList.remove('loading'); b.disabled = false; }
                 });
             }
         } else {
@@ -958,33 +941,13 @@
         }
     }
 
-    function openModal() { 
-        modal.classList.add('open'); 
-        document.body.style.overflow = 'hidden'; 
-    }
-    
-    function closeModal() { 
-        modal.classList.remove('open'); 
-        document.body.style.overflow = ''; 
-    }
+    function openModal()  { modal.classList.add('open'); document.body.style.overflow = 'hidden'; }
+    function closeModal() { modal.classList.remove('open'); document.body.style.overflow = ''; }
 
-    // Событие успешной установки
+    // Приложение успешно установлено
     window.addEventListener('appinstalled', () => {
-        installed = true;
-        deferredPrompt = null;
-        
-        setButtons({ 
-            label: 'Открыть приложение', 
-            icon: 'check',
-            color: 'white',
-            bg: 'var(--success-gradient)',
-            shadow: 'var(--success-glow)'
-        });
-        
-        showToast('✅ Приложение установлено!');
-        
-        // Пытаемся автоматически перейти в PWA
-        autoRedirectPWA();
+        setInstalled();
+        showToast('Приложение установлено!');
     });
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -992,26 +955,20 @@
 
         if (isIOS()) {
             if (!isSafari()) {
-                setButtons({ 
-                    label: 'Откройте в Safari', 
-                    icon: 'warning',
-                    color: 'white',
+                setButtons({
+                    label: 'Откройте в Safari', icon: 'warning', color: 'white',
                     bg: 'linear-gradient(135deg,#7a4800 0%,#ff9f0a 100%)',
-                    shadow: 'rgba(255,159,10,0.35)' 
+                    shadow: 'rgba(255,159,10,0.35)'
                 });
             } else {
-                setButtons({ 
-                    label: 'Инструкция для iOS', 
-                    icon: 'phone', 
-                    color: 'white' 
-                });
+                setButtons({ label: 'Инструкция для iOS', icon: 'phone', color: 'white' });
             }
         }
 
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js')
-                .then(r => console.log('SW зарегистрирован:', r.scope))
-                .catch(e => console.warn('SW ошибка:', e));
+                .then(r  => console.log('SW ok', r.scope))
+                .catch(e => console.warn('SW err', e));
         }
     });
 </script>
