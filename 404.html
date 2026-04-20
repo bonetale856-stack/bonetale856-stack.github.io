@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="robots" content="noindex, nofollow">
+    <title>404 — Страница не найдена</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .error-container {
+            text-align: center;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Анимированная 404 */
+        .error-code {
+            font-size: 140px;
+            font-weight: 900;
+            color: white;
+            margin: 0;
+            line-height: 1;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            animation: glitch 3s infinite;
+        }
+
+        @keyframes glitch {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+        }
+
+        /* Иконка сломанного лифта/трубы */
+        .broken-icon {
+            font-size: 80px;
+            color: rgba(255,255,255,0.9);
+            margin: 20px 0;
+            animation: shake 2s infinite;
+            display: inline-block;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: rotate(0deg); }
+            10%, 30%, 50%, 70%, 90% { transform: rotate(-3deg); }
+            20%, 40%, 60%, 80% { transform: rotate(3deg); }
+        }
+
+        .error-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: white;
+            margin: 20px 0 10px;
+        }
+
+        .error-message {
+            font-size: 16px;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .error-joke {
+            font-size: 14px;
+            color: rgba(255,255,255,0.7);
+            font-style: italic;
+            margin-bottom: 30px;
+        }
+
+        /* Кнопки */
+        .btn-home {
+            display: inline-block;
+            background: white;
+            color: #667eea;
+            padding: 16px 32px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+            margin: 5px;
+        }
+
+        .btn-home:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .btn-home:active {
+            transform: translateY(0);
+        }
+
+        .btn-home i {
+            margin-right: 8px;
+        }
+
+        /* Летающие инструменты на фоне */
+        .floating-tools {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .tool {
+            position: absolute;
+            font-size: 40px;
+            color: rgba(255,255,255,0.1);
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .tool:nth-child(1) { left: 10%; animation-delay: 0s; }
+        .tool:nth-child(2) { left: 20%; animation-delay: 2s; }
+        .tool:nth-child(3) { left: 30%; animation-delay: 4s; }
+        .tool:nth-child(4) { left: 40%; animation-delay: 1s; }
+        .tool:nth-child(5) { left: 50%; animation-delay: 3s; }
+        .tool:nth-child(6) { left: 60%; animation-delay: 5s; }
+        .tool:nth-child(7) { left: 70%; animation-delay: 2.5s; }
+        .tool:nth-child(8) { left: 80%; animation-delay: 4.5s; }
+        .tool:nth-child(9) { left: 90%; animation-delay: 1.5s; }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10%, 90% {
+                opacity: 1;
+            }
+            50% {
+                transform: translateY(50vh) rotate(360deg);
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .error-code {
+                font-size: 100px;
+            }
+            .broken-icon {
+                font-size: 60px;
+            }
+            .error-title {
+                font-size: 22px;
+            }
+            .error-message {
+                font-size: 14px;
+            }
+            .btn-home {
+                padding: 14px 28px;
+                font-size: 14px;
+            }
+        }
+
+        /* Мигающий эффект */
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .blink {
+            animation: blink 1.5s infinite;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Фоновые летающие инструменты -->
+    <div class="floating-tools">
+        <i class="tool fa-solid fa-wrench"></i>
+        <i class="tool fa-solid fa-hammer"></i>
+        <i class="tool fa-solid fa-screwdriver"></i>
+        <i class="tool fa-solid fa-bolt"></i>
+        <i class="tool fa-solid fa-droplet"></i>
+        <i class="tool fa-solid fa-plug"></i>
+        <i class="tool fa-solid fa-fire-burner"></i>
+        <i class="tool fa-solid fa-house-chimney-crack"></i>
+        <i class="tool fa-solid fa-wrench"></i>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="error-container">
+        <h1 class="error-code">404</h1>
+        
+        <div class="broken-icon">
+            <i class="fa-solid fa-person-digging"></i>
+        </div>
+
+        <h2 class="error-title">Страница не найдена</h2>
+        
+        <p class="error-message">
+            Эта страница как лифт в вашем доме —<br>
+            <span class="blink">временно не работает</span>
+        </p>
+
+        <p class="error-joke">
+            Мастер выехал, но застрял в пробке... 🚗💨
+        </p>
+
+        <a href="index.html" class="btn-home">
+            <i class="fa-solid fa-house"></i>
+            Вернуться на главную
+        </a>
+        
+        <br><br>
+        
+        <a href="javascript:history.back()" class="btn-home" style="background: rgba(255,255,255,0.2); color: white;">
+            <i class="fa-solid fa-arrow-left"></i>
+            Назад
+        </a>
+    </div>
+
+    <script>
+        // Пасхалка: если кликнуть на иконку 5 раз — шутка меняется
+        let clickCount = 0;
+        const jokes = [
+            'Мастер выехал, но застрял в пробке... 🚗💨',
+            'Диспетчер записал вашу заявку, но потерял листочек 📋❌',
+            'Страница в очереди на ремонт с 2019 года ⏳',
+            'Сантехник обещал прийти "сегодня-завтра" 🔧⏰',
+            'Отключили за неуплату... шутка, мы бесплатные! 💸😄'
+        ];
+
+        document.querySelector('.broken-icon').addEventListener('click', function() {
+            clickCount++;
+            if (clickCount >= 5) {
+                const randomJoke = jokes[Math.floor(Math.random() * jokes.length)];
+                document.querySelector('.error-joke').textContent = randomJoke;
+                clickCount = 0;
+            }
+        });
+
+        // Анимация появления контента
+        window.addEventListener('load', function() {
+            document.querySelector('.error-container').style.opacity = '0';
+            document.querySelector('.error-container').style.transform = 'translateY(20px)';
+            document.querySelector('.error-container').style.transition = 'all 0.6s ease-out';
+            
+            setTimeout(() => {
+                document.querySelector('.error-container').style.opacity = '1';
+                document.querySelector('.error-container').style.transform = 'translateY(0)';
+            }, 100);
+        });
+    </script>
+
+</body>
+</html>
