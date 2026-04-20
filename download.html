@@ -21,7 +21,6 @@
             --text-secondary: #86868b;
             --text-tertiary: #3a3a3c;
             --accent: #2997ff;
-            --accent-dark: #0071e3;
             --accent-gradient: linear-gradient(135deg, #0071e3 0%, #2997ff 100%);
             --glow: rgba(41, 151, 255, 0.3);
             --separator: rgba(255, 255, 255, 0.06);
@@ -50,7 +49,7 @@
             overflow-x: hidden;
         }
 
-        /* ── Фон ─────────────────────────────────────── */
+        /* Фон */
         .bg-layer {
             position: fixed;
             inset: 0;
@@ -99,7 +98,6 @@
             mask-image: radial-gradient(ellipse 75% 55% at 50% 0%, black 20%, transparent 100%);
         }
 
-        /* ── Страница ─────────────────────────────────── */
         .page {
             position: relative;
             z-index: 1;
@@ -108,7 +106,7 @@
             padding: 0 20px 72px;
         }
 
-        /* ── Hero ─────────────────────────────────────── */
+        /* Hero */
         .hero {
             display: flex;
             flex-direction: column;
@@ -197,7 +195,7 @@
             animation: up 0.6s ease 0.2s both;
         }
 
-        /* ── Кнопка ───────────────────────────────────── */
+        /* Кнопка */
         .btn-wrap { width: 100%; animation: up 0.6s ease 0.25s both; }
 
         .btn-install {
@@ -230,7 +228,7 @@
 
         .btn-install:hover  { transform: translateY(-1px); box-shadow: 0 14px 36px var(--glow); }
         .btn-install:active { transform: translateY(1px) scale(0.99); }
-        .btn-install:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+        .btn-install:disabled { opacity: 0.7; cursor: default; transform: none; }
 
         .btn-install svg { flex-shrink: 0; }
 
@@ -250,7 +248,7 @@
 
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* ── Секции ───────────────────────────────────── */
+        /* Секции */
         .section { width: 100%; margin-top: 52px; }
 
         .sec-label {
@@ -417,7 +415,7 @@
             to   { opacity: 1; transform: translateY(0); }
         }
 
-        /* ── iOS модал ────────────────────────────────── */
+        /* iOS модал */
         .ios-modal {
             position: fixed;
             inset: 0;
@@ -537,7 +535,7 @@
 
         .btn-close:hover { background: rgba(255,255,255,0.11); }
 
-        /* ── Тост ─────────────────────────────────────── */
+        /* Тост */
         .toast {
             position: fixed;
             bottom: 30px;
@@ -765,7 +763,7 @@
 
     <section class="cta">
         <h2>Начните прямо сейчас</h2>
-        <p>Установите приложение и войдите по своему ПИН-коду</p>
+        <p>Установите приложение для быстрого доступа</p>
         <button class="btn-install" id="installBtn2" onclick="handleInstall()">
             <div class="btn-inner" id="btnInner2">
                 <svg id="btnSvg2" width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -824,16 +822,16 @@
 
 <script>
     let deferredPrompt = null;
-    let installed      = false;
+    let installed = false;
 
-    const btn1    = document.getElementById('installBtn');
-    const btn2    = document.getElementById('installBtn2');
-    const label1  = document.getElementById('btnLabel');
-    const label2  = document.getElementById('btnLabel2');
-    const svg1    = document.getElementById('btnSvg');
-    const svg2    = document.getElementById('btnSvg2');
-    const modal   = document.getElementById('iosModal');
-    const toast   = document.getElementById('toast');
+    const btn1 = document.getElementById('installBtn');
+    const btn2 = document.getElementById('installBtn2');
+    const label1 = document.getElementById('btnLabel');
+    const label2 = document.getElementById('btnLabel2');
+    const svg1 = document.getElementById('btnSvg');
+    const svg2 = document.getElementById('btnSvg2');
+    const modal = document.getElementById('iosModal');
+    const toast = document.getElementById('toast');
 
     const ICONS = {
         download: `<path d="M12 4v12M12 16l-4-4M12 16l4-4"/><path d="M4 20h16"/>`,
@@ -847,37 +845,18 @@
         el.innerHTML = ICONS[key];
     }
 
-    function setInstalled() {
-        installed = true;
-
-        // Меняем обе кнопки
-        label1.textContent = 'Приложение установлено';
-        label2.textContent = 'Приложение установлено';
-        setSvg(svg1, 'check', 'white');
-        setSvg(svg2, 'check', 'white');
-
-        [btn1, btn2].forEach(b => {
-            if (!b) return;
-            b.style.background = 'linear-gradient(135deg, #1a7a35 0%, #30d158 100%)';
-            b.style.boxShadow  = '0 8px 28px rgba(48,209,88,0.35)';
-            // Клик ничего не делает — просто отключаем
-            b.onclick    = () => {};
-            b.disabled   = true;
-            b.style.cursor = 'default';
-            b.style.opacity = '1'; // disabled делает 0.55, возвращаем
-        });
-    }
-
-    function setButtons({ label, icon, color, bg, shadow }) {
+    function setButtons({ label, icon, color, bg, shadow, disabled = false }) {
         label1.textContent = label;
         label2.textContent = label;
         setSvg(svg1, icon, color);
         setSvg(svg2, icon, color);
+        
         if (bg) {
             [btn1, btn2].forEach(b => {
                 if (!b) return;
                 b.style.background = bg;
-                b.style.boxShadow  = `0 8px 28px ${shadow}`;
+                b.style.boxShadow = `0 8px 28px ${shadow}`;
+                b.disabled = disabled;
             });
         }
     }
@@ -888,52 +867,84 @@
         setTimeout(() => toast.classList.remove('show'), 2800);
     }
 
-    // Проверка: уже установлено (открыто как PWA)
+    // Обновление состояния кнопки при установленности
+    function updateInstalledState() {
+        installed = true;
+        setButtons({ 
+            label: 'Приложение установлено', 
+            icon: 'check',
+            color: 'white',
+            bg: 'var(--success-gradient)',
+            shadow: 'var(--success-glow)',
+            disabled: true
+        });
+    }
+
+    // Проверка: приложение уже установлено?
     function checkInstalled() {
-        const sa = window.matchMedia('(display-mode: standalone)').matches
-                || window.navigator.standalone === true;
-        if (sa) {
-            setInstalled();
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches 
+                          || window.navigator.standalone === true;
+        
+        if (isStandalone) {
+            updateInstalledState();
             return true;
         }
         return false;
     }
 
-    const isIOS    = () => /iPhone|iPad|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isIOS = () => /iPhone|iPad|iPod/.test(navigator.userAgent) && !window.MSStream;
     const isSafari = () => /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
-    // beforeinstallprompt — Android/Chrome
     window.addEventListener('beforeinstallprompt', e => {
         e.preventDefault();
         deferredPrompt = e;
     });
 
-    // Клик на кнопку
     async function handleInstall() {
-        if (installed) return; // уже установлено — ничего не делаем
+        // Если уже установлено — просто показываем toast, никуда не переходим
+        if (installed) { 
+            showToast('✅ Приложение уже установлено');
+            return; 
+        }
 
-        if (isIOS()) { openModal(); return; }
+        // iOS — показываем инструкцию
+        if (isIOS()) { 
+            openModal(); 
+            return; 
+        }
 
+        // Android — показываем диалог установки
         if (deferredPrompt) {
-            [btn1, btn2].forEach(b => {
-                if (b) { b.classList.add('loading'); b.disabled = true; }
+            [btn1, btn2].forEach(b => { 
+                if (b) { 
+                    b.classList.add('loading'); 
+                    b.disabled = true; 
+                } 
             });
+            
             try {
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
+                
                 if (outcome === 'accepted') {
                     deferredPrompt = null;
-                    showToast('Устанавливаем приложение…');
+                    // Не делаем ничего здесь — ждём события appinstalled
                 } else {
                     showToast('Установка отменена');
-                    [btn1, btn2].forEach(b => {
-                        if (b) { b.classList.remove('loading'); b.disabled = false; }
+                    [btn1, btn2].forEach(b => { 
+                        if (b) { 
+                            b.classList.remove('loading'); 
+                            b.disabled = false; 
+                        } 
                     });
                 }
-            } catch(e) {
+            } catch(e) { 
                 console.error(e);
-                [btn1, btn2].forEach(b => {
-                    if (b) { b.classList.remove('loading'); b.disabled = false; }
+                [btn1, btn2].forEach(b => { 
+                    if (b) { 
+                        b.classList.remove('loading'); 
+                        b.disabled = false; 
+                    } 
                 });
             }
         } else {
@@ -941,13 +952,25 @@
         }
     }
 
-    function openModal()  { modal.classList.add('open'); document.body.style.overflow = 'hidden'; }
-    function closeModal() { modal.classList.remove('open'); document.body.style.overflow = ''; }
+    function openModal() { 
+        modal.classList.add('open'); 
+        document.body.style.overflow = 'hidden'; 
+    }
+    
+    function closeModal() { 
+        modal.classList.remove('open'); 
+        document.body.style.overflow = ''; 
+    }
 
-    // Приложение успешно установлено
+    // Событие успешной установки
     window.addEventListener('appinstalled', () => {
-        setInstalled();
-        showToast('Приложение установлено!');
+        // Просто обновляем UI, никаких редиректов
+        updateInstalledState();
+        showToast('✅ Приложение установлено!');
+        
+        [btn1, btn2].forEach(b => {
+            if (b) b.classList.remove('loading');
+        });
     });
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -955,20 +978,26 @@
 
         if (isIOS()) {
             if (!isSafari()) {
-                setButtons({
-                    label: 'Откройте в Safari', icon: 'warning', color: 'white',
+                setButtons({ 
+                    label: 'Откройте в Safari', 
+                    icon: 'warning',
+                    color: 'white',
                     bg: 'linear-gradient(135deg,#7a4800 0%,#ff9f0a 100%)',
-                    shadow: 'rgba(255,159,10,0.35)'
+                    shadow: 'rgba(255,159,10,0.35)' 
                 });
             } else {
-                setButtons({ label: 'Инструкция для iOS', icon: 'phone', color: 'white' });
+                setButtons({ 
+                    label: 'Инструкция для iOS', 
+                    icon: 'phone', 
+                    color: 'white' 
+                });
             }
         }
 
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js')
-                .then(r  => console.log('SW ok', r.scope))
-                .catch(e => console.warn('SW err', e));
+                .then(r => console.log('SW зарегистрирован:', r.scope))
+                .catch(e => console.warn('SW ошибка:', e));
         }
     });
 </script>
