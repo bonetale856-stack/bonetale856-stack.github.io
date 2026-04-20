@@ -1,0 +1,2703 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Система управления заявками — Гильдия</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+  :root {
+    --apple-blue: #0071e3;
+    --apple-dark: #1d1d1f;
+    --apple-gray: #6e6e73;
+    --apple-light: #f5f5f7;
+    --apple-white: #ffffff;
+    --apple-green: #30d158;
+    --apple-red: #ff3b30;
+    --apple-orange: #ff9500;
+    --apple-purple: #bf5af2;
+    --apple-teal: #5ac8fa;
+    --slide-width: 100vw;
+    --slide-height: 100vh;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+    background: #000;
+    overflow: hidden;
+    color: var(--apple-dark);
+  }
+
+  /* ─── ПРЕЗЕНТАЦИЯ ─── */
+  .presentation {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .slides-wrapper {
+    display: flex;
+    width: calc(100vw * 15);
+    height: 100vh;
+    transition: transform 0.7s cubic-bezier(0.77, 0, 0.175, 1);
+  }
+
+  .slide {
+    width: 100vw;
+    height: 100vh;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ─── НАВИГАЦИЯ ─── */
+  .nav {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    z-index: 1000;
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 50px;
+    padding: 10px 20px;
+  }
+
+  .nav-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,0.2);
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    backdrop-filter: blur(10px);
+  }
+
+  .nav-btn:hover {
+    background: rgba(255,255,255,0.35);
+    transform: scale(1.1);
+  }
+
+  .nav-dots {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .nav-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.4);
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .nav-dot.active {
+    background: white;
+    width: 20px;
+    border-radius: 3px;
+  }
+
+  .slide-counter {
+    color: rgba(255,255,255,0.7);
+    font-size: 13px;
+    font-weight: 500;
+    min-width: 40px;
+    text-align: center;
+  }
+
+  /* ─── ПРОГРЕСС ─── */
+  .progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #0071e3, #5ac8fa);
+    transition: width 0.7s cubic-bezier(0.77, 0, 0.175, 1);
+    z-index: 1000;
+  }
+
+  /* ══════════════════════════════════════
+     СЛАЙД 1 — ОБЛОЖКА
+  ══════════════════════════════════════ */
+  .slide-1 {
+    background: radial-gradient(ellipse at 20% 50%, #1a1a2e 0%, #000000 60%),
+                radial-gradient(ellipse at 80% 20%, #0a0a2e 0%, transparent 50%);
+    background-color: #000;
+  }
+
+  .slide-1::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 30% 40%, rgba(0,113,227,0.15) 0%, transparent 60%),
+      radial-gradient(ellipse at 70% 60%, rgba(90,200,250,0.08) 0%, transparent 50%);
+  }
+
+  .s1-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  .s1-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  .s1-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,113,227,0.15);
+    border: 1px solid rgba(0,113,227,0.4);
+    border-radius: 50px;
+    padding: 8px 20px;
+    margin-bottom: 32px;
+    animation: fadeInDown 0.8s ease;
+  }
+
+  .s1-badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--apple-blue);
+    animation: pulse 2s infinite;
+  }
+
+  .s1-badge span {
+    color: #5ac8fa;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .s1-logo-wrap {
+    width: 120px;
+    height: 120px;
+    border-radius: 27px;
+    overflow: hidden;
+    margin-bottom: 36px;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.08),
+                0 30px 60px rgba(0,0,0,0.6),
+                0 0 80px rgba(0,113,227,0.3);
+    animation: fadeInScale 0.9s ease 0.2s both;
+  }
+
+  .s1-logo-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .s1-title {
+    font-size: clamp(36px, 5.5vw, 72px);
+    font-weight: 800;
+    color: white;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    margin-bottom: 12px;
+    animation: fadeInUp 0.8s ease 0.3s both;
+  }
+
+  .s1-title span {
+    background: linear-gradient(135deg, #0071e3, #5ac8fa, #0071e3);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradientShift 4s linear infinite;
+  }
+
+  .s1-sub {
+    font-size: clamp(16px, 2vw, 22px);
+    color: rgba(255,255,255,0.55);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    margin-bottom: 56px;
+    animation: fadeInUp 0.8s ease 0.4s both;
+  }
+
+  .s1-meta {
+    display: flex;
+    gap: 48px;
+    animation: fadeInUp 0.8s ease 0.5s both;
+  }
+
+  .s1-meta-item {
+    text-align: center;
+  }
+
+  .s1-meta-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 4px;
+  }
+
+  .s1-meta-value {
+    font-size: 17px;
+    color: rgba(255,255,255,0.8);
+    font-weight: 600;
+  }
+
+  .s1-particles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .particle {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: rgba(90,200,250,0.6);
+    border-radius: 50%;
+    animation: float linear infinite;
+  }
+
+  /* ══════════════════════════════════════
+     СЛАЙД 2 — ПРОБЛЕМА
+  ══════════════════════════════════════ */
+  .slide-2 {
+    background: linear-gradient(135deg, #0f0f0f 0%, #1a0a0a 100%);
+  }
+
+  .s2-content {
+    width: 90%;
+    max-width: 1100px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .slide-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .tag-red { background: rgba(255,59,48,0.15); color: #ff3b30; border: 1px solid rgba(255,59,48,0.3); }
+  .tag-green { background: rgba(48,209,88,0.15); color: #30d158; border: 1px solid rgba(48,209,88,0.3); }
+  .tag-blue { background: rgba(0,113,227,0.15); color: #5ac8fa; border: 1px solid rgba(0,113,227,0.3); }
+  .tag-purple { background: rgba(191,90,242,0.15); color: #bf5af2; border: 1px solid rgba(191,90,242,0.3); }
+  .tag-orange { background: rgba(255,149,0,0.15); color: #ff9500; border: 1px solid rgba(255,149,0,0.3); }
+
+  .slide-heading {
+    font-size: clamp(28px, 4vw, 52px);
+    font-weight: 800;
+    color: white;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-bottom: 40px;
+  }
+
+  .flow-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .flow-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: all 0.3s;
+  }
+
+  .flow-card:hover {
+    background: rgba(255,255,255,0.07);
+    border-color: rgba(255,59,48,0.3);
+    transform: translateY(-2px);
+  }
+
+  .flow-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    background: rgba(255,59,48,0.12);
+  }
+
+  .flow-text {
+    flex: 1;
+  }
+
+  .flow-from {
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.85);
+    margin-bottom: 4px;
+  }
+
+  .flow-arrow-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: rgba(255,59,48,0.8);
+  }
+
+  .flow-to {
+    color: rgba(255,255,255,0.45);
+  }
+
+  .problems-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .problem-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,59,48,0.08);
+    border: 1px solid rgba(255,59,48,0.2);
+    border-radius: 50px;
+    padding: 8px 16px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.75);
+    font-weight: 500;
+  }
+
+  .problem-chip .chip-icon { font-size: 15px; }
+
+  /* ══════════════════════════════════════
+     СЛАЙД 3 — РЕШЕНИЕ
+  ══════════════════════════════════════ */
+  .slide-3 {
+    background: linear-gradient(135deg, #000d0a 0%, #001a0e 100%);
+  }
+
+  .s3-content {
+    width: 90%;
+    max-width: 1100px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .solution-flow {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin-bottom: 32px;
+  }
+
+  .sol-step {
+    flex: 1;
+    background: rgba(48,209,88,0.06);
+    border: 1px solid rgba(48,209,88,0.15);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    transition: all 0.3s;
+  }
+
+  .sol-step:hover {
+    background: rgba(48,209,88,0.1);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(48,209,88,0.1);
+  }
+
+  .sol-step-num {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(48,209,88,0.2);
+    border: 1px solid rgba(48,209,88,0.4);
+    color: #30d158;
+    font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+  }
+
+  .sol-step-emoji { font-size: 24px; margin-bottom: 8px; }
+
+  .sol-step-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.9);
+    margin-bottom: 6px;
+  }
+
+  .sol-step-desc {
+    font-size: 12px;
+    color: rgba(255,255,255,0.45);
+    line-height: 1.5;
+  }
+
+  .sol-arrow {
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    color: rgba(48,209,88,0.5);
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .results-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  .result-card {
+    background: rgba(48,209,88,0.06);
+    border: 1px solid rgba(48,209,88,0.15);
+    border-radius: 14px;
+    padding: 16px;
+    text-align: center;
+  }
+
+  .result-icon { font-size: 22px; margin-bottom: 8px; }
+
+  .result-text {
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.4;
+  }
+
+  /* ══════════════════════════════════════
+     СЛАЙДЫ 4–6 — КАБИНЕТЫ
+  ══════════════════════════════════════ */
+  .slide-4 { background: linear-gradient(135deg, #000510 0%, #000a1e 100%); }
+  .slide-5 { background: linear-gradient(135deg, #050010 0%, #0a001e 100%); }
+  .slide-6 { background: linear-gradient(135deg, #050500 0%, #1a1000 100%); }
+
+  .cabinet-content {
+    width: 90%;
+    max-width: 1100px;
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 48px;
+    align-items: center;
+  }
+
+  .cabinet-left {}
+  .cabinet-right {}
+
+  .cabinet-phone {
+    width: 240px;
+    height: 480px;
+    background: #1c1c1e;
+    border-radius: 40px;
+    border: 1px solid rgba(255,255,255,0.12);
+    box-shadow:
+      0 0 0 8px #000,
+      0 0 0 9px rgba(255,255,255,0.06),
+      0 40px 80px rgba(0,0,0,0.8),
+      inset 0 1px 0 rgba(255,255,255,0.08);
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .phone-notch {
+    width: 80px;
+    height: 24px;
+    background: #000;
+    border-radius: 0 0 16px 16px;
+    margin: 0 auto 16px;
+    flex-shrink: 0;
+  }
+
+  .phone-screen {
+    flex: 1;
+    padding: 0 12px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow: hidden;
+  }
+
+  .phone-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 0 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .phone-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.8);
+  }
+
+  .phone-avatar {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+  }
+
+  .phone-card {
+    background: rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: 10px;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .phone-card-title {
+    font-size: 9px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+  }
+
+  .phone-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+  }
+
+  .phone-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .phone-label {
+    font-size: 9px;
+    color: rgba(255,255,255,0.6);
+    flex: 1;
+  }
+
+  .phone-status {
+    font-size: 8px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+
+  .phone-btn {
+    background: rgba(0,113,227,0.4);
+    border-radius: 6px;
+    padding: 6px;
+    text-align: center;
+    font-size: 9px;
+    color: rgba(255,255,255,0.8);
+    font-weight: 600;
+    margin-top: 6px;
+  }
+
+  .feature-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .feature-group {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 14px;
+    padding: 16px 20px;
+  }
+
+  .feature-group-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.85);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .feature-group-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+  }
+
+  .feature-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.4;
+  }
+
+  .feature-item::before {
+    content: '·';
+    color: rgba(255,255,255,0.25);
+    flex-shrink: 0;
+    margin-top: 0px;
+  }
+
+  /* ══════════════════════════════════════
+     СЛАЙД 7 — PUSH
+  ══════════════════════════════════════ */
+  .slide-7 {
+    background: linear-gradient(135deg, #000510 0%, #05000f 100%);
+  }
+
+  .push-content {
+    width: 90%;
+    max-width: 1000px;
+  }
+
+  .push-timeline {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin: 32px 0;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 20px;
+    padding: 28px 32px;
+  }
+
+  .push-step {
+    flex: 1;
+    text-align: center;
+  }
+
+  .push-step-icon {
+    font-size: 32px;
+    margin-bottom: 10px;
+  }
+
+  .push-step-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 6px;
+  }
+
+  .push-step-time {
+    display: inline-block;
+    background: rgba(0,113,227,0.2);
+    border: 1px solid rgba(0,113,227,0.4);
+    border-radius: 50px;
+    padding: 3px 12px;
+    font-size: 11px;
+    color: #5ac8fa;
+    font-weight: 700;
+  }
+
+  .push-step-desc {
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    margin-top: 6px;
+    line-height: 1.4;
+  }
+
+  .push-arrow {
+    font-size: 20px;
+    color: rgba(0,113,227,0.5);
+    padding: 0 12px;
+    flex-shrink: 0;
+  }
+
+  .push-features {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+  }
+
+  .push-feat {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 14px;
+    padding: 16px 12px;
+    text-align: center;
+    transition: all 0.3s;
+  }
+
+  .push-feat:hover {
+    background: rgba(0,113,227,0.08);
+    border-color: rgba(0,113,227,0.2);
+    transform: translateY(-3px);
+  }
+
+  .push-feat-icon { font-size: 22px; margin-bottom: 8px; }
+
+  .push-feat-text {
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.4;
+  }
+
+  /* ══════════════════════════════════════
+     СЛАЙД 8 — ТЕХНОЛОГИИ
+  ══════════════════════════════════════ */
+  .slide-8 {
+    background: linear-gradient(135deg, #000510 0%, #000d20 100%);
+  }
+
+  .tech-content {
+    width: 90%;
+    max-width: 1100px;
+  }
+
+  .tech-diagram {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    margin: 28px 0;
+  }
+
+  .tech-row {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .tech-box {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 16px 20px;
+    text-align: center;
+    transition: all 0.3s;
+  }
+
+  .tech-box:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+  }
+
+  .tech-box-wide {
+    flex: 1;
+    max-width: 600px;
+  }
+
+  .tech-box-half {
+    flex: 1;
+  }
+
+  .tech-box-icon { font-size: 28px; margin-bottom: 8px; }
+
+  .tech-box-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 4px;
+  }
+
+  .tech-box-desc {
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    line-height: 1.5;
+  }
+
+  .tech-app-row {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 8px;
+  }
+
+  .tech-app-chip {
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    color: white;
+  }
+
+  .tech-connector {
+    color: rgba(255,255,255,0.2);
+    font-size: 20px;
+    text-align: center;
+  }
+
+  .tech-perks {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  .tech-perk {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+  }
+
+  .tech-perk-icon { font-size: 20px; margin-bottom: 6px; }
+
+  .tech-perk-text {
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.4;
+  }
+
+  /* ══════════════════════════════════════
+     СЛАЙД 9 — БЕЗОПАСНОСТЬ
+  ══════════════════════════════════════ */
+  .slide-9 {
+    background: linear-gradient(135deg, #030008 0%, #08001a 100%);
+  }
+
+  .security-content {
+    width: 90%;
+    max-width: 1000px;
+  }
+
+  .security-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 28px;
+  }
+
+  .security-card {
+    background: rgba(191,90,242,0.05);
+    border: 1px solid rgba(191,90,242,0.15);
+    border-radius: 20px;
+    padding: 24px;
+    transition: all 0.3s;
+  }
+
+  .security-card:hover {
+    background: rgba(191,90,242,0.09);
+    border-color: rgba(191,90,242,0.3);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(191,90,242,0.1);
+  }
+
+  .security-card-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: rgba(191,90,242,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin-bottom: 16px;
+  }
+
+  .security-card-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 12px;
+  }
+
+  .security-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.5;
+  }
+
+  .security-check {
+    color: #bf5af2;
+    flex-shrink: 0;
+    margin-top: 1px;
+    font-size: 11px;
+  }
+
+  /* ══════════════════════════════════════
+     СЛАЙД 10 — УСТАНОВКА
+  ══════════════════════════════════════ */
+  .slide-10 {
+    background: linear-gradient(135deg, #001510 0%, #001a18 100%);
+  }
+
+  .install-content {
+    width: 90%;
+    max-width: 900px;
+    text-align: center;
+  }
+
+  .install-subtitle {
+    font-size: 16px;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 40px;
+  }
+
+  .install-steps {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    justify-content: center;
+    margin-bottom: 40px;
+  }
+
+  .install-step {
+    background: rgba(48,209,88,0.06);
+    border: 1px solid rgba(48,209,88,0.15);
+    border-radius: 20px;
+    padding: 28px 32px;
+    text-align: center;
+    flex: 1;
+    transition: all 0.3s;
+  }
+
+  .install-step:hover {
+    background: rgba(48,209,88,0.1);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(48,209,88,0.1);
+  }
+
+  .install-step-num {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(48,209,88,0.2);
+    border: 1px solid rgba(48,209,88,0.4);
+    color: #30d158;
+    font-size: 16px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+  }
+
+  .install-step-emoji { font-size: 32px; margin-bottom: 10px; }
+
+  .install-step-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 6px;
+  }
+
+  .install-step-desc {
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    line-height: 1.5;
+  }
+
+  .install-arrow {
+    font-size: 24px;
+    color: rgba(48,209,88,0.4);
+    padding: 0 12px;
+    flex-shrink: 0;
+  }
+
+  .install-perks {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .install-perk {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(48,209,88,0.08);
+    border: 1px solid rgba(48,209,88,0.2);
+    border-radius: 50px;
+    padding: 8px 16px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.7);
+    font-weight: 500;
+  }
+
+  .install-perk-dot { color: #30d158; font-weight: 700; }
+
+  /* ══════════════════════════════════════
+     СЛАЙД 11 — ТЕСТИРОВАНИЕ
+  ══════════════════════════════════════ */
+  .slide-11 {
+    background: linear-gradient(135deg, #000a05 0%, #001a0a 100%);
+  }
+
+  .test-content {
+    width: 90%;
+    max-width: 1100px;
+  }
+
+  .test-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 24px;
+  }
+
+  .test-section {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px;
+    padding: 20px;
+    overflow: hidden;
+  }
+
+  .test-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .test-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .test-row:last-child { border-bottom: none; }
+
+  .test-label {
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+    flex: 1;
+    line-height: 1.3;
+  }
+
+  .test-result {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #30d158;
+    flex-shrink: 0;
+    margin-left: 8px;
+  }
+
+  .test-checkmark {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: rgba(48,209,88,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    color: #30d158;
+  }
+
+  /* ══════════════════════════════════════
+     СЛАЙД 12 — ЭКОНОМИКА
+  ══════════════════════════════════════ */
+  .slide-12 {
+    background: linear-gradient(135deg, #030a00 0%, #081500 100%);
+  }
+
+  .econ-content {
+    width: 90%;
+    max-width: 1100px;
+  }
+
+  .comparison-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 24px 0;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .comparison-table th {
+    padding: 14px 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    text-align: left;
+  }
+
+  .comparison-table th:first-child {
+    background: rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.4);
+  }
+
+  .comparison-table th.before-col {
+    background: rgba(255,59,48,0.08);
+    color: #ff3b30;
+    text-align: center;
+  }
+
+  .comparison-table th.after-col {
+    background: rgba(48,209,88,0.08);
+    color: #30d158;
+    text-align: center;
+  }
+
+  .comparison-table td {
+    padding: 12px 20px;
+    font-size: 13px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .comparison-table td:first-child {
+    background: rgba(255,255,255,0.02);
+    color: rgba(255,255,255,0.6);
+    font-weight: 500;
+  }
+
+  .comparison-table td.before-val {
+    background: rgba(255,59,48,0.04);
+    color: rgba(255,59,48,0.8);
+    text-align: center;
+    font-weight: 600;
+  }
+
+  .comparison-table td.after-val {
+    background: rgba(48,209,88,0.04);
+    color: #30d158;
+    text-align: center;
+    font-weight: 600;
+  }
+
+  .savings-card {
+    background: rgba(48,209,88,0.06);
+    border: 1px solid rgba(48,209,88,0.2);
+    border-radius: 16px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+
+  .savings-formula {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.8;
+  }
+
+  .savings-formula strong { color: white; }
+
+  .savings-highlight {
+    text-align: center;
+  }
+
+  .savings-amount {
+    font-size: 36px;
+    font-weight: 800;
+    color: #30d158;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+
+  .savings-period {
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    margin-top: 4px;
+  }
+
+  /* ══════════════════════════════════════
+     СЛАЙД 13 — МАСШТАБИРОВАНИЕ
+  ══════════════════════════════════════ */
+  .slide-13 {
+    background: linear-gradient(135deg, #000510 0%, #000d20 100%);
+  }
+
+  .scale-content {
+    width: 90%;
+    max-width: 1100px;
+  }
+
+  .roadmap-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 28px;
+  }
+
+  .roadmap-card {
+    border-radius: 20px;
+    padding: 24px;
+    border: 1px solid;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .roadmap-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+  }
+
+  .roadmap-card:hover {
+    transform: translateY(-4px);
+  }
+
+  .rc-2 {
+    background: rgba(0,113,227,0.05);
+    border-color: rgba(0,113,227,0.2);
+  }
+  .rc-2::before { background: linear-gradient(90deg, #0071e3, #5ac8fa); }
+  .rc-2:hover { box-shadow: 0 20px 40px rgba(0,113,227,0.15); }
+
+  .rc-3 {
+    background: rgba(48,209,88,0.05);
+    border-color: rgba(48,209,88,0.2);
+  }
+  .rc-3::before { background: linear-gradient(90deg, #30d158, #5ac8fa); }
+  .rc-3:hover { box-shadow: 0 20px 40px rgba(48,209,88,0.15); }
+
+  .rc-4 {
+    background: rgba(191,90,242,0.05);
+    border-color: rgba(191,90,242,0.2);
+  }
+  .rc-4::before { background: linear-gradient(90deg, #bf5af2, #ff375f); }
+  .rc-4:hover { box-shadow: 0 20px 40px rgba(191,90,242,0.15); }
+
+  .roadmap-phase {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+
+  .roadmap-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 16px;
+    line-height: 1.2;
+  }
+
+  .roadmap-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.4;
+  }
+
+  .roadmap-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+
+  /* ══════════════════════════════════════
+     СЛАЙД 14 — СТОИМОСТЬ
+  ══════════════════════════════════════ */
+  .slide-14 {
+    background: linear-gradient(135deg, #000510 0%, #020020 100%);
+  }
+
+  .pricing-content {
+    width: 90%;
+    max-width: 900px;
+    text-align: center;
+  }
+
+  .pricing-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 28px;
+    padding: 40px;
+    margin: 28px 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .pricing-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #0071e3, #5ac8fa, #bf5af2);
+  }
+
+  .pricing-main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+    text-align: left;
+  }
+
+  .pricing-includes {
+    flex: 1;
+  }
+
+  .pricing-includes-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 14px;
+  }
+
+  .pricing-include-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.7);
+  }
+
+  .pricing-check {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: rgba(0,113,227,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: #5ac8fa;
+    flex-shrink: 0;
+  }
+
+  .pricing-cta {
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .pricing-price {
+    font-size: 56px;
+    font-weight: 900;
+    color: white;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .pricing-currency {
+    font-size: 24px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.5);
+    vertical-align: super;
+  }
+
+  .pricing-label {
+    font-size: 12px;
+    color: rgba(255,255,255,0.3);
+    margin-bottom: 16px;
+  }
+
+  .pricing-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #0071e3, #5ac8fa);
+    color: white;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 12px 28px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 10px 30px rgba(0,113,227,0.3);
+  }
+
+  .pricing-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 40px rgba(0,113,227,0.4);
+  }
+
+  .pricing-options {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+  }
+
+  .pricing-option {
+    flex: 1;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 14px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-align: left;
+    max-width: 380px;
+  }
+
+  .pricing-option-name {
+    font-size: 13px;
+    color: rgba(255,255,255,0.7);
+    font-weight: 500;
+  }
+
+  .pricing-option-price {
+    font-size: 16px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.4);
+  }
+
+  /* ══════════════════════════════════════
+     СЛАЙД 15 — ФИНАЛ
+  ══════════════════════════════════════ */
+  .slide-15 {
+    background: radial-gradient(ellipse at center, #0a0a1e 0%, #000000 70%);
+  }
+
+  .slide-15::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 25% 50%, rgba(0,113,227,0.12) 0%, transparent 55%),
+      radial-gradient(ellipse at 75% 50%, rgba(48,209,88,0.08) 0%, transparent 55%);
+  }
+
+  .s15-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 800px;
+    padding: 0 40px;
+  }
+
+  .s15-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(48,209,88,0.12);
+    border: 1px solid rgba(48,209,88,0.3);
+    border-radius: 50px;
+    padding: 8px 20px;
+    margin-bottom: 36px;
+    animation: pulse-border 2s infinite;
+  }
+
+  .s15-badge-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #30d158;
+    animation: pulse 1.5s infinite;
+  }
+
+  .s15-badge span {
+    color: #30d158;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+  }
+
+  .s15-title {
+    font-size: clamp(32px, 4.5vw, 58px);
+    font-weight: 900;
+    color: white;
+    letter-spacing: -0.03em;
+    line-height: 1.08;
+    margin-bottom: 16px;
+  }
+
+  .s15-title .highlight {
+    background: linear-gradient(135deg, #0071e3, #5ac8fa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .s15-desc {
+    font-size: clamp(14px, 1.8vw, 19px);
+    color: rgba(255,255,255,0.5);
+    line-height: 1.6;
+    margin-bottom: 44px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .s15-quote {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 28px 36px;
+    margin-bottom: 36px;
+    position: relative;
+  }
+
+  .s15-quote::before {
+    content: '"';
+    position: absolute;
+    top: -10px;
+    left: 24px;
+    font-size: 60px;
+    color: rgba(0,113,227,0.3);
+    font-family: serif;
+    line-height: 1;
+  }
+
+  .s15-quote-text {
+    font-size: clamp(14px, 1.6vw, 17px);
+    color: rgba(255,255,255,0.75);
+    font-style: italic;
+    line-height: 1.6;
+  }
+
+  .s15-meta {
+    font-size: 14px;
+    color: rgba(255,255,255,0.3);
+  }
+
+  .s15-meta strong { color: rgba(255,255,255,0.6); }
+
+  /* ─── АНИМАЦИИ ─── */
+  @keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeInScale {
+    from { opacity: 0; transform: scale(0.85); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  @keyframes gradientShift {
+    0% { background-position: 0% center; }
+    100% { background-position: 200% center; }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.85); }
+  }
+
+  @keyframes pulse-border {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(48,209,88,0.2); }
+    50% { box-shadow: 0 0 0 6px rgba(48,209,88,0); }
+  }
+
+  @keyframes float {
+    0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(-100px) translateX(50px); opacity: 0; }
+  }
+
+  /* ─── КЛАВИАТУРНАЯ ПОДСКАЗКА ─── */
+  .keyboard-hint {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  kbd {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 10px;
+    font-family: inherit;
+    color: rgba(255,255,255,0.6);
+  }
+
+  /* ─── SLIDE LOGO ─── */
+  .slide-logo {
+    position: absolute;
+    top: 24px;
+    left: 28px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 10;
+  }
+
+  .slide-logo img {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    opacity: 0.7;
+  }
+
+  .slide-logo-text {
+    font-size: 12px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.05em;
+  }
+</style>
+</head>
+<body>
+
+<div class="presentation">
+  <div class="progress-bar" id="progressBar"></div>
+
+  <div class="keyboard-hint">
+    <kbd>←</kbd><kbd>→</kbd> навигация · <kbd>Esc</kbd> начало
+  </div>
+
+  <div class="slides-wrapper" id="slidesWrapper">
+
+    <!-- ══════════════════════════════════
+         СЛАЙД 1 — ОБЛОЖКА
+    ══════════════════════════════════ -->
+    <div class="slide slide-1">
+      <div class="s1-grid"></div>
+      <div class="s1-particles" id="particles"></div>
+
+      <div class="s1-content">
+        <div class="s1-badge">
+          <div class="s1-badge-dot"></div>
+          <span>Управляющая компания · Гильдия</span>
+        </div>
+
+        <div class="s1-logo-wrap">
+          <img src="https://bonetale856-stack.github.io/icon-512.png" alt="Гильдия" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#0071e3,#5ac8fa)';this.parentElement.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:48px\'>🏢</div>'">
+        </div>
+
+        <h1 class="s1-title">
+          Система управления<br><span>заявками</span>
+        </h1>
+        <p class="s1-sub">Цифровизация процессов управляющей компании</p>
+
+        <div class="s1-meta">
+          <div class="s1-meta-item">
+            <div class="s1-meta-label">Разработчик</div>
+            <div class="s1-meta-value">Абдуррахим</div>
+          </div>
+          <div class="s1-meta-item">
+            <div class="s1-meta-label">Версия</div>
+            <div class="s1-meta-value">1.0</div>
+          </div>
+          <div class="s1-meta-item">
+            <div class="s1-meta-label">Год</div>
+            <div class="s1-meta-value">2026</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════
+         СЛАЙД 2 — ПРОБЛЕМА
+    ══════════════════════════════════ -->
+    <div class="slide slide-2">
+      <div class="slide-logo">
+        <img src="https://bonetale856-stack.github.io/icon-512.png" alt="">
+        <span class="slide-logo-text">ГИЛЬДИЯ</span>
+      </div>
+
+      <div class="s2-content">
+        <div class="slide-tag tag-red">❌ Проблема</div>
+        <h2 class="slide-heading">Как это работало <em style="font-style:normal;color:#ff3b30;">ДО</em></h2>
+
+        <div class="flow-grid">
+          <div class="flow-card">
+            <div class="flow-icon">📞</div>
+            <div class="flow-text">
+              <div class="flow-from">Жилец звонит</div>
+              <div class="flow-arrow-label">→ <span class="flow-to">Диспетчер записывает в тетрадь / Excel</span></div>
+            </div>
+          </div>
+          <div class="flow-card">
+            <div class="flow-icon">📱</div>
+            <div class="flow-text">
+              <div class="flow-from">Диспетчер звонит мастеру</div>
+              <div class="flow-arrow-label">→ <span class="flow-to">Мастер может не взять трубку</span></div>
+            </div>
+          </div>
+          <div class="flow-card">
+            <div class="flow-icon">👔</div>
+            <div class="flow-text">
+              <div class="flow-from">Руководитель хочет знать статус</div>
+              <div class="flow-arrow-label">→ <span class="flow-to">Звонит диспетчеру и ждёт ответа</span></div>
+            </div>
+          </div>
+          <div class="flow-card">
+            <div class="flow-icon">🔧</div>
+            <div class="flow-text">
+              <div class="flow-from">Мастер выполнил работу</div>
+              <div class="flow-arrow-label">→ <span class="flow-to">Пишет на бумаге или в WhatsApp</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="problems-row">
+          <div class="problem-chip"><span class="chip-icon">📵</span> Потерянные заявки</div>
+          <div class="problem-chip"><span class="chip-icon">⏰</span> До 10 мин на одну заявку</div>
+          <div class="problem-chip"><span class="chip-icon">📋</span> Бумажная отчётность</div>
+          <div class="problem-chip"><span class="chip-icon">😤</span> Нет контроля в реальном времени</div>
+          <div class="problem-chip"><span class="chip-icon">💸</span> Неучтённые платные работы</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════
+         СЛАЙД 3 — РЕШЕНИЕ
+    ══════════════════════════════════ -->
+    <div class="slide slide-3">
+      <div class="slide-logo">
+        <img src="https://bonetale856-stack.github.io/icon-512.png" alt="">
+        <span class="slide-logo-text">ГИЛЬДИЯ</span>
+      </div>
+
+      <div class="s3-content">
+        <div class="slide-tag tag-green">✅ Решение</div>
+        <h2 class="slide-heading">Как это работает <em style="font-style:normal;color:#30d158;">ПОСЛЕ</em></h2>
+
+        <div class="solution-flow">
+          <div class="sol-step">
+            <div class="sol-step-num">1</div>
+            <div class="sol-step-emoji">📞</div>
+            <div class="sol-step-title">Жилец сообщает</div>
+            <div class="sol-step-desc">Диспетчер создаёт заявку за 30 секунд</div>
+          </div>
+          <div class="sol-arrow">→</div>
+          <div class="sol-step">
+            <div class="sol-step-num">2</div>
+            <div class="sol-step-emoji">🔔</div>
+            <div class="sol-step-title">PUSH мгновенно</div>
+            <div class="sol-step-desc">Мастер получает уведомление за 3 секунды</div>
+          </div>
+          <div class="sol-arrow">→</div>
+          <div class="sol-step">
+            <div class="sol-step-num">3</div>
+            <div class="sol-step-emoji">🔧</div>
+            <div class="sol-step-title">Выполняет</div>
+            <div class="sol-step-desc">Закрывает заявку с отчётом прямо в приложении</div>
+          </div>
+          <div class="sol-arrow">→</div>
+          <div class="sol-step">
+            <div class="sol-step-num">4</div>
+            <div class="sol-step-emoji">📊</div>
+            <div class="sol-step-title">Контроль онлайн</div>
+            <div class="sol-step-desc">Руководитель видит всё в реальном времени</div>
+          </div>
+        </div>
+
+        <div class="results-grid">
+          <div class="result-card">
+            <div class="result-icon">✅</div>
+            <div class="result-text">Ни одна заявка не теряется</div>
+          </div>
+          <div class="result-card">
+            <div class="result-icon">⚡</div>
+            <div class="result-text">Мастер узнаёт за <strong style="color:#30d158;">3 секунды</strong></div>
+          </div>
+          <div class="result-card">
+            <div class="result-icon">📋</div>
+            <div class="result-text">Вся отчётность автоматически</div>
+          </div>
+          <div class="result-card">
+            <div class="result-icon">👁</div>
+            <div class="result-text">Руководитель контролирует <strong style="color:#30d158;">24/7</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════
+         СЛАЙД 4 — КАБИНЕТ ДИСПЕТЧЕРА
+    ══════════════════════════════════ -->
+    <div class="slide slide-4">
+      <div class="slide-logo">
+        <img src="https://bonetale856-stack.github.io/icon-512.png" alt="">
+        <span class="slide-logo-text">ГИЛЬДИЯ</span>
+      </div>
+
+      <div class="cabinet-content">
+        <div class="cabinet-left">
+          <div class="slide-tag tag-blue">📞 Кабинет диспетчера</div>
+          <h2 class="slide-heading" style="font-size:clamp(24px,3.2vw,42px);margin-bottom:20px;">Что видит<br>диспетчер</h2>
+
+          <div class="feature-list">
+            <div class="feature-group">
+              <div class="feature-group-title">
+                <div class="feature-group-icon" style="background:rgba(0,113,227,0.15);">➕</div>
+                Создание заявки
+              </div>
+              <div class="feature-item">Умный поиск адреса из базы</div>
+              <div class="feature-item">Описание проблемы</div>
+              <div class="feature-item">Назначение мастера из базы</div>
+              <div class="feature-item">Кнопка «Отправить»</div>
+            </div>
+            <div class="feature-group">
+              <div class="feature-group-title">
+                <div class="feature-group-icon" style="background:rgba(255,149,0,0.15);">📋</div>
+                Активные заявки
+              </div>
+              <div class="feature-item">Список всех открытых заявок</div>
+              <div class="feature-item">Кнопки «Изменить» и «Закрыть»</div>
+              <div class="feature-item">Может закрыть заявку вместо мастера</div>
+            </div>
+            <div class="feature-group">
+              <div class="feature-group-title">
+                <div class="feature-group-icon" style="background:rgba(48,209,88,0.15);">🏆</div>
+                Профиль и достижения
+              </div>
+              <div class="feature-item">Статистика за месяц и всё время</div>
+              <div class="feature-item">Система достижений и рангов</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="cabinet-right" style="display:flex;justify-content:center;">
+          <div class="cabinet-phone">
+            <div class="phone-notch"></div>
+            <div class="phone-screen">
+              <div class="phone-header">
+                <div class="phone-title" style="color:#5ac8fa;">📞 Диспетчер</div>
+                <div class="phone-avatar" style="background:rgba(0,113,227,0.2);color:#5ac8fa;">А</div>
+              </div>
+
+              <div class="phone-card">
+                <div class="phone-card-title">Создать заявку</div>
+                <div style="background:rgba(255,255,255,0.06);border-radius:6px;padding:5px 8px;font-size:9px;color:rgba(255,255,255,0.35);margin-bottom:4px;">🔍 Поиск адреса...</div>
+                <div style="background:rgba(255,255,255,0.06);border-radius:6px;padding:5px 8px;font-size:9px;color:rgba(255,255,255,0.35);margin-bottom:4px;">📝 Описание проблемы...</div>
+                <div style="background:rgba(255,255,255,0.06);border-radius:6px;padding:5px 8px;font-size:9px;color:rgba(255,255,255,0.35);margin-bottom:6px;">👷 Назначить мастера...</div>
+                <div class="phone-btn">Отправить заявку →</div>
+              </div>
+
+              <div class="phone-card">
+                <div class="phone-card-title">Активные заявки (3)</div>
+                <div class="phone-row">
+                  <div class="phone-dot" style="background:#ff9500;"></div>
+                  <div class="phone-label">ул. Ленина, 12 · Кран течёт</div>
+                  <div class="phone-status" style="background:rgba(255,149,0,0.15);color:#ff9500;">В работе</div>
+                </div>
+                <div class="phone-row">
+                  <div class="phone-dot" style="background:#0071e3;"></div>
+                  <div class="phone-label">пр. Мира, 5 · Нет света</div>
+                  <div class="phone-status" style="background:rgba(0,113,227,0.15);color:#5ac8fa;">Новая</div>
+                </div>
+                <div class="phone-row">
+                  <div class="phone-dot" style="background:#ff9500;"></div>
+                  <div class="phone-label">ул. Садовая, 3 · Дверь</div>
+                  <div class="phone-status" style="background:rgba(255,149,0,0.15);color:#ff9500;">В работе</div>
+                </div>
+              </div>
+
+              <div class="phone-card">
+                <div class="phone-card-title">Мой профиль</div>
+                <div class="phone-row">
+                  <div class="phone-label">Заявок за месяц</div>
+                  <div style="font-size:10px;color:#5ac8fa;font-weight:700;">47</div>
+                </div>
+                <div class="phone-row">
+                  <div class="phone-label">Ранг</div>
+                  <div style="font-size:10px;color:#ff9500;font-weight:700;">🥇 Эксперт</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════
+         СЛАЙД 5 — КАБИНЕТ МАСТЕРА
+    ══════════════════════════════════ -->
+    <div class="slide slide-5">
+      <div class="slide-logo">
+        <img src="https://bonetale856-stack.github.io/icon-512.png" alt="">
+        <span class="slide-logo-text">ГИЛЬДИЯ</span>
+      </div>
+
+      <div class="cabinet-content">
+        <div class="cabinet-right" style="display:flex;justify-content:center;order:-1;">
+          <div class="cabinet-phone">
+            <div class="phone-notch"></div>
+            <div class="phone-screen">
+              <div class="phone-header">
+                <div class="phone-title" style="color:#bf5af2;">🔧 Мастер</div>
+                <div class="phone-avatar" style="background:rgba(191,90,242,0.2);color:#bf5af2;">М</div>
+              </div>
+
+              <div class="phone-card" style="border-color:rgba(191,90,242,0.2);">
+                <div class="phone-card-title">Мои заявки (2)</div>
+                <div style="background:rgba(191,90,242,0.1);border-radius:8px;padding:8px;margin-bottom:6px;">
+                  <div style="font-size:9px;font-weight:700;color:rgba(255,255,255,0.8);margin-bottom:2px;">ул. Ленина, 12, кв. 34</div>
+                  <div style="font-size:8px;color:rgba(255,255,255,0.4);margin-bottom:6px;">Течёт кран на кухне</div>
+                  <div class="phone-btn" style="background:rgba(191,90,242,0.3);">Закрыть заявку ✓</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:8px;">
+                  <div style="font-size:9px;font-weight:700;color:rgba(255,255,255,0.8);margin-bottom:2px;">пр. Победы, 7, кв. 12</div>
+                  <div style="font-size:8px;color:rgba(255,255,255,0.4);margin-bottom:6px;">Не работает розетка</div>
+                  <div class="phone-btn" style="background:rgba(191,90,242,0.3);">Закрыть заявку ✓</div>
+                </div>
+              </div>
+
+              <div class="phone-card" style="border-color:rgba(191,90,242,0.15);">
+                <div class="phone-card-title">Форма закрытия</div>
+                <div style="font-size:8px;color:rgba(255,255,255,0.35);margin-bottom:4px;">Описание работ...</div>
+                <div class="phone-row">
+                  <div class="phone-label">Работа</div>
+                  <div style="font-size:9px;color:#30d158;font-weight:700;">1 500 ₽</div>
+                </div>
+                <div class="phone-row">
+                  <div class="phone-label">Материал</div>
+                  <div style="font-size:9px;color:#30d158;font-weight:700;">500 ₽</div>
+                </div>
+                <div class="phone-row">
+                  <div class="phone-label"><strong>Итого</strong></div>
+                  <div style="font-size:10px;color:#bf5af2;font-weight:800;">2 000 ₽</div>
+                </div>
+              </div>
+
+              <div class="phone-card">
+                <div class="phone-card-title">Мой заработок</div>
+                <div class="phone-row">
+                  <div class="phone-label">За месяц</div>
+                  <div style="font-size:10px;color:#30d158;font-weight:700;">32 500 ₽</div>
+                </div>
+                <div class="phone-row">
+                  <div class="phone-label">Выполнено</div>
+                  <div style="font-size:10px;color:#bf5af2;font-weight:700;">28 работ 🏆</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="cabinet-left">
+          <div class="slide-tag tag-purple">🔧 Кабинет мастера</div>
+          <h2 class="slide-heading" style="font-size:clamp(24px,3.2vw,42px);margin-bottom:20px;">Что видит<br>мастер</h2>
+
+          <div class="feature-list">
+            <div class="feature-group">
+              <div class="feature-group-title">
+                <div class="feature-group-icon" style="background:rgba(191,90,242,0.15);">📋</div>
+                Активные заявки
+              </div>
+              <div class="feature-item">Только его персональные заявки</div>
+              <div class="feature-item">Адрес и описание проблемы</div>
+              <div class="feature-item">Кнопка «Закрыть заявку»</div>
+            </div>
+            <div class="feature-group">
+              <div class="feature-group-title">
+                <div class="feature-group-icon" style="background:rgba(48,209,88,0.15);">✅</div>
+                Форма закрытия
+              </div>
+              <div class="feature-item">Описание выполненных работ</div>
+              <div class="feature-item">Тип оплаты: платно / бесплатно</div>
+              <div class="feature-item">Стоимость: работа + материал + доставка</div>
+              <div class="feature-item">Итоговая сумма считается автоматически</div>
+            </div>
+            <div class="feature-group">
+              <div class="feature-group-title">
+                <div class="feature-group-icon" style="background:rgba(255,149,0,0.15);">💰</div>
+                Профиль и заработок
+              </div>
+              <div class="feature-item">Заработок за месяц</div>
+              <div class="feature-item">Количество выполненных работ</div>
+              <div class="feature-item">Ранг и достижения</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════
+         СЛАЙД 6 — КАБИНЕТ РУКОВОДИТЕЛЯ
+    ══════════════════════════════════ -->
+    <div class="slide slide-6">
+      <div class="slide-logo">
+        <img src="https://bonetale856-stack.github.io/icon-512.png" alt="">
+        <span class="slide-logo-text">ГИЛЬДИЯ</span>
+      </div>
+
+      <div class="cabinet-content">
+        <div class="cabinet-left">
+          <div class="slide-tag tag-orange">👔 Кабинет руководителя</div>
+          <h2 class="slide-heading" style="font-size:clamp(24px,3.2vw,42px);margin-bottom:20px;">Что видит<br>руководитель</h2>
+
+          <div class="feature-list">
+            <div class="feature-group">
+              <div class="feature-group-title">
+                <div class="feature-group-icon" style="background:rgba(255,149,0,0.15);">📊</div>
+                Все активные заявки
+              </div>
+              <div class="feature-item">Адрес, проблема, назначенный мастер</div>
+              <div class="feature-item">Статус выполнения в реальном времени</div>
+            </div>
+            <div class="feature-group">
+              <div class="feature-group-title">
+                <div class="feature-group-icon" style="background:rgba(48,209,88,0.15);">💰</div>
+                Финансы
+              </div>
+              <div class="feature-item">Выручка за текущий месяц</div>
+              <div class="feature-item">Разбивка: платные / по содержанию</div>
+            </div>
+            <div class="feature-group">
+              <div class="feature-group-title">
+                <div class="feature-group-icon" style="background:rgba(255,215,0,0.15);">🏆</div>
+                Рейтинги команды
+              </div>
+              <div class="feature-item">Рейтинг мастеров — кто сколько закрыл</div>
+              <div class="feature-item">Рейтинг диспетчеров — активность</div>
+              <div class="feature-item">Лидеры месяца</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="cabinet-right" style="display:flex;justify-content:center;">
+          <div class="cabinet-phone">
+            <div class="phone-notch"></div>
+            <div class="phone-screen">
+              <div class="phone-header">
+                <div class="phone-title" style="color:#ff9500;">👔 Руководитель</div>
+                <div class="phone-avatar" style="background:rgba(255,149,0,0.2);color:#ff9500;">Р</div>
+              </div>
+
+              <div class="phone-card" style="border-color:rgba(255,149,0,0.2);">
+                <div class="phone-card-title">Финансы — Ноябрь</div>
+                <div style="text-align:center;padding:4px 0;">
+                  <div style="font-size:20px;font-weight:800;color:#30d158;">47 500 ₽</div>
+                  <div style="font-size:8px;color:rgba(255,255,255,0.35);">Выручка за месяц</div>
+                </div>
+                <div class="phone-row" style="margin-top:6px;">
+                  <div class="phone-dot" style="background:#30d158;"></div>
+                  <div class="phone-label">Платные работы</div>
+                  <div style="font-size:9px;color:#30d158;font-weight:700;">38 000 ₽</div>
+                </div>
+                <div class="phone-row">
+                  <div class="phone-dot" style="background:#5ac8fa;"></div>
+                  <div class="phone-label">По содержанию</div>
+                  <div style="font-size:9px;color:#5ac8fa;font-weight:700;">9 500 ₽</div>
+                </div>
+              </div>
+
+              <div class="phone-card">
+                <div class="phone-card-title">🏆 Рейтинг мастеров</div>
+                <div class="phone-row">
+                  <div style="font-size:9px;color:#ffd700;">🥇</div>
+                  <div class="phone-label">Иван М.</div>
+                  <div style="font-size:9px;color:#ffd700;font-weight:700;">28 заявок</div>
+                </div>
+                <div class="phone-row">
+                  <div style="font-size:9px;color:#c0c0c0;">🥈</div>
+                  <div class="phone-label">Алексей К.</div>
+                  <div style="font-size:9px;color:#c0c0c0;font-weight:700;">22 заявки</div>
+                </div>
+                <div class="phone-row">
+                  <div style="font-size:9px;color:#cd7f32;">🥉</div>
+                  <div class="phone-label">Сергей П.</div>
+                  <div style="font-size:9px;color:#cd7f32;font-weight:700;">17 заявок</div>
+                </div>
+              </div>
+
+              <div class="phone-card">
+                <div class="phone-card-title">Активных заявок</div>
+                <div style="text-align:center;font-size:22px;font-weight:800;color:#ff9500;">5</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════
+         СЛАЙД 7 — PUSH
+    ══════════════════════════════════ -->
+    <div class="slide slide-7">
+      <div class="slide-logo">
+        <img src="https://bonetale856-stack.github.io/icon-512.png" alt="">
+        <span class="slide-logo-text">ГИЛЬДИЯ</span>
+      </div>
+
+      <div class="push-content">
+        <div class="slide-tag tag-blue">🔔 Push-уведомления</div>
+        <h2 class="slide-heading">Мгновенное оповещение</h2>
+
+        <div class="push-timeline">
+          <div class="push-step">
+            <div class="push-step-icon">📞</div>
+            <div class="push-step-label">Диспетчер создал</div>
+            <div class="push-step-time">0 сек</div>
+            <div class="push-step-desc">Нажал кнопку<br>«Отправить»</div>
+          </div>
+          <div class="push-arrow">→</div>
+          <div class="push-step">
+            <div class="push-step-icon">⚡</div>
+            <div class="push-step-label">Сервер отправил</div>
+            <div class="push-step-time">~1 сек</div>
+            <div class="push-step-desc">Запрос<br>в OneSignal API</div>
+          </div>
+          <div class="push-arrow">→</div>
+          <div class="push-step">
+            <div class="push-step-icon">📱</div>
+            <div class="push-step-label">Мастер получил</div>
+            <div class="push-step-time">&lt; 3 сек</div>
+            <div class="push-step-desc">Уведомление<br>с адресом и задачей</div>
+          </div>
+        </div>
+
+        <div class="push-features">
+          <div class="push-feat">
+            <div class="push-feat-icon">📵</div>
+            <div class="push-feat-text">Работает даже когда приложение закрыто</div>
+          </div>
+          <div class="push-feat">
+            <div class="push-feat-icon">📳</div>
+            <div class="push-feat-text">Вибрация привлекает внимание</div>
+          </div>
+          <div class="push-feat">
+            <div class="push-feat-icon">📍</div>
+            <div class="push-feat-text">Адрес и проблема сразу в уведомлении</div>
+          </div>
+          <div class="push-feat">
+            <div class="push-feat-icon">📱</div>
+            <div class="push-feat-text">Работает на iOS и Android</div>
+          </div>
+          <div class="push-feat">
+            <div class="push-feat-icon">🌐</div>
+            <div class="push-feat-text">Не нужно быть онлайн в приложении</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════
+         СЛАЙД 8 — ТЕХНОЛОГИИ
+    ══════════════════════════════════ -->
+    <div class="slide slide-8">
+      <div class="slide-logo">
+        <img src="https://bonetale856-stack.github.io/icon-512.png" alt="">
+        <span class="slide-logo-text">ГИЛЬДИЯ</span>
+      </div>
+
+      <div class="tech-content">
+        <div class="slide-tag tag-blue">⚙️ Технологии</div>
+        <h2 class="slide-heading">На чём всё работает</h2>
+
+        <div class="tech-diagram">
+          <div class="tech-row">
+            <div class="tech-box tech-box-wide" style="border-color:rgba(0,113,227,0.25);background:rgba(0,113,227,0.06);">
+              <div style="font-size:11px;font-weight:700;color:rgba(0,113,227,0.7);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">Три приложения в одном</div>
+              <div class="tech-app-row">
+                <div class="tech-app-chip" style="background:rgba(0,113,227,0.25);">📞 Диспетчер</div>
+                <div class="tech-app-chip" style="background:rgba(191,90,242,0.25);">🔧 Мастер</div>
+                <div class="tech-app-chip" style="background:rgba(255,149,0,0.25);">👔 Руководитель</div>
+              </div>
+              <div class="tech-box-desc">Установлены как приложения на любой телефон (PWA)</div>
+            </div>
+          </div>
+
+          <div style="color:rgba(255,255,255,0.2);font-size:18px;text-align:center;">↓</div>
+
+          <div class="tech-row">
+            <div class="tech-box tech-box-wide" style="border-color:rgba(48,209,88,0.2);background:rgba(48,209,88,0.04);">
+              <div class="tech-box-icon">⚙️</div>
+              <div class="tech-box-title">Backend API</div>
+              <div class="tech-box-desc">Google Apps Script · Обрабатывает все запросы · Бесплатный хостинг</div>
+            </div>
+          </div>
+
+          <div style="color:rgba(255,255,255,0.2);font-size:18px;text-align:center;">↓</div>
+
+          <div class="tech-row" style="gap:16px;max-width:620px;">
+            <div class="tech-box tech-box-half" style="border-color:rgba(48,209,88,0.2);background:rgba(48,209,88,0.04);">
+              <div class="tech-box-icon">📊</div>
+              <div class="tech-box-title">Google Sheets</div>
+              <div class="tech-box-desc">База данных · 4 таблицы · Данные в вашем аккаунте</div>
+            </div>
+            <div class="tech-box tech-box-half" style="border-color:rgba(255,59,48,0.2);background:rgba(255,59,48,0.04);">
+              <div class="tech-box-icon">🔔</div>
+              <div class="tech-box-title">OneSignal API</div>
+              <div class="tech-box-desc">Push-уведомления · Бесплатный план · iOS + Android</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tech-perks">
+          <div class="tech-perk">
+            <div class="tech-perk-icon">💰</div>
+            <div class="tech-perk-text">Хостинг бесплатно (Google Cloud)</div>
+          </div>
+          <div class="tech-perk">
+            <div class="tech-perk-icon">🔒</div>
+            <div class="tech-perk-text">Данные в вашем Google аккаунте</div>
+          </div>
+          <div class="tech-perk">
+            <div class="tech-perk-icon">📈</div>
+            <div class="tech-perk-text">Масштабируется под любое кол-во сотрудников</div>
+          </div>
+          <div class="tech-perk">
+            <div class="tech-perk-icon">🛠️</div>
+            <div class="tech-perk-text">Не требует отдельного сервера</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════
+         СЛАЙД 9 — БЕЗОПАСНОСТЬ
+    ══════════════════════════════════ -->
+    <div class="slide slide-9">
+      <div class="slide-logo">
+        <img src="https://bonetale856-stack.github.io/icon-512.png" alt="">
+        <span class="slide-logo-text">ГИЛЬДИЯ</span>
+      </div>
+
+      <div class="security-content">
+        <div class="slide-tag tag-purple">🔒 Безопасность</div>
+        <h2 class="slide-heading">Защита данных</h2>
+
+        <div class="security-grid">
+          <div class="security-card">
+            <div class="security-card-icon">🔐</div>
+            <div class="security-card-title">PIN-авторизация</div>
+            <div class="security-item"><span class="security-check">→</span>Пароли не хранятся на телефоне</div>
+            <div class="security-item"><span class="security-check">→</span>Проверка только на сервере</div>
+            <div class="security-item"><span class="security-check">→</span>PIN никогда не передаётся клиенту</div>
+          </div>
+          <div class="security-card">
+            <div class="security-card-icon">👁</div>
+            <div class="security-card-title">Разделение ролей</div>
+            <div class="security-item"><span class="security-check">→</span>Диспетчер видит только свои заявки</div>
+            <div class="security-item"><span class="security-check">→</span>Мастер видит только свои задачи</div>
+            <div class="security-item"><span class="security-check">→</span>Никто не видит чужой кабинет</div>
+          </div>
+          <div class="security-card">
+            <div class="security-card-icon">✅</div>
+            <div class="security-card-title">Валидация данных</div>
+            <div class="security-item"><span class="security-check">→</span>Нельзя ввести несуществующий адрес</div>
+            <div class="security-item"><span class="security-check">→</span>Нельзя назначить несуществующего мастера</div>
+            <div class="security-item"><span class="security-check">→</span>Защита от случайных ошибок</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════
+         СЛАЙД 10 — УСТАНОВКА
+    ══════════════════════════════════ -->
+    <div class="slide slide-10">
+      <div class="slide-logo">
+        <img src="https://bonetale856-stack.github.io/icon-512.png" alt="">
+        <span class="slide-logo-text">ГИЛЬДИЯ</span>
+      </div>
+
+      <div class="install-content">
+        <div class="slide-tag tag-green" style="margin:0 auto 20px;">📱 Установка</div>
+        <h2 class="slide-heading">Как установить на телефон</h2>
+        <p class="install-subtitle">Без App Store. Без Google Play. Бесплатно.</p>
+
+        <div class="install-steps">
+          <div class="install-step">
+            <div class="install-step-num">1</div>
+            <div class="install-step-emoji">🌐</div>
+            <div class="install-step-title">Открыть ссылку</div>
+            <div class="install-step-desc">В браузере телефона перейти по ссылке приложения</div>
+          </div>
+          <div class="install-arrow">→</div>
+          <div class="install-step">
+            <div class="install-step-num">2</div>
+            <div class="install-step-emoji">➕</div>
+            <div class="install-step-title">«Добавить на экран»</div>
+            <div class="install-step-desc">Нажать кнопку «Поделиться» → «На экран домой»</div>
+          </div>
+          <div class="install-arrow">→</div>
+          <div class="install-step">
+            <div class="install-step-num">3</div>
+            <div class="install-step-emoji">🎉</div>
+            <div class="install-step-title">Готово!</div>
+            <div class="install-step-desc">Иконка появится на рабочем столе как обычное приложение</div>
+          </div>
+        </div>
+
+        <div class="install-perks">
+          <div class="install-perk"><span class="install-perk-dot">✓</span> Работает как обычное приложение</div>
+          <div class="install-perk"><span class="install-perk-dot">✓</span> Полноэкранный режим</div>
+          <div class="install-perk"><span class="install-perk-dot">✓</span> Кэш данных офлайн</div>
+          <div class="install-perk"><span class="install-perk-dot">✓</span> Обновляется автоматически</div>
+          <div class="install-perk"><span class="install-perk-dot">✓</span> Не занимает лишнее место</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════
+         СЛАЙД 11 — ТЕСТИРОВАНИЕ
+    ══════════════════════════════════ -->
+    <div class="slide slide-11">
+      <div class="slide-logo">
+        <img src="https://bonetale856-stack.github.io/icon-512.png" alt="">
+        <span class="slide-logo-text">ГИЛЬДИЯ</span>
+      </div>
+
+      <div class="test-content">
+        <div class="slide-tag tag-green">🧪 Тестирование</div>
+        <h2 class="slide-heading">Что было проверено</h2>
+
+        <div class="test-grid">
+          <div class="test-section">
+            <div class="test-section-title">Функциональные тесты</div>
+            <div class="test-row"><div class="test-label">Создание заявки</div><div class="test-result"><div class="test-checkmark">✓</div></div></div>
+            <div class="test-row"><div class="test-label">Получение PUSH (задержка &lt; 3с)</div><div class="test-result"><div class="test-checkmark">✓</div></div></div>
+            <div class="test-row"><div class="test-label">Закрытие заявки мастером</div><div class="test-result"><div class="test-checkmark">✓</div></div></div>
+            <div class="test-row"><div class="test-label">Закрытие заявки диспетчером</div><div class="test-result"><div class="test-checkmark">✓</div></div></div>
+            <div class="test-row"><div class="test-label">Редактирование заявки</div><div class="test-result"><div class="test-checkmark">✓</div></div></div>
+            <div class="test-row"><div class="test-label">Авторизация всех ролей</div><div class="test-result"><div class="test-checkmark">✓</div></div></div>
+            <div class="test-row"><div class="test-label">Неверный PIN → отказ</div><div class="test-result"><div class="test-checkmark">✓</div></div></div>
+            <div class="test-row"><div class="test-label">Несуществующий адрес → блок</div><div class="test-result"><div class="test-checkmark">✓</div></div></div>
+          </div>
+
+          <div class="test-section">
+            <div class="test-section-title">Устройства</div>
+            <div class="test-row"><div class="test-label">iPhone SE (маленький экран)</div><div class="test-result"><div class="test-checkmark">✓</div></div></div>
+            <div class="test-row"><div class="test-label">iPhone 14 Pro</div><div class="test-result"><div class="test-checkmark">✓</div></div></div>
+            <div class="test-row"><div class="test-label">Samsung Galaxy Android</div><div class="test-result"><div class="test-checkmark">✓</div></div></div>
+            <div class="test-row"><div class="test-label">iPad (планшет)</div><div class="test-result"><div class="test-checkmark">✓</div></div></div>
+            <div class="test-row"><div class="test-label">Компьютер (браузер)</div><div class="test-result"><div class="test-checkmark">✓</div></div></div>
+            <div class="test-row"><div class="test-label">Кнопка «Назад» Android</div><div class="test-result"><div class="test-checkmark">✓</div></div></div>
+          </div>
+
+          <div class="test-section">
+            <div class="test-section-title">Нагрузочные тесты</div>
+            <div class="test-row"><div class="test-label">50+ заявок одновременно</div><div class="test-result"><div class="test-checkmark">✓</div></div></div>
+            <div class="test-row"><div class="test-label">Несколько диспетчеров сразу</div><div class="test-result"><div class="test-checkmark">✓</div></div></div>
+            <div class="test-row"><div class="test-label">Медленный интернет (кэш)</div><div class="test-result"><div class="test-checkmark">✓</div></div></div>
+            <div class="test-row"><div class="test-label">Полностью офлайн режим</div><div class="test-result"><div class="test-checkmark">✓</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════
+         СЛАЙД 12 — ЭКОНОМИКА
+    ══════════════════════════════════ -->
+    <div class="slide slide-12">
+      <div class="slide-logo">
+        <img src="https://bonetale856-stack.github.io/icon-512.png" alt="">
+        <span class="slide-logo-text">ГИЛЬДИЯ</span>
+      </div>
+
+      <div class="econ-content">
+        <div class="slide-tag tag-green">💰 Экономический эффект</div>
+        <h2 class="slide-heading">Что это даёт компании</h2>
+
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Показатель</th>
+              <th class="before-col">❌ До системы</th>
+              <th class="after-col">✅ После системы</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Создание заявки</td><td class="before-val">5–10 минут</td><td class="after-val">30 секунд</td></tr>
+            <tr><td>Оповещение мастера</td><td class="before-val">3–10 минут</td><td class="after-val">3 секунды</td></tr>
+            <tr><td>Потерянные заявки</td><td class="before-val">Бывает</td><td class="after-val">0</td></tr>
+            <tr><td>Бумажная отчётность</td><td class="before-val">Да</td><td class="after-val">Нет</td></tr>
+            <tr><td>Контроль руководителя</td><td class="before-val">Раз в день</td><td class="after-val">Онлайн 24/7</td></tr>
+            <tr><td>Учёт финансов</td><td class="before-val">Вручную</td><td class="after-val">Автоматически</td></tr>
+          </tbody>
+        </table>
+
+        <div class="savings-card">
+          <div class="savings-formula">
+            <strong>20 заявок</strong> × <strong>10 минут</strong> = 200 минут = <strong>3.3 часа</strong> в день<br>
+            Зарплата диспетчера за 3.3 часа ≈ <strong>700–1 000 ₽/день</strong>
+          </div>
+          <div class="savings-highlight">
+            <div class="savings-amount">~20 000₽</div>
+            <div class="savings-period">экономия в месяц</div>
+          </div>
+          <div style="text-align:center;padding:12px 20px;background:rgba(48,209,88,0.1);border:1px solid rgba(48,209,88,0.2);border-radius:12px;">
+            <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:4px;">Срок окупаемости</div>
+            <div style="font-size:20px;font-weight:800;color:#30d158;">1 месяц</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════
+         СЛАЙД 13 — МАСШТАБИРОВАНИЕ
+    ══════════════════════════════════ -->
+    <div class="slide slide-13">
+      <div class="slide-logo">
+        <img src="https://bonetale856-stack.github.io/icon-512.png" alt="">
+        <span class="slide-logo-text">ГИЛЬДИЯ</span>
+      </div>
+
+      <div class="scale-content">
+        <div class="slide-tag tag-blue">🚀 Масштабирование</div>
+        <h2 class="slide-heading">Что можно добавить</h2>
+
+        <div class="roadmap-grid">
+          <div class="roadmap-card rc-2">
+            <div class="roadmap-phase" style="color:#5ac8fa;">Этап 2</div>
+            <div class="roadmap-title">Интеграция<br>с Bitrix24</div>
+            <div class="roadmap-item"><div class="roadmap-dot" style="background:#0071e3;"></div>Каждая заявка → Сделка в CRM</div>
+            <div class="roadmap-item"><div class="roadmap-dot" style="background:#0071e3;"></div>Каждый мастер → Задача с дедлайном</div>
+            <div class="roadmap-item"><div class="roadmap-dot" style="background:#0071e3;"></div>История заявок → Карточка клиента</div>
+            <div class="roadmap-item"><div class="roadmap-dot" style="background:#0071e3;"></div>Звонки жильцов → Запись и аналитика</div>
+          </div>
+
+          <div class="roadmap-card rc-3">
+            <div class="roadmap-phase" style="color:#30d158;">Этап 3</div>
+            <div class="roadmap-title">Нативные<br>приложения</div>
+            <div class="roadmap-item"><div class="roadmap-dot" style="background:#30d158;"></div>iOS App Store → Нативное приложение</div>
+            <div class="roadmap-item"><div class="roadmap-dot" style="background:#30d158;"></div>Google Play → Нативное приложение</div>
+            <div class="roadmap-item"><div class="roadmap-dot" style="background:#30d158;"></div>Фото с объекта → Прикреплять к заявке</div>
+            <div class="roadmap-item"><div class="roadmap-dot" style="background:#30d158;"></div>GPS мастера → Видеть где находится</div>
+          </div>
+
+          <div class="roadmap-card rc-4">
+            <div class="roadmap-phase" style="color:#bf5af2;">Этап 4</div>
+            <div class="roadmap-title">AI-модуль</div>
+            <div class="roadmap-item"><div class="roadmap-dot" style="background:#bf5af2;"></div>Автоназначение мастера по типу заявки</div>
+            <div class="roadmap-item"><div class="roadmap-dot" style="background:#bf5af2;"></div>Предсказание времени выполнения</div>
+            <div class="roadmap-item"><div class="roadmap-dot" style="background:#bf5af2;"></div>Анализ частых поломок по адресам</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════
+         СЛАЙД 14 — СТОИМОСТЬ
+    ══════════════════════════════════ -->
+    <div class="slide slide-14">
+      <div class="slide-logo">
+        <img src="https://bonetale856-stack.github.io/icon-512.png" alt="">
+        <span class="slide-logo-text">ГИЛЬДИЯ</span>
+      </div>
+
+      <div class="pricing-content">
+        <div class="slide-tag tag-blue" style="margin:0 auto 20px;">💼 Предложение</div>
+        <h2 class="slide-heading">Стоимость и условия</h2>
+
+        <div class="pricing-card">
+          <div class="pricing-main">
+            <div class="pricing-includes">
+              <div class="pricing-includes-title">Что входит в стоимость</div>
+              <div class="pricing-include-item"><div class="pricing-check">✓</div>Готовая система (3 кабинета)</div>
+              <div class="pricing-include-item"><div class="pricing-check">✓</div>Настройка под вашу компанию (адреса, сотрудники, логотип)</div>
+              <div class="pricing-include-item"><div class="pricing-check">✓</div>Установка на телефоны сотрудников</div>
+              <div class="pricing-include-item"><div class="pricing-check">✓</div>Обучение диспетчеров и мастеров</div>
+              <div class="pricing-include-item"><div class="pricing-check">✓</div>1 месяц технической поддержки</div>
+              <div class="pricing-include-item"><div class="pricing-check">✓</div>Документация и инструкции</div>
+            </div>
+
+            <div class="pricing-cta">
+              <div class="pricing-price">
+                <span class="pricing-currency">₽</span>150 000
+              </div>
+              <div class="pricing-label">единоразово · всё включено</div>
+              <div class="pricing-btn">Начать проект →</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pricing-options">
+          <div class="pricing-option">
+            <div class="pricing-option-name">🛡️ Поддержка 12 месяцев</div>
+            <div class="pricing-option-price">+ 30 000 ₽</div>
+          </div>
+          <div class="pricing-option">
+            <div class="pricing-option-name">🔗 Интеграция Bitrix24</div>
+            <div class="pricing-option-price">+ 100 000 ₽</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════
+         СЛАЙД 15 — ФИНАЛ
+    ══════════════════════════════════ -->
+    <div class="slide slide-15">
+      <div class="s15-content">
+        <div class="s15-badge">
+          <div class="s15-badge-dot"></div>
+          <span>Система готова к запуску</span>
+        </div>
+
+        <h1 class="s15-title">
+          Система уже <span class="highlight">работает.</span><br>
+          Готова к запуску.
+        </h1>
+
+        <p class="s15-desc">
+          Всё что нужно — внести ваши адреса и сотрудников в базу данных. Один раз. Больше ничего.
+        </p>
+
+        <div class="s15-quote">
+          <div class="s15-quote-text">
+            «Пока конкуренты звонят мастерам —<br>
+            ваши мастера уже едут на объект.»
+          </div>
+        </div>
+
+        <div class="s15-meta">
+          Разработчик: <strong>Абдуррахим</strong> &nbsp;·&nbsp; Гильдия &nbsp;·&nbsp; <strong>2026</strong>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end slides-wrapper -->
+
+  <!-- НАВИГАЦИЯ -->
+  <div class="nav">
+    <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">‹</button>
+    <div class="nav-dots" id="navDots"></div>
+    <div class="slide-counter" id="slideCounter">1 / 15</div>
+    <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">›</button>
+  </div>
+
+</div><!-- end presentation -->
+
+<script>
+  const TOTAL = 15;
+  let current = 0;
+
+  const wrapper = document.getElementById('slidesWrapper');
+  const counter = document.getElementById('slideCounter');
+  const dotsContainer = document.getElementById('navDots');
+  const progressBar = document.getElementById('progressBar');
+
+  // Создаём точки навигации
+  for (let i = 0; i < TOTAL; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+    dot.onclick = () => goToSlide(i);
+    dotsContainer.appendChild(dot);
+  }
+
+  function goToSlide(n) {
+    current = Math.max(0, Math.min(TOTAL - 1, n));
+    wrapper.style.transform = `translateX(-${current * 100}vw)`;
+    counter.textContent = `${current + 1} / ${TOTAL}`;
+    progressBar.style.width = `${((current + 1) / TOTAL) * 100}%`;
+
+    document.querySelectorAll('.nav-dot').forEach((d, i) => {
+      d.classList.toggle('active', i === current);
+    });
+  }
+
+  function changeSlide(dir) {
+    goToSlide(current + dir);
+  }
+
+  // Клавиатура
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); changeSlide(1); }
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); changeSlide(-1); }
+    if (e.key === 'Escape') goToSlide(0);
+    if (e.key >= '1' && e.key <= '9') goToSlide(parseInt(e.key) - 1);
+  });
+
+  // Свайп на мобильных
+  let touchStartX = 0;
+  let touchStartY = 0;
+
+  document.addEventListener('touchstart', e => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
+
+  document.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+      changeSlide(dx < 0 ? 1 : -1);
+    }
+  }, { passive: true });
+
+  // Частицы на обложке
+  const particlesContainer = document.getElementById('particles');
+  for (let i = 0; i < 20; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.animationDuration = (8 + Math.random() * 12) + 's';
+    p.style.animationDelay = (-Math.random() * 20) + 's';
+    p.style.opacity = (0.3 + Math.random() * 0.7).toString();
+    particlesContainer.appendChild(p);
+  }
+
+  // Инит
+  goToSlide(0);
+</script>
+</body>
+</html>
