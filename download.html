@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Гильдия Сервис</title>
+    
+    <!-- PWA Manifest (убедитесь, что файл manifest.json существует) -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
+    <style>
+        :root {
+            --bg: #000000;
+            --card: rgba(28, 28, 30, 0.6);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text: #ffffff;
+            --text-secondary: #86868b;
+            --accent: #2997ff;
+            --accent-gradient: linear-gradient(135deg, #0071e3 0%, #2997ff 100%);
+            --glow: rgba(41, 151, 255, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Фоновые эффекты */
+        .ambient-light {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.4;
+            z-index: 0;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .ambient-light:nth-child(1) {
+            top: -200px;
+            left: -100px;
+            background: radial-gradient(circle, #0071e3 0%, transparent 70%);
+        }
+
+        .ambient-light:nth-child(2) {
+            bottom: -150px;
+            right: -100px;
+            background: radial-gradient(circle, #5e35b1 0%, transparent 70%);
+            animation-delay: -4s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(30px, 40px) scale(1.1); }
+        }
+
+        /* Контент */
+        .container {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 40px 24px;
+            max-width: 480px;
+            width: 100%;
+        }
+
+        /* Логотип */
+        .logo-wrapper {
+            width: 88px;
+            height: 88px;
+            margin: 0 auto 32px;
+            border-radius: 22px;
+            background: linear-gradient(135deg, #1c1c1e 0%, #2c2c2e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            animation: fadeInUp 0.8s ease;
+            overflow: hidden;
+        }
+
+        .logo-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Заголовки */
+        h1 {
+            font-size: 40px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 12px;
+            background: linear-gradient(180deg, #fff 0%, #d1d1d6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: fadeInUp 0.8s ease 0.1s both;
+        }
+
+        .subtitle {
+            font-size: 21px;
+            color: var(--text-secondary);
+            font-weight: 400;
+            margin-bottom: 40px;
+            line-height: 1.4;
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+
+        /* Карточка превью */
+        .preview-card {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 32px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: fadeInUp 0.8s ease 0.3s both;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+
+        .preview-content {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            text-align: left;
+        }
+
+        .preview-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 14px;
+            background: var(--accent-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 4px 16px var(--glow);
+        }
+
+        .preview-icon svg {
+            width: 28px;
+            height: 28px;
+            fill: white;
+        }
+
+        .preview-text h3 {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .preview-text p {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(41, 151, 255, 0.15);
+            color: #2997ff;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 100px;
+            margin-top: 8px;
+        }
+
+        /* Кнопка */
+        .btn-install {
+            width: 100%;
+            padding: 18px 32px;
+            font-size: 17px;
+            font-weight: 600;
+            border: none;
+            border-radius: 14px;
+            background: var(--accent-gradient);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 24px var(--glow);
+            animation: fadeInUp 0.8s ease 0.4s both;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-install:hover {
+            transform: scale(1.02);
+            box-shadow: 0 12px 32px var(--glow);
+        }
+
+        .btn-install:active {
+            transform: scale(0.98);
+        }
+
+        .btn-install .icon {
+            font-size: 18px;
+        }
+
+        /* Анимация загрузки внутри кнопки */
+        .btn-install.loading .btn-text {
+            opacity: 0;
+        }
+
+        .btn-install.loading .spinner {
+            opacity: 1;
+        }
+
+        .spinner {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Дополнительная информация */
+        .info-text {
+            margin-top: 20px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            animation: fadeInUp 0.8s ease 0.5s both;
+        }
+
+        /* Анимации появления */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* iOS Инструкция (Модальное окно) */
+        .ios-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 100;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .ios-modal.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .ios-sheet {
+            background: #1c1c1e;
+            border-radius: 24px 24px 0 0;
+            padding: 32px 24px 40px;
+            max-width: 480px;
+            width: 100%;
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .ios-modal.active .ios-sheet {
+            transform: translateY(0);
+        }
+
+        .ios-sheet h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .ios-sheet p {
+            color: var(--text-secondary);
+            font-size: 15px;
+            margin-bottom: 24px;
+        }
+
+        .ios-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .ios-step {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+        }
+
+        .step-num {
+            width: 28px;
+            height: 28px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .step-text {
+            font-size: 15px;
+            color: #e5e5ea;
+            line-height: 1.4;
+        }
+
+        .step-text strong {
+            color: #fff;
+        }
+
+        .share-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 5px;
+            margin: 0 4px;
+            vertical-align: middle;
+        }
+
+        .share-icon svg {
+            width: 12px;
+            height: 12px;
+            fill: white;
+        }
+
+        .btn-close {
+            width: 100%;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 14px;
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 480px) {
+            h1 { font-size: 32px; }
+            .subtitle { font-size: 18px; }
+            .container { padding: 24px 20px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Фоновые градиенты -->
+    <div class="ambient-light"></div>
+    <div class="ambient-light"></div>
+
+    <div class="container">
+        <!-- Логотип -->
+        <div class="logo-wrapper">
+            <img src="icon-192.png" alt="Гильдия Сервис" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSI+PHBhdGggZD0iTTEyIDJMMiA3VjEyQzIgMTcuNTUgNi44NCAyMi4yNSAxMiAyMy41QzE3LjE2IDIyLjI1IDIyIDE3LjU1IDIyIDEyVjdMMTIgMloiIGZpbGw9IiMyOTk3ZmYiLz48L3N2Zz4='">
+        </div>
+
+        <!-- Текст -->
+        <h1>Гильдия Сервис</h1>
+        <p class="subtitle">Установите приложение для быстрого доступа к заявкам и управления сервисом</p>
+
+        <!-- Карточка -->
+        <div class="preview-card">
+            <div class="preview-content">
+                <div class="preview-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 2L2 7V12C2 17.55 6.84 22.25 12 23.5C17.16 22.25 22 17.55 22 12V7L12 2Z"/></svg>
+                </div>
+                <div class="preview-text">
+                    <h3>Гильдия Сервис</h3>
+                    <p>Рабочее пространство</p>
+                    <span class="badge">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                        PWA Приложение
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Кнопка -->
+        <button class="btn-install" id="installBtn" onclick="handleInstall()">
+            <span class="btn-text" id="btnText">
+                <span class="icon" id="btnIcon">📥</span>
+                <span id="btnLabel">Установить приложение</span>
+            </span>
+            <div class="spinner"></div>
+        </button>
+
+        <p class="info-text" id="infoText">Работает офлайн • Уведомления • Быстрый доступ</p>
+    </div>
+
+    <!-- iOS Инструкция -->
+    <div class="ios-modal" id="iosModal" onclick="if(event.target===this) closeIosModal()">
+        <div class="ios-sheet">
+            <h2>Установка на iPhone</h2>
+            <p>Для установки приложения на iOS выполните два простых шага в Safari:</p>
+            
+            <div class="ios-steps">
+                <div class="ios-step">
+                    <div class="step-num">1</div>
+                    <div class="step-text">Нажмите кнопку <span class="share-icon"><svg viewBox="0 0 24 24"><path d="M12 16V4M12 4L8 8M12 4L16 8M4 16V20H20V16"/></svg></span> <strong>Поделиться</strong> в нижней панели браузера</div>
+                </div>
+                <div class="ios-step">
+                    <div class="step-num">2</div>
+                    <div class="step-text">Выберите <strong>«На экран Домой»</strong> и нажмите «Добавить»</div>
+                </div>
+            </div>
+
+            <button class="btn-close" onclick="closeIosModal()">Понятно</button>
+        </div>
+    </div>
+
+    <script>
+        // Состояние установки
+        let deferredPrompt = null;
+        let isInstalled = false;
+
+        const installBtn = document.getElementById('installBtn');
+        const btnIcon = document.getElementById('btnIcon');
+        const btnLabel = document.getElementById('btnLabel');
+        const infoText = document.getElementById('infoText');
+        const iosModal = document.getElementById('iosModal');
+
+        // Проверка: уже установлено?
+        function checkInstalled() {
+            const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+            if (standalone) {
+                isInstalled = true;
+                updateButton('installed');
+                return true;
+            }
+            return false;
+        }
+
+        // Обновление кнопки
+        function updateButton(state) {
+            if (state === 'installed') {
+                btnIcon.textContent = '✅';
+                btnLabel.textContent = 'Приложение установлено';
+                installBtn.style.background = 'linear-gradient(135deg, #34c759 0%, #30d158 100%)';
+                installBtn.style.boxShadow = '0 8px 24px rgba(52, 199, 89, 0.4)';
+                installBtn.onclick = () => window.location.href = 'login.html'; // Переход в приложение
+                infoText.textContent = 'Приложение готово к работе';
+            } else if (state === 'ios') {
+                btnIcon.textContent = '📱';
+                btnLabel.textContent = 'Инструкция для iOS';
+                installBtn.onclick = openIosModal;
+                infoText.textContent = 'Откройте эту страницу в Safari для установки';
+            } else if (state === 'loading') {
+                installBtn.classList.add('loading');
+                installBtn.disabled = true;
+            } else {
+                installBtn.classList.remove('loading');
+                installBtn.disabled = false;
+            }
+        }
+
+        // Android: beforeinstallprompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if (!isInstalled) {
+                updateButton('ready');
+            }
+        });
+
+        // Обработка клика
+        async function handleInstall() {
+            if (isInstalled) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            if (deferredPrompt) {
+                updateButton('loading');
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                
+                if (outcome === 'accepted') {
+                    updateButton('installed');
+                    deferredPrompt = null;
+                } else {
+                    updateButton('ready');
+                }
+            }
+        }
+
+        // iOS модальное окно
+        function openIosModal() {
+            iosModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeIosModal() {
+            iosModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Определение iOS
+        function isIOS() {
+            return /iPhone|iPad|iPod/.test(navigator.userAgent) && !window.MSStream;
+        }
+
+        function isSafari() {
+            return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+        }
+
+        // Инициализация
+        window.addEventListener('DOMContentLoaded', () => {
+            if (checkInstalled()) return;
+
+            if (isIOS()) {
+                if (!isSafari()) {
+                    infoText.textContent = '⚠️ Откройте эту страницу в Safari для установки';
+                    infoText.style.color = '#ff9500';
+                }
+                updateButton('ios');
+            }
+
+            // Service Worker
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js')
+                    .then(() => console.log('SW зарегистрирован'))
+                    .catch(err => console.log('SW ошибка:', err));
+            }
+        });
+
+        // Событие после установки
+        window.addEventListener('appinstalled', () => {
+            updateButton('installed');
+            deferredPrompt = null;
+        });
+    </script>
+</body>
+</html>
