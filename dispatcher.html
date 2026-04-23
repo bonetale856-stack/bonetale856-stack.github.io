@@ -17,6 +17,95 @@
         .edit-btn { background: #f2f2f7; color: #007aff; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 12px; margin-left: 4px;}
         .close-btn { background: #fff0f0; color: #ff3b30; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 12px; margin-left: 4px;}
 
+        /* ===== ТЕЛЕФОН ===== */
+        .phone-input-wrap {
+            display: flex; align-items: center; gap: 8px;
+        }
+        .phone-input-wrap .form-control {
+            flex: 1;
+        }
+        .phone-clear-btn {
+            background: #f2f2f7; border: none; border-radius: 10px;
+            padding: 10px 12px; color: #8e8e93; cursor: pointer;
+            font-size: 15px; flex-shrink: 0; transition: background 0.15s;
+        }
+        .phone-clear-btn:active { background: #e5e5ea; }
+
+        /* ===== ПОДЪЕЗД / КВАРТИРЫ ===== */
+        .apt-row {
+            display: flex; gap: 8px; align-items: flex-start;
+        }
+        .apt-row .form-control { flex: 1; }
+        .apt-tags-wrap {
+            display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;
+        }
+        .apt-tag {
+            background: #e5f1ff; color: #007aff; padding: 4px 10px;
+            border-radius: 20px; font-size: 13px; font-weight: 600;
+            display: flex; align-items: center; gap: 5px; cursor: default;
+        }
+        .apt-tag-remove {
+            color: #007aff; cursor: pointer; font-size: 15px; line-height: 1;
+            opacity: 0.7;
+        }
+        .apt-tag-remove:hover { opacity: 1; }
+        .apt-add-btn {
+            background: #007aff; color: white; border: none;
+            border-radius: 10px; padding: 10px 14px; font-size: 15px;
+            cursor: pointer; flex-shrink: 0; transition: background 0.15s;
+        }
+        .apt-add-btn:active { background: #0055d4; }
+
+        /* ===== РЕЧЬ ===== */
+        .speech-btn {
+            display: flex; align-items: center; gap: 6px;
+            background: #f2f2f7; border: none; border-radius: 10px;
+            padding: 8px 14px; font-size: 13px; font-weight: 600;
+            color: #3a3a3c; cursor: pointer; margin-bottom: 8px;
+            transition: all 0.2s; width: 100%;
+        }
+        .speech-btn.recording {
+            background: #ff3b30; color: white;
+            animation: pulse 1s infinite;
+        }
+        .speech-btn i { font-size: 16px; }
+        @keyframes pulse {
+            0%,100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* ===== ПОДТВЕРЖДЕНИЕ ПЕРЕД ОТПРАВКОЙ ===== */
+        #confirmModal {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); z-index: 2000;
+            justify-content: center; align-items: center;
+            padding: 20px;
+        }
+        .confirm-content {
+            background: white; padding: 24px 20px; border-radius: 20px;
+            width: 100%; max-width: 380px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            animation: fadeIn 0.2s;
+        }
+        .confirm-title {
+            font-size: 18px; font-weight: 800; color: #1c1c1e;
+            margin: 0 0 16px; text-align: center;
+        }
+        .confirm-row {
+            display: flex; gap: 10px; align-items: flex-start;
+            padding: 10px 0; border-bottom: 1px solid #f2f2f7;
+        }
+        .confirm-row:last-of-type { border-bottom: none; }
+        .confirm-icon {
+            width: 32px; height: 32px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px; flex-shrink: 0;
+        }
+        .confirm-label { font-size: 11px; color: #8e8e93; font-weight: 600; margin-bottom: 2px; text-transform: uppercase; }
+        .confirm-value { font-size: 14px; font-weight: 700; color: #1c1c1e; word-break: break-word; }
+        .confirm-btns { display: flex; gap: 10px; margin-top: 18px; }
+        .confirm-btns .btn { flex: 1; font-weight: 700; }
+
         /* ===== МОДАЛКИ ===== */
         #editModal, #closeTicketModal {
             display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -174,8 +263,6 @@
             font-size: 11px; font-weight: 700; color: #8e8e93;
             text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 8px 4px;
         }
-
-        /* Пустой экран */
         .empty-state { text-align: center; padding: 50px 20px; color: #8e8e93; }
         .empty-state i { font-size: 48px; margin-bottom: 12px; display: block; color: #d1d1d6; }
         .empty-state h3 { margin: 0 0 6px; color: #3a3a3c; }
@@ -187,6 +274,26 @@
         .profile-animate:nth-child(3) { animation-delay: 0.14s; }
         .profile-animate:nth-child(4) { animation-delay: 0.21s; }
         .profile-animate:nth-child(5) { animation-delay: 0.28s; }
+
+        /* ===== ОБЩИЕ СТИЛИ ФОРМЫ ===== */
+        .form-control {
+            width: 100%; padding: 12px 14px; border: 2px solid #e5e5ea;
+            border-radius: 12px; background: #fff; color: #1c1c1e;
+            font-size: 15px; box-sizing: border-box;
+            transition: border-color 0.2s; font-family: inherit;
+            -webkit-appearance: none;
+        }
+        .form-control:focus { outline: none; border-color: #007aff; }
+        .form-group { margin-bottom: 14px; }
+        .form-group label {
+            display: block; color: #1c1c1e; font-weight: 600;
+            margin-bottom: 6px; font-size: 13px;
+        }
+
+        /* ===== ХИНТ под полем ===== */
+        .field-hint {
+            font-size: 11px; color: #8e8e93; margin-top: 4px; padding-left: 2px;
+        }
     </style>
 </head>
 <body>
@@ -198,21 +305,69 @@
         <!-- ЭКРАН 1: СОЗДАТЬ ЗАЯВКУ -->
         <div id="tab-create" class="tab-content active">
             <div class="card">
+
+                <!-- АДРЕС -->
                 <div class="form-group" style="position: relative;">
                     <label><i class="fa-solid fa-location-dot"></i> Адрес:</label>
-                    <input type="text" class="form-control" id="address" placeholder="Начните вводить адрес..." oninput="filterAddresses()" onfocus="filterAddresses()">
+                    <input type="text" class="form-control" id="address"
+                           placeholder="Начните вводить адрес..."
+                           oninput="filterAddresses()" onfocus="filterAddresses()">
                     <div id="customAddressList" class="custom-dropdown"></div>
                 </div>
+
+                <!-- ПОДЪЕЗД + КВАРТИРЫ -->
+                <div class="form-group">
+                    <label><i class="fa-solid fa-door-open"></i> Подъезд и квартира:</label>
+                    <div class="apt-row">
+                        <input type="number" class="form-control" id="entrance"
+                               placeholder="Подъезд" inputmode="numeric" min="1" style="max-width:100px;">
+                        <input type="number" class="form-control" id="aptInput"
+                               placeholder="Квартира" inputmode="numeric" min="1">
+                        <button class="apt-add-btn" onclick="addApt()" title="Добавить квартиру">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+                    <div class="apt-tags-wrap" id="aptTags"></div>
+                    <div class="field-hint">Можно добавить несколько квартир</div>
+                </div>
+
+                <!-- ТЕЛЕФОН -->
+                <div class="form-group">
+                    <label><i class="fa-solid fa-phone"></i> Телефон заказчика:</label>
+                    <div class="phone-input-wrap">
+                        <input type="tel" class="form-control" id="phone"
+                               placeholder="+7 (___) ___-__-__"
+                               inputmode="tel"
+                               oninput="formatPhone(this)"
+                               maxlength="18">
+                        <button class="phone-clear-btn" onclick="clearPhone()" title="Очистить">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <div class="field-hint">Необязательно</div>
+                </div>
+
+                <!-- ПРОБЛЕМА + РЕЧЬ -->
                 <div class="form-group">
                     <label><i class="fa-solid fa-triangle-exclamation"></i> Проблема:</label>
-                    <textarea class="form-control" id="problem" rows="3" placeholder="Что случилось..."></textarea>
+                    <button class="speech-btn" id="speechBtn" onclick="toggleSpeech()">
+                        <i class="fa-solid fa-microphone" id="speechIcon"></i>
+                        <span id="speechLabel">🎙 Надиктовать</span>
+                    </button>
+                    <textarea class="form-control" id="problem" rows="3"
+                              placeholder="Что случилось..."></textarea>
                 </div>
+
+                <!-- МАСТЕР -->
                 <div class="form-group" style="position: relative;">
                     <label><i class="fa-solid fa-helmet-safety"></i> Назначить мастера:</label>
-                    <input type="text" class="form-control" id="masterInput" placeholder="Начните вводить ФИО..." oninput="filterMasters()" onfocus="filterMasters()">
+                    <input type="text" class="form-control" id="masterInput"
+                           placeholder="Начните вводить ФИО..."
+                           oninput="filterMasters()" onfocus="filterMasters()">
                     <div id="customMasterList" class="custom-dropdown"></div>
                 </div>
-                <button class="btn btn-primary" id="btnSubmitTicket" onclick="sendTicket()">
+
+                <button class="btn btn-primary" id="btnSubmitTicket" onclick="askConfirm()">
                     <i class="fa-solid fa-paper-plane"></i> Отправить заявку
                 </button>
             </div>
@@ -326,6 +481,73 @@
         </div>
     </div>
 
+    <!-- МОДАЛ: ПОДТВЕРЖДЕНИЕ ПЕРЕД ОТПРАВКОЙ -->
+    <div id="confirmModal">
+        <div class="confirm-content">
+            <div class="confirm-title">✅ Всё правильно?</div>
+
+            <div class="confirm-row">
+                <div class="confirm-icon" style="background:#e5f1ff;">
+                    <i class="fa-solid fa-location-dot" style="color:#007aff;"></i>
+                </div>
+                <div>
+                    <div class="confirm-label">Адрес</div>
+                    <div class="confirm-value" id="cfAddress">—</div>
+                </div>
+            </div>
+
+            <div class="confirm-row">
+                <div class="confirm-icon" style="background:#f3e5f5;">
+                    <i class="fa-solid fa-door-open" style="color:#af52de;"></i>
+                </div>
+                <div>
+                    <div class="confirm-label">Подъезд / Квартиры</div>
+                    <div class="confirm-value" id="cfApt">—</div>
+                </div>
+            </div>
+
+            <div class="confirm-row">
+                <div class="confirm-icon" style="background:#e8f5e9;">
+                    <i class="fa-solid fa-phone" style="color:#34c759;"></i>
+                </div>
+                <div>
+                    <div class="confirm-label">Телефон</div>
+                    <div class="confirm-value" id="cfPhone">—</div>
+                </div>
+            </div>
+
+            <div class="confirm-row">
+                <div class="confirm-icon" style="background:#fff3e0;">
+                    <i class="fa-solid fa-triangle-exclamation" style="color:#ff9500;"></i>
+                </div>
+                <div>
+                    <div class="confirm-label">Проблема</div>
+                    <div class="confirm-value" id="cfProblem">—</div>
+                </div>
+            </div>
+
+            <div class="confirm-row">
+                <div class="confirm-icon" style="background:#f2f2f7;">
+                    <i class="fa-solid fa-helmet-safety" style="color:#3a3a3c;"></i>
+                </div>
+                <div>
+                    <div class="confirm-label">Мастер</div>
+                    <div class="confirm-value" id="cfMaster">—</div>
+                </div>
+            </div>
+
+            <div class="confirm-btns">
+                <button class="btn" style="background:#f2f2f7; color:#3a3a3c;"
+                        onclick="closeConfirmModal()">
+                    <i class="fa-solid fa-pen"></i> Изменить
+                </button>
+                <button class="btn btn-primary" id="btnConfirmSend" onclick="sendTicket()">
+                    <i class="fa-solid fa-paper-plane"></i> Отправить
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ -->
     <div id="editModal">
         <div class="modal-content">
@@ -334,7 +556,8 @@
             </h3>
             <div class="form-group" style="position:relative;">
                 <label>Адрес:</label>
-                <input type="text" class="form-control" id="editAddress" oninput="filterEditAddresses()" onfocus="filterEditAddresses()">
+                <input type="text" class="form-control" id="editAddress"
+                       oninput="filterEditAddresses()" onfocus="filterEditAddresses()">
                 <div id="customEditAddressList" class="custom-dropdown"></div>
             </div>
             <div class="form-group">
@@ -343,13 +566,16 @@
             </div>
             <div class="form-group" style="position:relative;">
                 <label>Мастер:</label>
-                <input type="text" class="form-control" id="editMaster" oninput="filterEditMasters()" onfocus="filterEditMasters()">
+                <input type="text" class="form-control" id="editMaster"
+                       oninput="filterEditMasters()" onfocus="filterEditMasters()">
                 <div id="customEditMasterList" class="custom-dropdown"></div>
             </div>
-            <button class="btn btn-primary" id="btnSaveEdit" onclick="saveEdit()" style="margin-bottom:10px;">
+            <button class="btn btn-primary" id="btnSaveEdit" onclick="saveEdit()"
+                    style="margin-bottom:10px;">
                 💾 Сохранить изменения
             </button>
-            <button class="btn" style="background:#f2f2f7; color:#ff3b30;" onclick="closeEditModal()">Отмена</button>
+            <button class="btn" style="background:#f2f2f7; color:#ff3b30;"
+                    onclick="closeEditModal()">Отмена</button>
         </div>
     </div>
 
@@ -367,7 +593,8 @@
 
             <div class="form-group">
                 <label>Описание выполненных работ:</label>
-                <textarea class="form-control" id="closeDescription" rows="3" placeholder="Что было сделано..."></textarea>
+                <textarea class="form-control" id="closeDescription" rows="3"
+                          placeholder="Что было сделано..."></textarea>
             </div>
 
             <label class="free-toggle">
@@ -378,15 +605,18 @@
             <div id="closeMoneyBlock">
                 <div class="form-group">
                     <label>Работа (руб):</label>
-                    <input type="number" class="form-control" id="closeWork" value="0" oninput="calcCloseTotal()" inputmode="numeric" min="0">
+                    <input type="number" class="form-control" id="closeWork"
+                           value="0" oninput="calcCloseTotal()" inputmode="numeric" min="0">
                 </div>
                 <div class="form-group">
                     <label>Материалы (руб):</label>
-                    <input type="number" class="form-control" id="closeMaterial" value="0" oninput="calcCloseTotal()" inputmode="numeric" min="0">
+                    <input type="number" class="form-control" id="closeMaterial"
+                           value="0" oninput="calcCloseTotal()" inputmode="numeric" min="0">
                 </div>
                 <div class="form-group">
                     <label>Доставка (руб):</label>
-                    <input type="number" class="form-control" id="closeDelivery" value="0" oninput="calcCloseTotal()" inputmode="numeric" min="0">
+                    <input type="number" class="form-control" id="closeDelivery"
+                           value="0" oninput="calcCloseTotal()" inputmode="numeric" min="0">
                 </div>
                 <div class="total-price">
                     Итого: <span id="closeTotal">0</span> ₽
@@ -397,7 +627,8 @@
                 style="background:#34c759; color:white; margin-bottom:10px; font-weight:700;">
                 <i class="fa-solid fa-check-double"></i> Закрыть заявку
             </button>
-            <button class="btn" style="background:#f2f2f7; color:#ff3b30;" onclick="closeCloseModal()">Отмена</button>
+            <button class="btn" style="background:#f2f2f7; color:#ff3b30;"
+                    onclick="closeCloseModal()">Отмена</button>
         </div>
     </div>
 
@@ -423,7 +654,6 @@
     <script>
         const URL_GOOGLE_SERVER = "https://script.google.com/macros/s/AKfycbxfMMoR5LATkWt4HeT8XCxjOipYSay-c_9YVZExPPZ9edVLciR4YbHrqjadC_nSdFGfjg/exec";
 
-        // Микро-кэш DOM
         const $ = (id) => document.getElementById(id);
 
         let allAddresses   = [];
@@ -432,8 +662,13 @@
         let myTicketsArray = [];
         let currentEditId  = null;
         let currentCloseId = null;
+        let aptList        = [];       // массив добавленных квартир
+        let recognition    = null;     // Web Speech API
+        let isRecording    = false;
 
-        // ===== ИНИЦИАЛИЗАЦИЯ =====
+        // ==========================================
+        // ИНИЦИАЛИЗАЦИЯ
+        // ==========================================
         window.onload = async function () {
             const userStr = localStorage.getItem("currentUser");
             if (!userStr) { window.location.replace("index.html"); return; }
@@ -448,7 +683,6 @@
                 applyTab(window.location.hash.replace('#', ''));
             }
 
-            // Параллельная загрузка адресов и мастеров
             try {
                 const [addrs, users] = await Promise.all([
                     fetch(URL_GOOGLE_SERVER + "?action=getAddresses").then(r => r.json()),
@@ -460,10 +694,14 @@
                 console.log("Ошибка загрузки справочников", e);
             }
 
+            // Инициализация распознавания речи
+            initSpeech();
+
             // Закрываем дропдауны при клике вне
             document.addEventListener('click', function (e) {
                 const ids     = ['address','masterInput','editAddress','editMaster'];
-                const dropIds = ['customAddressList','customMasterList','customEditAddressList','customEditMasterList'];
+                const dropIds = ['customAddressList','customMasterList',
+                                 'customEditAddressList','customEditMasterList'];
                 ids.forEach((id, i) => {
                     if (e.target.id !== id) {
                         const el = $(dropIds[i]);
@@ -473,7 +711,6 @@
             });
         };
 
-        // ===== КНОПКА "НАЗАД" =====
         window.addEventListener('popstate', (event) => {
             applyTab(event.state && event.state.tab ? event.state.tab : 'create');
         });
@@ -504,74 +741,292 @@
             if (tabName === 'profile') loadStats();
         }
 
-        // ===== СОЗДАНИЕ ЗАЯВКИ =====
-        async function sendTicket() {
+        // ==========================================
+        // ТЕЛЕФОН — форматирование
+        // ==========================================
+        function formatPhone(input) {
+            let val = input.value.replace(/\D/g, '');
+
+            // Если начинается с 8 — заменяем на 7
+            if (val.startsWith('8')) val = '7' + val.slice(1);
+            // Если начинается с 7 — форматируем как +7
+            if (!val.startsWith('7') && val.length > 0) val = '7' + val;
+
+            let result = '';
+            if (val.length > 0)  result = '+7';
+            if (val.length > 1)  result += ' (' + val.slice(1, 4);
+            if (val.length >= 4) result += ') ' + val.slice(4, 7);
+            if (val.length >= 7) result += '-' + val.slice(7, 9);
+            if (val.length >= 9) result += '-' + val.slice(9, 11);
+
+            input.value = result;
+        }
+
+        function clearPhone() {
+            $('phone').value = '';
+            $('phone').focus();
+        }
+
+        // ==========================================
+        // КВАРТИРЫ — добавление тегов
+        // ==========================================
+        function addApt() {
+            const val = $('aptInput').value.trim();
+            if (!val || isNaN(Number(val)) || Number(val) < 1) {
+                $('aptInput').focus();
+                return;
+            }
+            if (aptList.includes(val)) {
+                $('aptInput').value = '';
+                return;
+            }
+            aptList.push(val);
+            renderAptTags();
+            $('aptInput').value = '';
+            $('aptInput').focus();
+        }
+
+        // Добавление квартиры по Enter
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && document.activeElement === $('aptInput')) {
+                e.preventDefault();
+                addApt();
+            }
+        });
+
+        function removeApt(val) {
+            aptList = aptList.filter(a => a !== val);
+            renderAptTags();
+        }
+
+        function renderAptTags() {
+            const wrap = $('aptTags');
+            wrap.innerHTML = '';
+            aptList.forEach(val => {
+                const tag = document.createElement('div');
+                tag.className = 'apt-tag';
+                tag.innerHTML = `кв. ${val} <span class="apt-tag-remove" onclick="removeApt('${val}')">×</span>`;
+                wrap.appendChild(tag);
+            });
+        }
+
+        // ==========================================
+        // РЕЧЬ — Web Speech API
+        // ==========================================
+        function initSpeech() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                $('speechBtn').style.display = 'none'; // Браузер не поддерживает
+                return;
+            }
+            recognition = new SpeechRecognition();
+            recognition.lang = 'ru-RU';
+            recognition.continuous = true;
+            recognition.interimResults = true;
+
+            let finalTranscript = '';
+
+            recognition.onresult = function(event) {
+                let interim = '';
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalTranscript += transcript + ' ';
+                    } else {
+                        interim = transcript;
+                    }
+                }
+                $('problem').value = finalTranscript + interim;
+            };
+
+            recognition.onerror = function(event) {
+                console.log('Speech error:', event.error);
+                stopSpeech();
+            };
+
+            recognition.onend = function() {
+                if (isRecording) {
+                    // Перезапускаем если пользователь не остановил
+                    try { recognition.start(); } catch(e) {}
+                }
+            };
+
+            // Сохраняем finalTranscript при каждом старте
+            recognition._resetTranscript = function() {
+                finalTranscript = $('problem').value || '';
+            };
+        }
+
+        function toggleSpeech() {
+            if (isRecording) {
+                stopSpeech();
+            } else {
+                startSpeech();
+            }
+        }
+
+        function startSpeech() {
+            if (!recognition) return;
+            isRecording = true;
+            recognition._resetTranscript();
+            try {
+                recognition.start();
+            } catch(e) {}
+            $('speechBtn').classList.add('recording');
+            $('speechIcon').className = 'fa-solid fa-stop';
+            $('speechLabel').textContent = '⏹ Остановить запись';
+        }
+
+        function stopSpeech() {
+            isRecording = false;
+            if (recognition) {
+                try { recognition.stop(); } catch(e) {}
+            }
+            $('speechBtn').classList.remove('recording');
+            $('speechIcon').className = 'fa-solid fa-microphone';
+            $('speechLabel').textContent = '🎙 Надиктовать';
+        }
+
+        // ==========================================
+        // ПОДТВЕРЖДЕНИЕ ПЕРЕД ОТПРАВКОЙ
+        // ==========================================
+        function askConfirm() {
             const address = $("address").value.trim();
             const problem = $("problem").value.trim();
             const master  = $("masterInput").value.trim();
-            const btn     = $("btnSubmitTicket");
+            const phone   = $("phone").value.trim();
+            const entrance = $("entrance").value.trim();
 
-            if (!address || !problem || !master) { alert("Заполните все поля!"); return; }
-            if (!allAddresses.includes(address)) { alert("❌ Такого адреса нет в базе! Выберите из списка."); return; }
-            if (!allMasters.includes(master))    { alert("❌ Такого мастера нет! Выберите из списка."); return; }
+            if (!address || !problem || !master) {
+                alert("Заполните адрес, проблему и мастера!"); return;
+            }
+            if (!allAddresses.includes(address)) {
+                alert("❌ Такого адреса нет в базе! Выберите из списка."); return;
+            }
+            if (!allMasters.includes(master)) {
+                alert("❌ Такого мастера нет! Выберите из списка."); return;
+            }
 
+            // Стоп запись если вдруг идёт
+            if (isRecording) stopSpeech();
+
+            // Заполняем модал подтверждения
+            $('cfAddress').textContent = address;
+
+            let aptText = '';
+            if (entrance) aptText += 'Подъезд ' + entrance;
+            if (aptList.length > 0) aptText += (aptText ? ', ' : '') + 'кв. ' + aptList.join(', ');
+            $('cfApt').textContent = aptText || '—';
+
+            $('cfPhone').textContent  = phone || '—';
+            $('cfProblem').textContent = problem;
+            $('cfMaster').textContent  = master;
+
+            $('confirmModal').style.display = 'flex';
+        }
+
+        function closeConfirmModal() {
+            $('confirmModal').style.display = 'none';
+        }
+
+        // ==========================================
+        // СОЗДАНИЕ ЗАЯВКИ
+        // ==========================================
+        async function sendTicket() {
+            const address  = $("address").value.trim();
+            const master   = $("masterInput").value.trim();
+            const phone    = $("phone").value.trim();
+            const entrance = $("entrance").value.trim();
+
+            // Собираем полную строку проблемы:
+            // проблема + подъезд/квартиры + телефон
+            let problemParts = [$("problem").value.trim()];
+            if (entrance || aptList.length > 0) {
+                let aptStr = '';
+                if (entrance) aptStr += 'Подъезд ' + entrance;
+                if (aptList.length > 0) aptStr += (aptStr ? ', ' : '') + 'кв. ' + aptList.join(', ');
+                problemParts.push(aptStr);
+            }
+            if (phone) problemParts.push('Тел: ' + phone);
+            const fullProblem = problemParts.filter(Boolean).join(' | ');
+
+            const btn = $("btnConfirmSend");
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Отправляем...';
 
             try {
                 const res = await fetch(URL_GOOGLE_SERVER, {
                     method: "POST",
-                    body: JSON.stringify({ action: "createTicket", dispatcherName: currentUser.name, address, problem, masterName: master }),
+                    body: JSON.stringify({
+                        action: "createTicket",
+                        dispatcherName: currentUser.name,
+                        address,
+                        problem: fullProblem,
+                        masterName: master
+                    }),
                     headers: { "Content-Type": "text/plain;charset=utf-8" }
                 });
                 await res.json();
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-check"></i> Готово!';
-                btn.style.background = "#34c759";
+
+                // Закрываем модал
+                closeConfirmModal();
+
+                // Сброс формы
                 $("address").value     = "";
                 $("problem").value     = "";
                 $("masterInput").value = "";
+                $("phone").value       = "";
+                $("entrance").value    = "";
+                aptList = [];
+                renderAptTags();
 
-                // Кэш устарел — чистим
+                // Кнопка "Готово"
+                const mainBtn = $("btnSubmitTicket");
+                mainBtn.innerHTML = '<i class="fa-solid fa-check"></i> Готово!';
+                mainBtn.style.background = "#34c759";
+                setTimeout(() => {
+                    mainBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить заявку';
+                    mainBtn.style.background = "#007aff";
+                }, 2000);
+
                 localStorage.removeItem("cachedDispatcherTickets_" + currentUser.name);
 
-                setTimeout(() => {
-                    btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить заявку';
-                    btn.style.background = "#007aff";
-                }, 2000);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить';
+
             } catch (e) {
                 btn.disabled = false;
-                btn.innerHTML = 'Ошибка. Повторить';
-                btn.style.background = "#ff3b30";
+                btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить';
+                closeConfirmModal();
+                alert("Ошибка. Проверьте интернет и попробуйте снова.");
             }
         }
 
-        // ===== ЗАГРУЗКА ЗАЯВОК (ОБЩАЯ ДЛЯ ОБЕИХ ВКЛАДОК) =====
+        // ==========================================
+        // ЗАГРУЗКА ЗАЯВОК
+        // ==========================================
         async function loadMyTickets() {
             const containerNew  = $("ticketsContainerNew");
             const containerDone = $("ticketsContainerDone");
 
-            // Лоадер показываем только если контейнеры пусты
             if (!containerNew.innerHTML.trim())  showLoader('New');
             if (!containerDone.innerHTML.trim()) showLoader('Done');
 
-            // Сначала кэш
             const cached = localStorage.getItem("cachedDispatcherTickets_" + currentUser.name);
             if (cached) {
                 try { renderTicketsList(JSON.parse(cached)); } catch (e) {}
             }
 
-            // Потом свежие данные
             try {
-                const res = await fetch(URL_GOOGLE_SERVER + "?action=getDispatcherTickets&dispatcherName=" + encodeURIComponent(currentUser.name));
+                const res = await fetch(URL_GOOGLE_SERVER +
+                    "?action=getDispatcherTickets&dispatcherName=" +
+                    encodeURIComponent(currentUser.name));
                 const freshTickets = await res.json();
-                localStorage.setItem("cachedDispatcherTickets_" + currentUser.name, JSON.stringify(freshTickets));
+                localStorage.setItem("cachedDispatcherTickets_" + currentUser.name,
+                    JSON.stringify(freshTickets));
                 renderTicketsList(freshTickets);
             } catch (e) {
-                if (!cached) {
-                    showError('New');
-                    showError('Done');
-                }
+                if (!cached) { showError('New'); showError('Done'); }
             }
         }
 
@@ -593,7 +1048,6 @@
             const newTickets  = ticketsArray.filter(t => t.status === "Новая");
             const doneTickets = ticketsArray.filter(t => t.status !== "Новая");
 
-            // Бейдж на кнопке "Новые"
             const badge = $('navBadge');
             if (newTickets.length > 0) {
                 badge.classList.add('show');
@@ -602,17 +1056,10 @@
                 badge.classList.remove('show');
             }
 
-            renderGroup(
-                newTickets, 'ticketsContainerNew', 'noTicketsMsgNew',
-                '<i class="fa-solid fa-bolt"></i><h3>Нет активных заявок</h3><p>Все заявки обработаны!</p>',
-                true
-            );
-
-            renderGroup(
-                doneTickets, 'ticketsContainerDone', 'noTicketsMsgDone',
-                '<i class="fa-solid fa-check-double"></i><h3>Нет закрытых заявок</h3><p>Закрытые заявки появятся здесь</p>',
-                false
-            );
+            renderGroup(newTickets,  'ticketsContainerNew',  'noTicketsMsgNew',
+                '<i class="fa-solid fa-bolt"></i><h3>Нет активных заявок</h3><p>Все заявки обработаны!</p>', true);
+            renderGroup(doneTickets, 'ticketsContainerDone', 'noTicketsMsgDone',
+                '<i class="fa-solid fa-check-double"></i><h3>Нет закрытых заявок</h3><p>Закрытые заявки появятся здесь</p>', false);
         }
 
         function renderGroup(tickets, containerId, msgId, emptyHtml, isNew) {
@@ -660,7 +1107,9 @@
             container.appendChild(frag);
         }
 
-        // ===== РЕДАКТИРОВАНИЕ =====
+        // ==========================================
+        // РЕДАКТИРОВАНИЕ
+        // ==========================================
         function openEditModal(id) {
             currentEditId = id;
             const ticket = myTicketsArray.find(t => t.id == id);
@@ -690,13 +1139,18 @@
             try {
                 await fetch(URL_GOOGLE_SERVER, {
                     method: "POST",
-                    body: JSON.stringify({ action: "editTicket", ticketId: currentEditId, address: newAddress, problem: newProblem, masterName: newMaster }),
+                    body: JSON.stringify({
+                        action: "editTicket",
+                        ticketId: currentEditId,
+                        address: newAddress,
+                        problem: newProblem,
+                        masterName: newMaster
+                    }),
                     headers: { "Content-Type": "text/plain;charset=utf-8" }
                 });
                 closeEditModal();
                 btn.disabled = false;
                 btn.innerHTML = '💾 Сохранить изменения';
-                // Инвалидируем кэш и перезагружаем
                 localStorage.removeItem("cachedDispatcherTickets_" + currentUser.name);
                 loadMyTickets();
             } catch (e) {
@@ -706,7 +1160,9 @@
             }
         }
 
-        // ===== ЗАКРЫТИЕ ЗАЯВКИ =====
+        // ==========================================
+        // ЗАКРЫТИЕ ЗАЯВКИ
+        // ==========================================
         function openCloseModal(id) {
             currentCloseId = id;
             const ticket = myTicketsArray.find(t => t.id == id);
@@ -723,7 +1179,6 @@
 
             toggleCloseMoney();
             $("closeTicketModal").style.display = "flex";
-
             setTimeout(() => $("closeDescription").focus(), 150);
         }
 
@@ -769,23 +1224,21 @@
             const ticket = myTicketsArray.find(t => t.id == currentCloseId);
             const masterName = ticket ? ticket.master : "";
 
-            const closeData = {
-                action:       "submitReport",
-                ticketId:     currentCloseId,
-                masterName:   masterName,
-                closedBy:     currentUser.name,
-                description:  desc,
-                paymentType:  isFree ? "Бесплатно" : "Платно",
-                workCost:     workCost,
-                materialCost: materialCost,
-                deliveryCost: deliveryCost,
-                totalCost:    totalCost
-            };
-
             try {
                 const res = await fetch(URL_GOOGLE_SERVER, {
                     method: "POST",
-                    body: JSON.stringify(closeData),
+                    body: JSON.stringify({
+                        action:       "submitReport",
+                        ticketId:     currentCloseId,
+                        masterName:   masterName,
+                        closedBy:     currentUser.name,
+                        description:  desc,
+                        paymentType:  isFree ? "Бесплатно" : "Платно",
+                        workCost,
+                        materialCost,
+                        deliveryCost,
+                        totalCost
+                    }),
                     headers: { "Content-Type": "text/plain;charset=utf-8" }
                 });
                 await res.json();
@@ -793,11 +1246,8 @@
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa-solid fa-check-double"></i> Закрыть заявку';
                 closeCloseModal();
-
-                // Один запрос вместо двух
                 localStorage.removeItem("cachedDispatcherTickets_" + currentUser.name);
                 loadMyTickets();
-
             } catch (e) {
                 alert("Ошибка при закрытии заявки. Проверьте интернет.");
                 btn.disabled = false;
@@ -805,14 +1255,18 @@
             }
         }
 
-        // ===== ПРОФИЛЬ / СТАТИСТИКА =====
+        // ==========================================
+        // ПРОФИЛЬ / СТАТИСТИКА
+        // ==========================================
         async function loadStats() {
             const cached = localStorage.getItem("cachedDispatcherStats_" + currentUser.name);
             if (cached) renderDispatcherStats(JSON.parse(cached));
             else $("badgeTitle").innerText = "Загрузка...";
 
             try {
-                const res   = await fetch(URL_GOOGLE_SERVER + "?action=getDispatcherStats&dispatcherName=" + encodeURIComponent(currentUser.name));
+                const res = await fetch(URL_GOOGLE_SERVER +
+                    "?action=getDispatcherStats&dispatcherName=" +
+                    encodeURIComponent(currentUser.name));
                 const stats = await res.json();
                 localStorage.setItem("cachedDispatcherStats_" + currentUser.name, JSON.stringify(stats));
                 renderDispatcherStats(stats);
@@ -847,10 +1301,10 @@
             $("actRate").innerText     = rate + "%";
 
             const levels = [
-                { min: 0,   max: 50,       title: "Надёжный тыл 🥉",       desc: "Отличное начало! Продолжайте в том же духе.",            icon: "fa-headset",          iconColor: "#8d6e63", bg: "#efebe9", barColor: "linear-gradient(90deg,#8d6e63,#bcaaa4)" },
-                { min: 50,  max: 200,      title: "Мастер логистики 🥈",    desc: "Ни одна заявка не потеряется, пока вы на смене!",        icon: "fa-satellite-dish",   iconColor: "#607d8b", bg: "#eceff1", barColor: "linear-gradient(90deg,#607d8b,#90a4ae)" },
-                { min: 200, max: 500,      title: "Опора компании 🥇",      desc: "Вы контролируете весь город. Легендарный уровень!",      icon: "fa-microphone-lines", iconColor: "#ffb300", bg: "#fff8e1", barColor: "linear-gradient(90deg,#ffb300,#ffe082)" },
-                { min: 500, max: Infinity, title: "Легенда службы 🏆",      desc: "Высший статус. Вы — эталон диспетчерской службы!",       icon: "fa-trophy",           iconColor: "#ff6b00", bg: "#fff3e0", barColor: "linear-gradient(90deg,#ff6b00,#ffcc02)" },
+                { min: 0,   max: 50,       title: "Надёжный тыл 🥉",    desc: "Отличное начало! Продолжайте в том же духе.",       icon: "fa-headset",          iconColor: "#8d6e63", bg: "#efebe9" },
+                { min: 50,  max: 200,      title: "Мастер логистики 🥈", desc: "Ни одна заявка не потеряется, пока вы на смене!",   icon: "fa-satellite-dish",   iconColor: "#607d8b", bg: "#eceff1" },
+                { min: 200, max: 500,      title: "Опора компании 🥇",   desc: "Вы контролируете весь город!",                     icon: "fa-microphone-lines", iconColor: "#ffb300", bg: "#fff8e1" },
+                { min: 500, max: Infinity, title: "Легенда службы 🏆",   desc: "Высший статус. Вы — эталон диспетчерской службы!", icon: "fa-trophy",           iconColor: "#ff6b00", bg: "#fff3e0" },
             ];
             const level = levels.find(l => total >= l.min && total < l.max) || levels[levels.length - 1];
 
@@ -861,15 +1315,16 @@
             $("badgeIconWrap").style.background = level.bg;
 
             const fill = $("progressFill");
-            fill.style.background = level.barColor;
             const progressMax = level.max === Infinity ? (total || 1) : level.max;
-            const pct         = Math.min(100, Math.round((total / progressMax) * 100));
+            const pct = Math.min(100, Math.round((total / progressMax) * 100));
             setTimeout(() => { fill.style.width = pct + "%"; }, 100);
             $("progressCurrent").innerText = total;
             $("progressNext").innerText    = level.max === Infinity ? "∞" : level.max;
         }
 
-        // ===== ПОИСК АДРЕСОВ И МАСТЕРОВ =====
+        // ==========================================
+        // ДРОПДАУНЫ
+        // ==========================================
         function buildDropdown(inputId, listId, source, limit) {
             const input = $(inputId).value.toLowerCase();
             const list  = $(listId);
@@ -890,7 +1345,9 @@
                 });
                 list.appendChild(frag);
                 list.style.display = "block";
-            } else { list.style.display = "none"; }
+            } else {
+                list.style.display = "none";
+            }
         }
 
         function filterAddresses()     { buildDropdown('address',     'customAddressList',     allAddresses, 15); }
