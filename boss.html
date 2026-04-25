@@ -160,6 +160,7 @@
         @keyframes fadeIn { from {opacity:0; transform: translateY(6px);} to {opacity:1; transform: translateY(0);} }
         .fadein { animation: fadeIn 0.3s both; }
     </style>
+<base target="_blank">
 </head>
 <body>
 
@@ -263,7 +264,52 @@
 
     <script>
         const URL_GOOGLE_SERVER = "https://script.google.com/macros/s/AKfycbxfMMoR5LATkWt4HeT8XCxjOipYSay-c_9YVZExPPZ9edVLciR4YbHrqjadC_nSdFGfjg/exec";
-        const $ = id => document.getElementById(id);
+        
+
+// ===== API DEDUPLICATION & THROTTLING =====
+const MIN_REFRESH_MS = 15000;
+const inFlight = new Map();
+const lastLoadTime = { active: 0, closed: 0, profile: 0 };
+
+async function apiFetch(url, options = {}) {
+    const key = (options.method || 'GET') + ':' + url + ':' + (options.body || '');
+    if (inFlight.has(key)) return inFlight.get(key);
+    const promise = fetch(url, options).then(async res => {
+        if (!res.ok) {
+            const text = await res.text();
+            throw new Error(`SERVER_ERROR:${res.status}:${text.slice(0, 300)}`);
+        }
+        const raw = await res.text();
+        try {
+            const data = JSON.parse(raw);
+            if (data && data.status === 'error') {
+                throw new Error('SERVER_ERROR:' + (data.message || 'Unknown server error'));
+            }
+            return data;
+        } catch (e) {
+            if (e.message.startsWith('SERVER_ERROR')) throw e;
+            throw new Error('SERVER_ERROR:INVALID_JSON:' + raw.slice(0, 300));
+        }
+    }).catch(err => {
+        if (err.message.startsWith('SERVER_ERROR')) throw err;
+        throw new Error('NETWORK_ERROR:' + err.message);
+    }).finally(() => {
+        setTimeout(() => inFlight.delete(key), 800);
+    });
+    inFlight.set(key, promise);
+    return promise;
+}
+
+function canRefresh(tab) {
+    const now = Date.now();
+    if (now - lastLoadTime[tab] < MIN_REFRESH_MS) {
+        console.log('[Throttle] Skipping refresh for', tab);
+        return false;
+    }
+    lastLoadTime[tab] = now;
+    return true;
+}
+const $ = id => document.getElementById(id);
 
         let currentUser = null;
         let notes = [];
@@ -287,7 +333,17 @@
             if (savedNotes) { try { notes = JSON.parse(savedNotes); } catch(e){ notes=[]; } }
             renderNotes();
 
-            loadBossData();
+            loadBossData(true);
+            // Retry on failure
+            let retries = 0;
+            async function preloadWithRetry() {
+                try { await loadBossData(true); }
+                catch (e) {
+                    retries++;
+                    if (retries < 3) setTimeout(preloadWithRetry, 2000);
+                }
+            }
+            preloadWithRetry();
             // Обновляем подсветку просроченных задач каждую минуту
             setInterval(renderNotes, 60000);
         };
@@ -295,6 +351,8 @@
         window.addEventListener('popstate', (e) => applyTab(e.state && e.state.tab ? e.state.tab : 'active'));
 
         function switchTab(tabName) {
+            const current = window.location.hash.replace('#', '') || 'active';
+            if (current === tabName) return;
             history.pushState({ tab: tabName }, "", "#" + tabName);
             applyTab(tabName);
         }
@@ -307,23 +365,28 @@
             if (navEl) navEl.classList.add('active');
             const titles = { 'active':'Горящие заявки','closed':'Закрытые заявки','notes':'План на день','profile':'Сводка' };
             $('headerTitle').innerText = titles[tabName] || 'Панель';
-            if (tabName === 'active' || tabName === 'closed' || tabName === 'profile') loadBossData();
+            if (tabName === 'active' || tabName === 'closed' || tabName === 'profile') loadBossData(false);
         }
 
         // ===== ЗАГРУЗКА ДАННЫХ =====
-        async function loadBossData() {
-            const cached = localStorage.getItem("cachedBossData");
+        async function loadBossData(force = false) {
+            if (!force && !canRefresh('profile')) return;
+            const cacheKey = "cachedBossData";
+            const cached = localStorage.getItem(cacheKey);
             if (cached) { try { bossData = JSON.parse(cached); renderAll(); } catch(e){} }
 
             try {
-                const res = await fetch(URL_GOOGLE_SERVER + "?action=getBossData");
-                const data = await res.json();
-                localStorage.setItem("cachedBossData", JSON.stringify(data));
+                const data = await apiFetch(URL_GOOGLE_SERVER + "?action=getBossData");
+                localStorage.setItem(cacheKey, JSON.stringify(data));
                 bossData = data;
                 renderAll();
             } catch (e) {
+                console.error('loadBossData error:', e);
                 if (!cached) {
-                    $("activeTicketsContainer").innerHTML = `<div class="empty-state"><i class="fa-solid fa-wifi-slash"></i><h3>Нет сети</h3><p>Проверьте интернет</p></div>`;
+                    const isServerErr = e.message && e.message.startsWith('SERVER_ERROR');
+                    const msg = isServerErr ? 'Ошибка сервера. Попробуйте позже.' : 'Проверьте интернет';
+                    const color = isServerErr ? '#ff9500' : '#8e8e93';
+                    $("activeTicketsContainer").innerHTML = `<div class="empty-state"><i class="fa-solid fa-triangle-exclamation" style="color:${color};"></i><h3>${isServerErr ? 'Ошибка сервера' : 'Нет сети'}</h3><p>${msg}</p></div>`;
                 }
             }
         }
