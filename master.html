@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Бейдж для незакрытых заявок */
+        /* ===== БЭЙДЖИ И КАРТОЧКИ ===== */
         .ticket-badge {
             position: absolute;
             top: 12px;
@@ -30,8 +30,17 @@
             animation: pulse 2s infinite;
         }
 
-        .ticket-badge i {
-            font-size: 12px;
+        .ticket-badge i { font-size: 12px; }
+
+        .ticket-badge.accepted {
+            background: #34c759;
+            box-shadow: 0 2px 8px rgba(52, 199, 89, 0.3);
+            animation: none;
+        }
+
+        .ticket-badge.pending {
+            background: #ff9500;
+            box-shadow: 0 2px 8px rgba(255, 149, 0, 0.3);
         }
 
         @keyframes pulse {
@@ -45,43 +54,284 @@
             cursor: pointer;
             transition: 0.2s;
         }
+
         .ticket-card:active { background: #f9f9f9; transform: scale(0.98); }
-        .ticket-date { font-size: 12px; color: #8e8e93; margin-bottom: 8px;}
-        .ticket-address { font-size: 16px; font-weight: 700; color: #1c1c1e; margin-bottom: 4px;}
+
+        .ticket-card.status-new { border-left-color: #ff9500; }
+        .ticket-card.status-accepted { border-left-color: #34c759; }
+
+        .ticket-date { font-size: 12px; color: #8e8e93; margin-bottom: 8px; }
+        .ticket-address { font-size: 16px; font-weight: 700; color: #1c1c1e; margin-bottom: 4px; }
         .ticket-problem { font-size: 14px; color: #3a3a3c; }
-        
-        .free-toggle { 
-            background: #f2f2f7; 
-            padding: 14px 12px; 
-            border-radius: 12px; 
-            display: flex; 
-            align-items: center; 
-            margin-bottom: 12px; 
+
+        .ticket-type-badge {
+            display: inline-block;
+            background: #e5f1ff;
+            color: #007aff;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 12px;
+            margin-top: 8px;
+        }
+
+        /* ===== МОДАЛЬНОЕ ОКНО ЗАЯВКИ ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: flex-end;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 24px 24px 0 0;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .modal-header {
+            padding: 20px 20px 16px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 10;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1c1c1e;
+            margin: 0;
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #f2f2f7;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #8e8e93;
+        }
+
+        .modal-close:hover {
+            background: #e5e5ea;
+            color: #1c1c1e;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-section {
+            margin-bottom: 20px;
+        }
+
+        .modal-section-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #8e8e93;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .modal-info-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f2f2f7;
+        }
+
+        .modal-info-row:last-child { border-bottom: none; }
+
+        .modal-info-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: #f2f2f7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: #007aff;
+        }
+
+        .modal-info-content { flex: 1; }
+
+        .modal-info-label {
+            font-size: 12px;
+            color: #8e8e93;
+            margin-bottom: 2px;
+        }
+
+        .modal-info-value {
+            font-size: 15px;
+            color: #1c1c1e;
+            font-weight: 500;
+        }
+
+        .modal-info-value.address {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .modal-info-value.problem {
+            font-size: 15px;
+            line-height: 1.4;
+        }
+
+        /* ===== КНОПКИ ДЕЙСТВИЙ ===== */
+        .modal-actions {
+            padding: 16px 20px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            border-top: 1px solid #eee;
+            position: sticky;
+            bottom: 0;
+            background: white;
+        }
+
+        .btn-accept {
+            background: linear-gradient(135deg, #34c759, #28a745);
+            color: white;
+            border: none;
+            padding: 16px 24px;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            width: 100%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(52, 199, 89, 0.3);
+            transition: all 0.2s;
+        }
+
+        .btn-accept:active { transform: scale(0.98); }
+        .btn-accept:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        .btn-accept.accepted {
+            background: #f2f2f7;
+            color: #8e8e93;
+            box-shadow: none;
+        }
+
+        .btn-close-ticket {
+            background: linear-gradient(135deg, #ff3b30, #ff2d55);
+            color: white;
+            border: none;
+            padding: 16px 24px;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            width: 100%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(255, 59, 48, 0.3);
+            transition: all 0.2s;
+        }
+
+        .btn-close-ticket:active { transform: scale(0.98); }
+        .btn-close-ticket:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        .btn-listen {
+            background: #e5f1ff;
+            color: #007aff;
+            border: 2px solid #007aff;
+            padding: 12px 20px;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-listen:hover { background: #d4e8ff; }
+        .btn-listen:active { transform: scale(0.98); }
+
+        .btn-listen.playing {
+            background: #007aff;
+            color: white;
+            animation: pulse 1s infinite;
+        }
+
+        /* ===== TOGGLE БЕСПЛАТНО ===== */
+        .free-toggle {
+            background: #f2f2f7;
+            padding: 14px 12px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
             cursor: pointer;
             border: 2px solid transparent;
             transition: all 0.2s;
         }
         .free-toggle:hover { border-color: #34c759; }
-        .free-toggle input { 
-            transform: scale(1.4); 
+        .free-toggle input {
+            transform: scale(1.4);
             margin-right: 12px;
             accent-color: #34c759;
             cursor: pointer;
         }
-        .free-toggle span { 
-            font-weight: 600; 
-            color: #34c759; 
+        .free-toggle span {
+            font-weight: 600;
+            color: #34c759;
             font-size: 15px;
         }
 
+        /* ===== ПОЛЯ СТОИМОСТИ ===== */
         .cost-field {
             display: flex;
             gap: 10px;
             margin-bottom: 12px;
         }
-        .cost-input {
-            flex: 1;
-        }
+        .cost-input { flex: 1; }
         .cost-input label {
             display: block;
             font-size: 13px;
@@ -106,14 +356,14 @@
             color: #8e8e93;
         }
 
-        .total-price { 
+        .total-price {
             background: linear-gradient(135deg, #e5f1ff, #cce4ff);
-            color: #007aff; 
-            padding: 16px; 
-            border-radius: 12px; 
-            font-size: 18px; 
-            font-weight: 700; 
-            text-align: right; 
+            color: #007aff;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            text-align: right;
             margin-bottom: 16px;
             display: flex;
             justify-content: space-between;
@@ -121,6 +371,7 @@
         }
         .total-price span { font-size: 13px; color: #3a3a3c; font-weight: 500; }
 
+        /* ===== СТАТИСТИКА ===== */
         .stats-grid { display: flex; gap: 10px; margin-bottom: 20px; }
         .stat-box { flex: 1; background: #f9f9f9; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid #eee; }
         .stat-num { font-size: 24px; font-weight: 800; color: #ff9500; margin-bottom: 5px; }
@@ -146,14 +397,8 @@
             pointer-events: none;
         }
         .offline-toast.show { top: 16px; }
-        .offline-toast.offline {
-            background: #1c1c1e;
-            color: white;
-        }
-        .offline-toast.online {
-            background: #34c759;
-            color: white;
-        }
+        .offline-toast.offline { background: #1c1c1e; color: white; }
+        .offline-toast.online { background: #34c759; color: white; }
 
         /* ===== ФОРМА ОТЧЁТА ===== */
         #reportScreen {
@@ -169,21 +414,10 @@
             margin-bottom: 16px;
         }
 
-        #reportScreen #reportAddress {
-            color: #ffffff;
-            font-weight: 700;
-            margin-bottom: 6px;
-        }
+        #reportScreen #reportAddress { color: #ffffff; font-weight: 700; margin-bottom: 6px; }
+        #reportScreen #reportProblem { color: #c7c7cc; font-size: 14px; }
 
-        #reportScreen #reportProblem {
-            color: #c7c7cc;
-            font-size: 14px;
-        }
-
-        #reportScreen .form-group {
-            margin-bottom: 14px;
-        }
-
+        #reportScreen .form-group { margin-bottom: 14px; }
         #reportScreen .form-group label {
             display: block;
             color: #1c1c1e;
@@ -204,22 +438,13 @@
             transition: border-color 0.2s;
         }
 
-        #reportScreen .form-control:focus {
-            outline: none;
-            border-color: #007aff;
-        }
+        #reportScreen .form-control:focus { outline: none; border-color: #007aff; }
+        #reportScreen .form-control::placeholder { color: #c7c7cc; }
+        #reportScreen .form-control:disabled { background: #f9f9f9; color: #8e8e93; }
 
-        #reportScreen .form-control::placeholder {
-            color: #c7c7cc;
-        }
-
-        #reportScreen .form-control:disabled {
-            background: #f9f9f9;
-            color: #8e8e93;
-        }
-
-        /* Кнопка речи в отчёте */
-        #reportScreen .speech-btn {
+        /* ===== КНОПКА РЕЧИ ===== */
+        #reportScreen .speech-btn,
+        .speech-btn {
             margin-top: 6px;
             width: 100%;
             background: #f2f2f7;
@@ -236,11 +461,10 @@
             transition: all 0.2s;
             font-size: 14px;
         }
-        #reportScreen .speech-btn:hover {
-            border-color: #007aff;
-            background: #e5f1ff;
-        }
-        #reportScreen .speech-btn.recording {
+        #reportScreen .speech-btn:hover,
+        .speech-btn:hover { border-color: #007aff; background: #e5f1ff; }
+        #reportScreen .speech-btn.recording,
+        .speech-btn.recording {
             background: #ff3b30;
             color: white;
             border-color: #ff3b30;
@@ -263,17 +487,9 @@
             gap: 8px;
             transition: all 0.2s;
         }
+        #reportScreen .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+        #reportScreen .btn-primary:active:not(:disabled) { transform: scale(0.98); }
 
-        #reportScreen .btn-primary:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        #reportScreen .btn-primary:active:not(:disabled) {
-            transform: scale(0.98);
-        }
-
-        /* Кнопка "Назад" */
         #reportScreen .btn-back {
             background: #f2f2f7;
             color: #007aff;
@@ -290,12 +506,9 @@
             gap: 6px;
             transition: all 0.2s;
         }
+        #reportScreen .btn-back:hover { background: #e5e5ea; }
 
-        #reportScreen .btn-back:hover {
-            background: #e5e5ea;
-        }
-
-        /* Permission badges */
+        /* ===== РАЗРЕШЕНИЯ ===== */
         .permission-badge {
             background: #f2f2f7;
             padding: 10px 12px;
@@ -307,16 +520,11 @@
             font-size: 13px;
             color: #3a3a3c;
         }
-        .permission-badge.granted {
-            background: #d1f4e0;
-            color: #34c759;
-        }
-        .permission-badge.denied {
-            background: #fde2e2;
-            color: #ff3b30;
-        }
+        .permission-badge.granted { background: #d1f4e0; color: #34c759; }
+        .permission-badge.denied { background: #fde2e2; color: #ff3b30; }
         .permission-icon { font-size: 14px; }
 
+        /* ===== ГЕРОЙ МАСТЕРА ===== */
         .master-hero {
             background: linear-gradient(135deg, #ff9500 0%, #ff5e3a 100%);
             border-radius: 20px;
@@ -361,22 +569,10 @@
             z-index: 1;
         }
 
-        .master-name {
-            font-size: 24px;
-            font-weight: 800;
-            margin: 0 0 6px 0;
-            position: relative;
-            z-index: 1;
-        }
+        .master-name { font-size: 24px; font-weight: 800; margin: 0 0 6px 0; position: relative; z-index: 1; }
+        .master-role { font-size: 14px; opacity: 0.9; font-weight: 500; position: relative; z-index: 1; }
 
-        .master-role {
-            font-size: 14px;
-            opacity: 0.9;
-            font-weight: 500;
-            position: relative;
-            z-index: 1;
-        }
-
+        /* ===== PUSH КАРТОЧКА ===== */
         .push-card {
             background: white;
             border-radius: 16px;
@@ -390,16 +586,9 @@
             transition: all 0.3s;
         }
 
-        .push-card:hover {
-            border-color: #007aff;
-            transform: translateY(-2px);
-        }
+        .push-card:hover { border-color: #007aff; transform: translateY(-2px); }
 
-        .push-info {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
+        .push-info { display: flex; align-items: center; gap: 14px; }
 
         .push-icon {
             width: 48px;
@@ -413,19 +602,10 @@
             color: #007aff;
         }
 
-        .push-text h4 {
-            margin: 0;
-            font-size: 15px;
-            color: #1c1c1e;
-            font-weight: 600;
-        }
+        .push-text h4 { margin: 0; font-size: 15px; color: #1c1c1e; font-weight: 600; }
+        .push-text p { margin: 4px 0 0 0; font-size: 12px; color: #8e8e93; }
 
-        .push-text p {
-            margin: 4px 0 0 0;
-            font-size: 12px;
-            color: #8e8e93;
-        }
-
+        /* ===== ДОСТИЖЕНИЯ ===== */
         .achievement-hero {
             background: linear-gradient(145deg, #1c1c1e 0%, #2c2c2e 100%);
             border-radius: 24px;
@@ -453,11 +633,7 @@
             50% { background-position: 100% 50%; }
         }
 
-        .achievement-header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
+        .achievement-header { text-align: center; margin-bottom: 20px; }
         .achievement-title {
             font-size: 13px;
             color: #8e8e93;
@@ -467,25 +643,9 @@
             margin: 0 0 8px 0;
         }
 
-        .rank-circle {
-            position: relative;
-            width: 180px;
-            height: 180px;
-            margin: 0 auto 20px;
-        }
-
-        .rank-circle svg {
-            transform: rotate(-90deg);
-            width: 180px;
-            height: 180px;
-        }
-
-        .rank-circle-bg {
-            fill: none;
-            stroke: rgba(255,255,255,0.1);
-            stroke-width: 12;
-        }
-
+        .rank-circle { position: relative; width: 180px; height: 180px; margin: 0 auto 20px; }
+        .rank-circle svg { transform: rotate(-90deg); width: 180px; height: 180px; }
+        .rank-circle-bg { fill: none; stroke: rgba(255,255,255,0.1); stroke-width: 12; }
         .rank-circle-progress {
             fill: none;
             stroke: url(#rankGradient);
@@ -517,18 +677,8 @@
             50% { transform: translateY(-6px); }
         }
 
-        .rank-name {
-            font-size: 16px;
-            font-weight: 800;
-            color: white;
-            margin: 0;
-        }
-
-        .rank-level {
-            font-size: 11px;
-            color: #8e8e93;
-            margin: 4px 0 0 0;
-        }
+        .rank-name { font-size: 16px; font-weight: 800; color: white; margin: 0; }
+        .rank-level { font-size: 11px; color: #8e8e93; margin: 4px 0 0 0; }
 
         .next-rank {
             background: rgba(255,255,255,0.08);
@@ -537,31 +687,11 @@
             margin-top: 16px;
         }
 
-        .next-rank-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-        }
+        .next-rank-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .next-rank-label { font-size: 12px; color: #c7c7cc; font-weight: 500; }
+        .next-rank-value { font-size: 12px; color: #ff9500; font-weight: 700; }
 
-        .next-rank-label {
-            font-size: 12px;
-            color: #c7c7cc;
-            font-weight: 500;
-        }
-
-        .next-rank-value {
-            font-size: 12px;
-            color: #ff9500;
-            font-weight: 700;
-        }
-
-        .progress-bar {
-            height: 8px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
+        .progress-bar { height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
         .progress-fill {
             height: 100%;
             background: linear-gradient(90deg, #ff9500, #ff5e3a);
@@ -570,6 +700,7 @@
             transition: width 1s ease-out;
         }
 
+        /* ===== СТАТЫ НОВЫЕ ===== */
         .stats-grid-new {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -598,9 +729,7 @@
             background: linear-gradient(90deg, #ff9500, #ff5e3a);
         }
 
-        .stat-card:active {
-            transform: scale(0.96);
-        }
+        .stat-card:active { transform: scale(0.96); }
 
         .stat-icon {
             width: 40px;
@@ -615,12 +744,7 @@
             color: #ff9500;
         }
 
-        .stat-value {
-            font-size: 22px;
-            font-weight: 800;
-            color: #1c1c1e;
-            margin: 0 0 4px 0;
-        }
+        .stat-value { font-size: 22px; font-weight: 800; color: #1c1c1e; margin: 0 0 4px 0; }
 
         .stat-label {
             font-size: 10px;
@@ -631,6 +755,7 @@
             line-height: 1.3;
         }
 
+        /* ===== КНОПКА ВЫХОДА ===== */
         .logout-btn {
             background: linear-gradient(135deg, #ff3b30, #ff2d55);
             color: white;
@@ -649,11 +774,9 @@
             transition: all 0.2s;
         }
 
-        .logout-btn:active {
-            transform: scale(0.98);
-            box-shadow: 0 4px 15px rgba(255, 59, 48, 0.25);
-        }
+        .logout-btn:active { transform: scale(0.98); box-shadow: 0 4px 15px rgba(255, 59, 48, 0.25); }
 
+        /* ===== PUSH НАПОМИНАНИЕ ===== */
         .push-reminder {
             background: linear-gradient(135deg, #fff3e0, #ffe0b2);
             border-left: 4px solid #ff9500;
@@ -664,43 +787,21 @@
             cursor: pointer;
             transition: transform 0.15s;
         }
-        .push-reminder:active {
-            transform: scale(0.98);
-        }
-        .push-reminder.show {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .push-reminder i {
-            font-size: 24px;
-            color: #ff9500;
-        }
-        .push-reminder-text h4 {
-            margin: 0 0 4px 0;
-            font-size: 14px;
-            color: #1c1c1e;
-        }
-        .push-reminder-text p {
-            margin: 0;
-            font-size: 12px;
-            color: #8e8e93;
-        }
-        .push-reminder-arrow {
-            margin-left: auto;
-            color: #ff9500;
-            font-size: 14px;
-        }
+        .push-reminder:active { transform: scale(0.98); }
+        .push-reminder.show { display: flex; align-items: center; gap: 12px; }
+        .push-reminder i { font-size: 24px; color: #ff9500; }
+        .push-reminder-text h4 { margin: 0 0 4px 0; font-size: 14px; color: #1c1c1e; }
+        .push-reminder-text p { margin: 0; font-size: 12px; color: #8e8e93; }
+        .push-reminder-arrow { margin-left: auto; color: #ff9500; font-size: 14px; }
 
-        .inline-loader {
-            text-align: center;
-            color: #8e8e93;
-            padding: 40px 20px;
-        }
-        .inline-loader i {
-            font-size: 30px;
-            margin-bottom: 10px;
-        }
+        /* ===== LOADER ===== */
+        .inline-loader { text-align: center; color: #8e8e93; padding: 40px 20px; }
+        .inline-loader i { font-size: 30px; margin-bottom: 10px; }
+
+        /* ===== ЛОАДЕР ДЛЯ КНОПКИ ===== */
+        .btn-loading { pointer-events: none; }
+        .btn-loading i { animation: spin 1s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     </style>
 
     <!-- ONESIGNAL PUSH NOTIFICATIONS -->
@@ -789,7 +890,7 @@
     <div class="top-bar" id="headerTitle">Мои задачи</div>
 
     <div class="container" id="mainContainer">
-        
+
         <!-- ЭКРАН 1: ЗАДАЧИ -->
         <div id="tab-tasks" class="tab-content active">
             <div class="push-reminder" id="pushReminder" onclick="switchTab('profile')">
@@ -812,7 +913,7 @@
             </div>
             <div id="ticketsContainer"></div>
         </div>
-        
+
         <!-- ЭКРАН 1.5: ИСТОРИЯ ВЫПОЛНЕННЫХ -->
         <div id="tab-history" class="tab-content">
             <div id="loadingHistory" class="inline-loader" style="display: none;">
@@ -831,7 +932,7 @@
             <div id="loadingProfile" class="inline-loader" style="display: none;">
                 <i class="fa-solid fa-circle-notch fa-spin"></i><br>Считаем успехи...
             </div>
-            
+
             <div id="profileContent" style="display: none;">
                 <!-- Карточка мастера -->
                 <div class="master-hero">
@@ -841,7 +942,7 @@
                     <h2 class="master-name" id="profileName">Загрузка...</h2>
                     <p class="master-role">Мастер Гильдии</p>
                 </div>
-                
+
                 <!-- Push-уведомления -->
                 <div class="push-card">
                     <div class="push-info">
@@ -855,13 +956,13 @@
                     </div>
                     <button id="btnPush" class="btn" style="width: auto; padding: 10px 18px; font-size: 13px; background: #e5f1ff; color: #007aff; border-radius: 12px; font-weight: 600; border: none; cursor: pointer;" onclick="enablePush()">Включить</button>
                 </div>
-                
+
                 <!-- Достижения HERO -->
                 <div class="achievement-hero" id="achievementHero">
                     <div class="achievement-header">
                         <p class="achievement-title">Ваш ранг</p>
                     </div>
-                    
+
                     <div class="rank-circle">
                         <svg viewBox="0 0 180 180">
                             <defs>
@@ -879,7 +980,7 @@
                             <p class="rank-level" id="rankLevel">Уровень 1</p>
                         </div>
                     </div>
-                    
+
                     <div class="next-rank">
                         <div class="next-rank-header">
                             <span class="next-rank-label">До следующего ранга</span>
@@ -890,7 +991,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Статистика -->
                 <div class="stats-grid-new">
                     <div class="stat-card">
@@ -909,7 +1010,7 @@
                         <div class="stat-label">Рейтинг</div>
                     </div>
                 </div>
-                
+
                 <button class="logout-btn" onclick="logout()">
                     <i class="fa-solid fa-arrow-right-from-bracket"></i>
                     Выйти из аккаунта
@@ -918,10 +1019,49 @@
         </div>
     </div>
 
-    <!-- ЭКРАН ОТЧЕТА -->
+    <!-- ===== МОДАЛЬНОЕ ОКНО ЗАЯВКИ ===== -->
+    <div class="modal-overlay" id="ticketModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Заявка</h3>
+                <button class="modal-close" onclick="closeTicketModal()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="modal-body" id="modalBody">
+                <!-- Контент загружается динамически -->
+                <div class="inline-loader">
+                    <i class="fa-solid fa-circle-notch fa-spin"></i><br>Загрузка...
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <!-- Кнопка прослушать -->
+                <button class="btn-listen" id="btnListenTicket" onclick="toggleListenTicket()">
+                    <i class="fa-solid fa-volume-high" id="listenIcon"></i>
+                    <span id="listenLabel">Прослушать заявку</span>
+                </button>
+
+                <!-- Кнопка принять -->
+                <button class="btn-accept" id="btnAcceptTicket" onclick="acceptTicket()">
+                    <i class="fa-solid fa-check"></i>
+                    <span id="acceptLabel">Принять заявку</span>
+                </button>
+
+                <!-- Кнопка закрыть (появляется после принятия) -->
+                <button class="btn-close-ticket" id="btnCloseTicket" onclick="openReportForm()" style="display: none;">
+                    <i class="fa-solid fa-flag-checkered"></i>
+                    Закрыть заявку
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ЭКРАН ОТЧЁТА -->
     <div class="container" id="reportScreen" style="display: none; padding-bottom: 20px;">
         <button class="btn-back" onclick="closeReport()"><i class="fa-solid fa-chevron-left"></i> Назад к списку</button>
-        
+
         <!-- Информация о заявке -->
         <div class="card">
             <div id="reportAddress" style="font-weight: 700; margin-bottom: 5px;"></div>
@@ -934,31 +1074,31 @@
             <textarea class="form-control" id="repDescription" rows="3" placeholder="Опишите что вы сделали..."></textarea>
             <button type="button" class="speech-btn" id="reportSpeechBtn" onclick="toggleReportSpeech()">
                 <i class="fa-solid fa-microphone" id="reportSpeechIcon"></i>
-                <span id="reportSpeechLabel">🎙 Надиктовать описание</span>
+                <span id="reportSpeechLabel">Надиктовать описание</span>
             </button>
         </div>
 
         <!-- Чекбокс "Бесплатно" -->
         <label class="free-toggle" onclick="toggleFreeMode()">
             <input type="checkbox" id="isFree" onchange="toggleFreeMode()">
-            <span>🎁 Выполнить бесплатно</span>
+            <span>Выполнить бесплатно</span>
         </label>
 
         <!-- Стоимость работ (2 колонки) -->
         <div class="cost-field">
             <div class="cost-input">
-                <label>💼 Работа (руб.):</label>
+                <label>Работа (руб.):</label>
                 <input type="number" id="repWork" value="0" min="0" onchange="updateTotal()" oninput="updateTotal()" disabled>
             </div>
             <div class="cost-input">
-                <label>📦 Материалы (руб.):</label>
+                <label>Материалы (руб.):</label>
                 <input type="number" id="repMaterial" value="0" min="0" onchange="updateTotal()" oninput="updateTotal()" disabled>
             </div>
         </div>
 
         <!-- Доставка -->
         <div class="form-group">
-            <label>🚚 Доставка (руб.):</label>
+            <label>Доставка (руб.):</label>
             <input type="number" id="repDelivery" value="0" min="0" class="form-control" onchange="updateTotal()" oninput="updateTotal()" disabled>
         </div>
 
@@ -970,13 +1110,13 @@
 
         <!-- Разрешения -->
         <div id="permissionsContainer" style="margin-bottom: 16px; display: none;">
-            <p style="font-size: 12px; color: #8e8e93; margin: 0 0 10px 0; text-transform: uppercase; font-weight: 600;">✓ Разрешения:</p>
+            <p style="font-size: 12px; color: #8e8e93; margin: 0 0 10px 0; text-transform: uppercase; font-weight: 600;">Разрешения:</p>
             <div class="permission-badge" id="micPermission">
-                <span class="permission-icon">🎤</span>
+                <span class="permission-icon"><i class="fa-solid fa-microphone"></i></span>
                 <span>Микрофон</span>
             </div>
             <div class="permission-badge" id="locationPermission">
-                <span class="permission-icon">📍</span>
+                <span class="permission-icon"><i class="fa-solid fa-location-dot"></i></span>
                 <span>Геолокация</span>
             </div>
         </div>
@@ -998,7 +1138,8 @@
         const URL_GOOGLE_SERVER = "https://script.google.com/macros/s/AKfycbxfMMoR5LATkWt4HeT8XCxjOipYSay-c_9YVZExPPZ9edVLciR4YbHrqjadC_nSdFGfjg/exec";
         let currentUser = null;
         let activeTicketId = null;
-        const CLOSED_VISIBLE_HOURS = 24; // Для видимости выполненных заявок
+        let activeTicketData = null;
+        const CLOSED_VISIBLE_HOURS = 24;
 
         // ===== OFFLINE TOAST ЛОГИКА =====
         (function() {
@@ -1013,9 +1154,7 @@
                     toast.className = 'offline-toast online show';
                     toastIcon.className = 'fa-solid fa-wifi';
                     toastText.innerText = 'Соединение восстановлено';
-                    toastTimer = setTimeout(() => {
-                        toast.classList.remove('show');
-                    }, 3000);
+                    toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
                 } else {
                     toast.className = 'offline-toast offline show';
                     toastIcon.className = 'fa-solid fa-wifi-slash';
@@ -1025,7 +1164,6 @@
 
             window.addEventListener('offline', () => showToast(false));
             window.addEventListener('online', () => showToast(true));
-
             if (!navigator.onLine) showToast(false);
         })();
 
@@ -1037,7 +1175,7 @@
             if (currentUser.role !== "мастер") { window.location.replace("index.html"); return; }
 
             document.getElementById("profileName").innerText = currentUser.name;
-            
+
             if (!window.location.hash) {
                 history.replaceState({tab: 'tasks'}, "", "#tasks");
                 applyTab('tasks');
@@ -1046,16 +1184,17 @@
                 applyTab(hashTab);
             }
 
-            // Инициализируем распознавание речи
             initReportSpeech();
-            
-            // Проверяем разрешения при открытии отчёта
             checkPermissionsOnOpen();
         };
 
         window.addEventListener('popstate', (event) => {
             if (document.getElementById("reportScreen").style.display === "block") {
                 closeReport();
+                return;
+            }
+            if (document.getElementById("ticketModal").classList.contains("show")) {
+                closeTicketModal();
                 return;
             }
             if (event.state && event.state.tab) {
@@ -1074,15 +1213,15 @@
         function applyTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-            
+
             const tabElement = document.getElementById('tab-' + tabName);
             const navElement = document.getElementById('nav-' + tabName);
             if(tabElement) tabElement.classList.add('active');
             if(navElement) navElement.classList.add('active');
-            
+
             const titles = { 'tasks': 'Мои задачи', 'history': 'Выполненные', 'profile': 'Профиль' };
             document.getElementById('headerTitle').innerText = titles[tabName] || 'Гильдия Сервис';
-            
+
             if (tabName === 'profile') loadStats();
             if (tabName === 'tasks') loadTickets();
             if (tabName === 'history') loadHistory();
@@ -1107,27 +1246,27 @@
                 document.getElementById("profileContent").style.display = "block";
                 localStorage.setItem("cachedMasterStats_" + currentUser.name, JSON.stringify(stats));
                 renderMasterStats(stats);
-            } catch (error) { 
-                if (!cachedStats) document.getElementById("loadingProfile").innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:red;"></i><br>Ошибка сети'; 
+            } catch (error) {
+                if (!cachedStats) document.getElementById("loadingProfile").innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:red;"></i><br>Ошибка сети';
             }
         }
 
         function renderMasterStats(stats) {
             const totalAllTime = stats.allTimeTickets;
             const monthlyTickets = stats.monthlyTickets;
-            
+
             document.getElementById("statTotal").innerText = totalAllTime;
             document.getElementById("statMonth").innerText = monthlyTickets;
-            
+
             const rankIcon = document.getElementById("rankIcon");
             const rankName = document.getElementById("rankName");
             const rankLevel = document.getElementById("rankLevel");
             const progressFill = document.getElementById("progressFill");
             const nextRankValue = document.getElementById("nextRankValue");
             const rankProgress = document.getElementById("rankProgress");
-            
+
             let rank, icon, target, level;
-            
+
             if (totalAllTime < 20) {
                 rank = "Новичок";
                 icon = "🥉";
@@ -1149,23 +1288,23 @@
                 target = 100;
                 level = "MAX";
             }
-            
+
             rankName.innerText = rank;
             rankIcon.innerText = icon;
             rankLevel.innerText = `Уровень ${level}`;
-            
+
             const prevTarget = level === 1 ? 0 : level === 2 ? 20 : level === 3 ? 50 : 100;
             const progress = level === "MAX" ? 100 : Math.min(100, ((totalAllTime - prevTarget) / (target - prevTarget)) * 100);
-            
+
             setTimeout(() => {
                 progressFill.style.width = progress + "%";
             }, 100);
-            
+
             const offset = 440 - (progress / 100) * 440;
             setTimeout(() => {
                 rankProgress.style.strokeDashoffset = offset;
             }, 100);
-            
+
             if (level === "MAX") {
                 nextRankValue.innerText = "Максимальный ранг!";
                 progressFill.style.width = "100%";
@@ -1191,12 +1330,12 @@
                 document.getElementById("loadingTasks").style.display = "none";
                 localStorage.setItem("cachedMasterTickets_" + currentUser.name, JSON.stringify(tickets));
                 renderMasterTickets(tickets);
-            } catch (error) { 
+            } catch (error) {
                 if (!cachedTickets) {
                     document.getElementById("loadingTasks").innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:red;"></i><br>Ошибка сети';
                 }
             }
-            
+
             checkPushReminder();
         }
 
@@ -1217,7 +1356,7 @@
                 document.getElementById("loadingHistory").style.display = "none";
                 localStorage.setItem("cachedMasterHistory_" + currentUser.name, JSON.stringify(tickets));
                 renderMasterHistory(tickets);
-            } catch (error) { 
+            } catch (error) {
                 if (!cachedHistory) {
                     document.getElementById("loadingHistory").innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:red;"></i><br>Ошибка сети';
                 }
@@ -1238,11 +1377,11 @@
                 div.style.opacity = "0.9";
                 div.innerHTML = `
                     <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-                        <span style="font-size:12px; color:#8e8e93;"><i class="fa-regular fa-calendar-check"></i> ${ticket.date}</span>
+                        <span style="font-size:12px; color:#8e8e93;"><i class="fa-regular fa-calendar-check"></i> ${ticket.date || ''}</span>
                         <span style="font-size:12px; font-weight:bold; color:#34c759;"><i class="fa-solid fa-check-double"></i> Закрыта</span>
                     </div>
-                    <div class="ticket-address">${ticket.address}</div>
-                    <div class="ticket-problem"><i class="fa-solid fa-wrench" style="color:#8e8e93;"></i> ${ticket.problem}</div>
+                    <div class="ticket-address">${ticket.address || ''}</div>
+                    <div class="ticket-problem"><i class="fa-solid fa-wrench" style="color:#8e8e93;"></i> ${ticket.problem || ''}</div>
                 `;
                 container.appendChild(div);
             });
@@ -1254,42 +1393,463 @@
             container.innerHTML = "";
             msg.style.display = "none";
             if (tickets.length === 0) { msg.style.display = "block"; return; }
-            
+
             tickets.forEach(ticket => {
                 const div = document.createElement("div");
-                div.className = "card ticket-card";
+                const isAccepted = ticket.status === "Принята";
+                div.className = `card ticket-card status-${ticket.status === "Новая" ? "new" : "accepted"}`;
+
+                let badgeClass = "ticket-badge";
+                let badgeText = '<i class="fa-solid fa-circle-exclamation"></i> Новая';
+                let badgeIcon = "fa-circle-exclamation";
+
+                if (isAccepted) {
+                    badgeClass = "ticket-badge accepted";
+                    badgeText = '<i class="fa-solid fa-clock"></i> Принята';
+                    badgeIcon = "fa-clock";
+                }
+
                 div.innerHTML = `
-                    <div class="ticket-badge">
-                        <i class="fa-solid fa-circle-exclamation"></i>
-                        <span>Закройте заявку</span>
+                    <div class="${badgeClass}">
+                        <i class="fa-solid ${badgeIcon}"></i>
+                        <span>${isAccepted ? 'Принята' : 'Закройте заявку'}</span>
                     </div>
-                    <div class="ticket-date"><i class="fa-regular fa-clock"></i> ${ticket.date}</div>
-                    <div class="ticket-address">${ticket.address}</div>
-                    <div class="ticket-problem"><i class="fa-solid fa-wrench" style="color:#8e8e93;"></i> ${ticket.problem}</div>
+                    <div class="ticket-date"><i class="fa-regular fa-clock"></i> ${ticket.date || formatDate(ticket.createdAt)}</div>
+                    <div class="ticket-address">${ticket.address || ''}</div>
+                    <div class="ticket-problem"><i class="fa-solid fa-wrench" style="color:#8e8e93;"></i> ${ticket.problem || ''}</div>
+                    ${ticket.ticketType ? `<span class="ticket-type-badge">${ticket.ticketType}</span>` : ''}
                 `;
-                div.onclick = () => openReportForm(ticket);
+                div.onclick = () => openTicketModal(ticket.id);
                 container.appendChild(div);
             });
         }
 
+        function formatDate(dateObj) {
+            if (!dateObj) return '';
+            const d = new Date(dateObj);
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            const hours = String(d.getHours()).padStart(2, '0');
+            const minutes = String(d.getMinutes()).padStart(2, '0');
+            return `${day}.${month}.${year} ${hours}:${minutes}`;
+        }
+
+        // ===== МОДАЛЬНОЕ ОКНО ЗАЯВКИ =====
+        async function openTicketModal(ticketId) {
+            activeTicketId = ticketId;
+            const modal = document.getElementById('ticketModal');
+            const modalBody = document.getElementById('modalBody');
+
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+
+            modalBody.innerHTML = `
+                <div class="inline-loader">
+                    <i class="fa-solid fa-circle-notch fa-spin"></i><br>Загрузка данных...
+                </div>
+            `;
+
+            resetModalButtons();
+
+            try {
+                const response = await fetch(URL_GOOGLE_SERVER + "?action=getTicketDetails&ticketId=" + encodeURIComponent(ticketId));
+                const ticket = await response.json();
+                activeTicketData = ticket;
+
+                renderTicketModal(ticket);
+            } catch (error) {
+                modalBody.innerHTML = `
+                    <div style="text-align: center; padding: 40px 20px; color: #ff3b30;">
+                        <i class="fa-solid fa-triangle-exclamation" style="font-size: 40px; margin-bottom: 15px;"></i>
+                        <p>Ошибка загрузки данных</p>
+                        <button class="btn" onclick="openTicketModal('${ticketId}')" style="background: #f2f2f7; color: #007aff; margin-top: 10px;">
+                            <i class="fa-solid fa-rotate-right"></i> Повторить
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        function renderTicketModal(ticket) {
+            const modalBody = document.getElementById('modalBody');
+            const isAccepted = ticket.status === "Принята";
+
+            let statusBadge = '';
+            if (ticket.status === "Новая") {
+                statusBadge = '<span class="ticket-badge"><i class="fa-solid fa-circle-exclamation"></i> Новая</span>';
+            } else if (ticket.status === "Принята") {
+                statusBadge = '<span class="ticket-badge accepted"><i class="fa-solid fa-clock"></i> Принята</span>';
+            }
+
+            modalBody.innerHTML = `
+                <!-- Статус -->
+                ${statusBadge ? `<div style="margin-bottom: 16px;">${statusBadge}</div>` : ''}
+
+                <!-- Основная информация -->
+                <div class="modal-section">
+                    <div class="modal-section-title">Информация о заявке</div>
+
+                    <div class="modal-info-row">
+                        <div class="modal-info-icon">
+                            <i class="fa-solid fa-calendar"></i>
+                        </div>
+                        <div class="modal-info-content">
+                            <div class="modal-info-label">Дата создания</div>
+                            <div class="modal-info-value">${ticket.createdAt || formatDate(ticket.createdAt)}</div>
+                        </div>
+                    </div>
+
+                    ${ticket.dispatcher ? `
+                    <div class="modal-info-row">
+                        <div class="modal-info-icon">
+                            <i class="fa-solid fa-headset"></i>
+                        </div>
+                        <div class="modal-info-content">
+                            <div class="modal-info-label">Диспетчер</div>
+                            <div class="modal-info-value">${ticket.dispatcher}</div>
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    ${ticket.ticketType ? `
+                    <div class="modal-info-row">
+                        <div class="modal-info-icon">
+                            <i class="fa-solid fa-tag"></i>
+                        </div>
+                        <div class="modal-info-content">
+                            <div class="modal-info-label">Тип заявки</div>
+                            <div class="modal-info-value">${ticket.ticketType}</div>
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    ${ticket.paymentType ? `
+                    <div class="modal-info-row">
+                        <div class="modal-info-icon">
+                            <i class="fa-solid fa-credit-card"></i>
+                        </div>
+                        <div class="modal-info-content">
+                            <div class="modal-info-label">Тип оплаты</div>
+                            <div class="modal-info-value">${ticket.paymentType}</div>
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+
+                <!-- Адрес и проблема -->
+                <div class="modal-section">
+                    <div class="modal-section-title">Адрес и проблема</div>
+
+                    <div class="modal-info-row">
+                        <div class="modal-info-icon" style="background: #fff3e0; color: #ff9500;">
+                            <i class="fa-solid fa-location-dot"></i>
+                        </div>
+                        <div class="modal-info-content">
+                            <div class="modal-info-label">Адрес</div>
+                            <div class="modal-info-value address">${ticket.address || ''}</div>
+                        </div>
+                    </div>
+
+                    ${ticket.mapsLink ? `
+                    <div class="modal-info-row">
+                        <div class="modal-info-icon" style="background: #e5f1ff; color: #007aff;">
+                            <i class="fa-solid fa-map"></i>
+                        </div>
+                        <div class="modal-info-content">
+                            <div class="modal-info-label">Карта</div>
+                            <div class="modal-info-value">
+                                <a href="${ticket.mapsLink}" target="_blank" style="color: #007aff;">Открыть на карте</a>
+                            </div>
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    <div class="modal-info-row">
+                        <div class="modal-info-icon" style="background: #fde2e2; color: #ff3b30;">
+                            <i class="fa-solid fa-wrench"></i>
+                        </div>
+                        <div class="modal-info-content">
+                            <div class="modal-info-label">Проблема</div>
+                            <div class="modal-info-value problem">${ticket.problem || ''}</div>
+                        </div>
+                    </div>
+                </div>
+
+                ${ticket.acceptedAt ? `
+                <!-- Время принятия -->
+                <div class="modal-section">
+                    <div class="modal-section-title">Время</div>
+                    <div class="modal-info-row">
+                        <div class="modal-info-icon" style="background: #d1f4e0; color: #34c759;">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                        <div class="modal-info-content">
+                            <div class="modal-info-label">Принята</div>
+                            <div class="modal-info-value">${ticket.acceptedAt}</div>
+                        </div>
+                    </div>
+                </div>
+                ` : ''}
+
+                ${ticket.geoAccuracy ? `
+                <!-- Геолокация -->
+                <div class="modal-section">
+                    <div class="modal-section-title">Геолокация</div>
+                    <div class="modal-info-row">
+                        <div class="modal-info-icon" style="background: #e5f1ff; color: #007aff;">
+                            <i class="fa-solid fa-crosshairs"></i>
+                        </div>
+                        <div class="modal-info-content">
+                            <div class="modal-info-label">Точность</div>
+                            <div class="modal-info-value">${ticket.geoAccuracy}</div>
+                        </div>
+                    </div>
+                </div>
+                ` : ''}
+            `;
+
+            updateModalButtons(isAccepted);
+        }
+
+        function updateModalButtons(isAccepted) {
+            const btnAccept = document.getElementById('btnAcceptTicket');
+            const btnClose = document.getElementById('btnCloseTicket');
+            const acceptLabel = document.getElementById('acceptLabel');
+            const acceptIcon = btnAccept.querySelector('i');
+
+            if (isAccepted) {
+                btnAccept.classList.add('accepted');
+                btnAccept.disabled = true;
+                acceptLabel.textContent = 'Заявка принята';
+                acceptIcon.className = 'fa-solid fa-check';
+                btnClose.style.display = 'flex';
+            } else {
+                btnAccept.classList.remove('accepted');
+                btnAccept.disabled = false;
+                acceptLabel.textContent = 'Принять заявку';
+                acceptIcon.className = 'fa-solid fa-check';
+                btnClose.style.display = 'none';
+            }
+        }
+
+        function resetModalButtons() {
+            const btnAccept = document.getElementById('btnAcceptTicket');
+            const btnClose = document.getElementById('btnCloseTicket');
+            const acceptLabel = document.getElementById('acceptLabel');
+            const listenBtn = document.getElementById('btnListenTicket');
+
+            btnAccept.classList.remove('accepted');
+            btnAccept.disabled = false;
+            acceptLabel.textContent = 'Принять заявку';
+            btnAccept.querySelector('i').className = 'fa-solid fa-check';
+            btnClose.style.display = 'none';
+
+            listenBtn.classList.remove('playing');
+            document.getElementById('listenLabel').textContent = 'Прослушать заявку';
+            document.getElementById('listenIcon').className = 'fa-solid fa-volume-high';
+
+            stopCurrentSpeech();
+        }
+
+        function closeTicketModal() {
+            const modal = document.getElementById('ticketModal');
+            modal.classList.remove('show');
+            document.body.style.overflow = '';
+            activeTicketId = null;
+            activeTicketData = null;
+            stopCurrentSpeech();
+        }
+
+        // ===== ПРИНЯТЬ ЗАЯВКУ =====
+        async function acceptTicket() {
+            if (!activeTicketId) return;
+
+            const btnAccept = document.getElementById('btnAcceptTicket');
+            const acceptLabel = document.getElementById('acceptLabel');
+            const btnIcon = btnAccept.querySelector('i');
+
+            btnAccept.disabled = true;
+            btnAccept.classList.add('btn-loading');
+            btnIcon.className = 'fa-solid fa-circle-notch fa-spin';
+            acceptLabel.textContent = 'Принимаем...';
+
+            try {
+                let lat = '', lon = '', accuracy = '';
+
+                if (navigator.geolocation) {
+                    try {
+                        const position = await new Promise((resolve, reject) => {
+                            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
+                        });
+                        lat = position.coords.latitude;
+                        lon = position.coords.longitude;
+                        accuracy = Math.round(position.coords.accuracy);
+                    } catch (geoError) {
+                        console.log('Geolocation error:', geoError);
+                    }
+                }
+
+                const response = await fetch(URL_GOOGLE_SERVER, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        action: "acceptTicket",
+                        ticketId: activeTicketId,
+                        lat: lat,
+                        lon: lon,
+                        accuracy: accuracy
+                    }),
+                    headers: { "Content-Type": "text/plain;charset=utf-8" }
+                });
+
+                const result = await response.json();
+
+                if (result.status === "success") {
+                    btnAccept.classList.remove('btn-loading');
+                    btnAccept.classList.add('accepted');
+                    btnAccept.disabled = true;
+                    btnIcon.className = 'fa-solid fa-check';
+                    acceptLabel.textContent = 'Заявка принята';
+
+                    document.getElementById('btnCloseTicket').style.display = 'flex';
+
+                    localStorage.removeItem("cachedMasterTickets_" + currentUser.name);
+                    loadTickets();
+
+                    setTimeout(() => {
+                        closeTicketModal();
+                    }, 1000);
+                } else {
+                    throw new Error(result.message || "Ошибка сервера");
+                }
+            } catch (error) {
+                console.error('Accept ticket error:', error);
+                btnAccept.classList.remove('btn-loading');
+                btnAccept.disabled = false;
+                btnIcon.className = 'fa-solid fa-check';
+                acceptLabel.textContent = 'Принять заявку';
+                alert("Ошибка: " + (error.message || "Не удалось принять заявку"));
+            }
+        }
+
+        // ===== ПРОСЛУШИВАНИЕ ЗАЯВКИ =====
+        let currentUtterance = null;
+        let isListening = false;
+
+        function toggleListenTicket() {
+            if (isListening) {
+                stopCurrentSpeech();
+            } else {
+                startListenTicket();
+            }
+        }
+
+        function startListenTicket() {
+            if (!activeTicketData) return;
+
+            const text = buildListenText(activeTicketData);
+            if (!text) return;
+
+            const listenBtn = document.getElementById('btnListenTicket');
+            const listenLabel = document.getElementById('listenLabel');
+            const listenIcon = document.getElementById('listenIcon');
+
+            listenBtn.classList.add('playing');
+            listenLabel.textContent = 'Остановить';
+            listenIcon.className = 'fa-solid fa-stop';
+            isListening = true;
+
+            if ('speechSynthesis' in window) {
+                currentUtterance = new SpeechSynthesisUtterance(text);
+                currentUtterance.lang = 'ru-RU';
+                currentUtterance.rate = 0.9;
+                currentUtterance.pitch = 1;
+
+                currentUtterance.onend = function() {
+                    stopCurrentSpeech();
+                };
+
+                currentUtterance.onerror = function() {
+                    stopCurrentSpeech();
+                };
+
+                speechSynthesis.speak(currentUtterance);
+            }
+        }
+
+        function buildListenText(ticket) {
+            let text = '';
+
+            text += 'Заявка. ';
+
+            if (ticket.address) {
+                text += 'Адрес: ' + ticket.address + '. ';
+            }
+
+            if (ticket.problem) {
+                text += 'Проблема: ' + ticket.problem + '. ';
+            }
+
+            if (ticket.ticketType) {
+                text += 'Тип заявки: ' + ticket.ticketType + '. ';
+            }
+
+            if (ticket.paymentType) {
+                text += 'Тип оплаты: ' + ticket.paymentType + '. ';
+            }
+
+            if (ticket.dispatcher) {
+                text += 'Диспетчер: ' + ticket.dispatcher + '. ';
+            }
+
+            if (ticket.status === 'Принята' && ticket.acceptedAt) {
+                text += 'Заявка принята в ' + ticket.acceptedAt + '. ';
+            }
+
+            return text.trim();
+        }
+
+        function stopCurrentSpeech() {
+            if ('speechSynthesis' in window) {
+                speechSynthesis.cancel();
+            }
+
+            isListening = false;
+            currentUtterance = null;
+
+            const listenBtn = document.getElementById('btnListenTicket');
+            const listenLabel = document.getElementById('listenLabel');
+            const listenIcon = document.getElementById('listenIcon');
+
+            if (listenBtn) {
+                listenBtn.classList.remove('playing');
+                listenLabel.textContent = 'Прослушать заявку';
+                listenIcon.className = 'fa-solid fa-volume-high';
+            }
+        }
+
         // ===== ФОРМА ОТЧЁТА =====
-        function openReportForm(ticket) {
-            activeTicketId = ticket.id;
+        function openReportForm() {
+            if (!activeTicketData) return;
+
+            closeTicketModal();
+
             document.getElementById("mainContainer").style.display = "none";
             document.getElementById("bottomNav").style.display = "none";
             document.getElementById("reportScreen").style.display = "block";
             document.getElementById("headerTitle").innerText = "Отчет по заявке";
-            document.getElementById("reportAddress").innerText = "📍 " + ticket.address;
-            document.getElementById("reportProblem").innerText = ticket.problem;
+
+            document.getElementById("reportAddress").innerText = "📍 " + (activeTicketData.address || '');
+            document.getElementById("reportProblem").innerText = activeTicketData.problem || '';
+
             document.getElementById("repDescription").value = "";
             document.getElementById("isFree").checked = false;
             document.getElementById("repWork").value = "0";
             document.getElementById("repMaterial").value = "0";
             document.getElementById("repDelivery").value = "0";
+
             toggleFreeMode();
             updateTotal();
-            
-            // Запрашиваем разрешения
             requestPermissions();
         }
 
@@ -1330,21 +1890,21 @@
         // ===== ОТПРАВКА ОТЧЁТА =====
         async function submitReport() {
             const desc = document.getElementById("repDescription").value.trim();
-            if (!desc) { 
+            if (!desc) {
                 alert("Пожалуйста, напишите описание выполненных работ!");
                 return;
             }
-            
+
             const isFree = document.getElementById("isFree").checked;
             const btn = document.getElementById("btnSubmitReport");
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Отправляем...';
-            
+
             const work = parseInt(document.getElementById("repWork").value) || 0;
             const material = parseInt(document.getElementById("repMaterial").value) || 0;
             const delivery = parseInt(document.getElementById("repDelivery").value) || 0;
             const total = isFree ? 0 : (work + material + delivery);
-            
+
             const reportData = {
                 action: "submitReport",
                 ticketId: activeTicketId,
@@ -1356,7 +1916,7 @@
                 deliveryCost: delivery,
                 totalCost: total
             };
-            
+
             try {
                 const response = await fetch(URL_GOOGLE_SERVER, {
                     method: "POST",
@@ -1364,13 +1924,14 @@
                     headers: { "Content-Type": "text/plain;charset=utf-8" }
                 });
                 const result = await response.json();
-                
+
                 if (result.status === "success") {
                     btn.innerHTML = '<i class="fa-solid fa-check"></i> ✓ Принято!';
                     btn.style.background = "#34c759";
                     setTimeout(() => {
                         btn.disabled = false;
                         btn.innerHTML = '<i class="fa-solid fa-check-double"></i> Закрыть заявку';
+                        btn.style.background = "";
                         closeReport();
                         localStorage.removeItem("cachedMasterTickets_" + currentUser.name);
                         localStorage.removeItem("cachedMasterHistory_" + currentUser.name);
@@ -1384,6 +1945,9 @@
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa-solid fa-exclamation"></i> Ошибка. Повторить';
                 btn.style.background = "#ff3b30";
+                setTimeout(() => {
+                    btn.style.background = "";
+                }, 3000);
                 alert("Ошибка при отправке отчёта: " + error.message);
             }
         }
@@ -1401,7 +1965,7 @@
         function checkPushReminder() {
             const reminder = document.getElementById("pushReminder");
             if (!reminder) return;
-            
+
             window.OneSignalDeferred.push(function(OneSignal) {
                 const isSubscribed = OneSignal.User.PushSubscription.optedIn;
                 if (!isSubscribed) {
@@ -1412,7 +1976,7 @@
             });
         }
 
-        // ===== ГОЛОСОВОЙ ВВОД =====
+        // ===== ГОЛОСОВОЙ ВВОД ДЛЯ ОТЧЁТА =====
         let reportRecognition = null;
         let isReportRecording = false;
 
@@ -1422,14 +1986,14 @@
                 document.getElementById('reportSpeechBtn').style.display = 'none';
                 return;
             }
-            
+
             reportRecognition = new SpeechRecognition();
             reportRecognition.lang = 'ru-RU';
             reportRecognition.continuous = true;
             reportRecognition.interimResults = true;
-            
+
             let finalTranscript = '';
-            
+
             reportRecognition.onresult = function(event) {
                 let interim = '';
                 for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -1442,22 +2006,22 @@
                 }
                 document.getElementById('repDescription').value = finalTranscript + interim;
             };
-            
+
             reportRecognition.onerror = function(event) {
                 console.log('Speech error:', event.error);
                 if (event.error === 'not-allowed' || event.error === 'permission-denied') {
-                    alert('🎤 Доступ к микрофону запрещён. Включите в настройках браузера.');
+                    alert('Доступ к микрофону запрещён. Включите в настройках браузера.');
                 }
                 stopReportSpeech();
             };
-            
+
             reportRecognition.onend = function() {
                 if (isReportRecording) {
                     isReportRecording = false;
                     stopReportSpeech();
                 }
             };
-            
+
             reportRecognition._resetTranscript = function() {
                 finalTranscript = document.getElementById('repDescription').value || '';
             };
@@ -1468,17 +2032,17 @@
                 stopReportSpeech();
                 return;
             }
-            
+
             if (!reportRecognition) initReportSpeech();
             if (!reportRecognition) return;
-            
+
             isReportRecording = true;
             reportRecognition._resetTranscript();
             try { reportRecognition.start(); } catch(e) {}
-            
+
             document.getElementById('reportSpeechBtn').classList.add('recording');
             document.getElementById('reportSpeechIcon').className = 'fa-solid fa-stop';
-            document.getElementById('reportSpeechLabel').textContent = '⏹ Остановить запись';
+            document.getElementById('reportSpeechLabel').textContent = 'Остановить запись';
         }
 
         function stopReportSpeech() {
@@ -1488,7 +2052,7 @@
             }
             document.getElementById('reportSpeechBtn').classList.remove('recording');
             document.getElementById('reportSpeechIcon').className = 'fa-solid fa-microphone';
-            document.getElementById('reportSpeechLabel').textContent = '🎙 Надиктовать описание';
+            document.getElementById('reportSpeechLabel').textContent = 'Надиктовать описание';
         }
 
         // ===== РАЗРЕШЕНИЯ =====
@@ -1509,7 +2073,7 @@
                     resolve(false);
                     return;
                 }
-                
+
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
                         console.log("Location granted:", position.coords);
@@ -1528,10 +2092,8 @@
         async function requestPermissions() {
             const container = document.getElementById('permissionsContainer');
             container.style.display = 'block';
-            
-            // Запрашиваем микрофон (если есть кнопка голоса)
+
             if (document.getElementById('reportSpeechBtn').style.display !== 'none') {
-                await requestMicPermission();
                 const micEl = document.getElementById('micPermission');
                 if (micEl) {
                     try {
@@ -1543,19 +2105,16 @@
                     }
                 }
             }
-            
-            // Запрашиваем геолокацию
+
             await requestLocationPermission();
         }
 
-        function checkPermissionsOnOpen() {
-            // Этот код может быть вызван при инициализации для проверки разрешений
-        }
+        function checkPermissionsOnOpen() {}
 
         function updatePermissionUI(elementId, granted) {
             const el = document.getElementById(elementId);
             if (!el) return;
-            
+
             if (granted) {
                 el.classList.add('granted');
                 el.classList.remove('denied');
