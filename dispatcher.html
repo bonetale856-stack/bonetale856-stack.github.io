@@ -11,19 +11,17 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .status-badge { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; display: inline-block; margin-bottom: 8px;}
-        .status-new { background: #e5f1ff; color: #007aff; }
-        .status-done { background: #e8f5e9; color: #34c759; }
+        .status-new     { background: #e5f1ff; color: #007aff; }
+        .status-accepted{ background: #fff3e0; color: #ff9500; }
+        .status-done    { background: #e8f5e9; color: #34c759; }
+
         .ticket-info { font-size: 13px; color: #8e8e93; margin-top: 8px; border-top: 1px solid #f2f2f7; padding-top: 8px; display: flex; justify-content: space-between; align-items: center;}
-        .edit-btn { background: #f2f2f7; color: #007aff; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 12px; margin-left: 4px;}
+        .edit-btn  { background: #f2f2f7; color: #007aff; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 12px; margin-left: 4px;}
         .close-btn { background: #fff0f0; color: #ff3b30; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 12px; margin-left: 4px;}
 
         /* ===== ТЕЛЕФОН ===== */
-        .phone-input-wrap {
-            display: flex; align-items: center; gap: 8px;
-        }
-        .phone-input-wrap .form-control {
-            flex: 1;
-        }
+        .phone-input-wrap { display: flex; align-items: center; gap: 8px; }
+        .phone-input-wrap .form-control { flex: 1; }
         .phone-clear-btn {
             background: #f2f2f7; border: none; border-radius: 10px;
             padding: 10px 12px; color: #8e8e93; cursor: pointer;
@@ -32,22 +30,15 @@
         .phone-clear-btn:active { background: #e5e5ea; }
 
         /* ===== ПОДЪЕЗД / КВАРТИРЫ ===== */
-        .apt-row {
-            display: flex; gap: 8px; align-items: flex-start;
-        }
+        .apt-row { display: flex; gap: 8px; align-items: flex-start; }
         .apt-row .form-control { flex: 1; }
-        .apt-tags-wrap {
-            display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;
-        }
+        .apt-tags-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
         .apt-tag {
             background: #e5f1ff; color: #007aff; padding: 4px 10px;
             border-radius: 20px; font-size: 13px; font-weight: 600;
-            display: flex; align-items: center; gap: 5px; cursor: default;
+            display: flex; align-items: center; gap: 5px;
         }
-        .apt-tag-remove {
-            color: #007aff; cursor: pointer; font-size: 15px; line-height: 1;
-            opacity: 0.7;
-        }
+        .apt-tag-remove { color: #007aff; cursor: pointer; font-size: 15px; line-height: 1; opacity: 0.7; }
         .apt-tag-remove:hover { opacity: 1; }
         .apt-add-btn {
             background: #007aff; color: white; border: none;
@@ -64,50 +55,32 @@
             color: #3a3a3c; cursor: pointer; margin-bottom: 8px;
             transition: all 0.2s; width: 100%;
         }
-        .speech-btn.recording {
-            background: #ff3b30; color: white;
-            animation: pulse 1s infinite;
-        }
+        .speech-btn.recording { background: #ff3b30; color: white; animation: pulse 1s infinite; }
         .speech-btn i { font-size: 16px; }
-        @keyframes pulse {
-            0%,100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.7; } }
 
-        /* ===== ПОДТВЕРЖДЕНИЕ ПЕРЕД ОТПРАВКОЙ ===== */
+        /* ===== ПОДТВЕРЖДЕНИЕ ===== */
         #confirmModal {
             display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.5); z-index: 2000;
-            justify-content: center; align-items: center;
-            padding: 20px;
+            justify-content: center; align-items: center; padding: 20px;
         }
         .confirm-content {
             background: white; padding: 24px 20px; border-radius: 20px;
             width: 100%; max-width: 380px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            animation: fadeIn 0.2s;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2); animation: fadeIn 0.2s;
         }
-        .confirm-title {
-            font-size: 18px; font-weight: 800; color: #1c1c1e;
-            margin: 0 0 16px; text-align: center;
-        }
-        .confirm-row {
-            display: flex; gap: 10px; align-items: flex-start;
-            padding: 10px 0; border-bottom: 1px solid #f2f2f7;
-        }
+        .confirm-title { font-size: 18px; font-weight: 800; color: #1c1c1e; margin: 0 0 16px; text-align: center; }
+        .confirm-row { display: flex; gap: 10px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid #f2f2f7; }
         .confirm-row:last-of-type { border-bottom: none; }
-        .confirm-icon {
-            width: 32px; height: 32px; border-radius: 8px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 15px; flex-shrink: 0;
-        }
+        .confirm-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
         .confirm-label { font-size: 11px; color: #8e8e93; font-weight: 600; margin-bottom: 2px; text-transform: uppercase; }
         .confirm-value { font-size: 14px; font-weight: 700; color: #1c1c1e; word-break: break-word; }
         .confirm-btns { display: flex; gap: 10px; margin-top: 18px; }
         .confirm-btns .btn { flex: 1; font-weight: 700; }
 
         /* ===== МОДАЛКИ ===== */
-        #editModal, #closeTicketModal {
+        #editModal, #closeTicketModal, #rateModal {
             display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.5); z-index: 1000;
             justify-content: center; align-items: flex-start;
@@ -117,50 +90,39 @@
             background: white; padding: 20px; border-radius: 16px;
             width: 100%; max-width: 420px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            animation: fadeIn 0.2s;
-            margin: auto;
+            animation: fadeIn 0.2s; margin: auto;
         }
+        .modal-content .form-control {
+            width: 100%; padding: 12px 14px; border: 2px solid #e5e5ea;
+            border-radius: 12px; background: #fff; color: #1c1c1e;
+            font-size: 15px; box-sizing: border-box;
+            transition: border-color 0.2s; font-family: inherit; -webkit-appearance: none;
+        }
+        .modal-content .form-control:focus { outline: none; border-color: #007aff; }
+        .modal-content .form-group { margin-bottom: 12px; }
+        .modal-content .form-group label { display: block; color: #1c1c1e; font-weight: 600; margin-bottom: 6px; font-size: 13px; }
 
         /* ===== ФОРМА ЗАКРЫТИЯ ===== */
         .free-toggle {
             background: #f2f2f7; padding: 14px 16px; border-radius: 12px;
             display: flex; align-items: center; margin-bottom: 14px;
-            cursor: pointer; user-select: none; border: 2px solid transparent;
-            transition: all 0.2s;
+            cursor: pointer; user-select: none; border: 2px solid transparent; transition: all 0.2s;
         }
         .free-toggle input { transform: scale(1.4); margin-right: 12px; accent-color: #34c759; flex-shrink: 0; }
         .free-toggle span { font-weight: 600; color: #3a3a3c; font-size: 14px; }
-
         .total-price {
             background: #e5f1ff; color: #007aff; padding: 14px 16px;
             border-radius: 12px; font-size: 20px; font-weight: 700;
             text-align: right; margin-bottom: 14px; border: 2px solid #cce4ff;
         }
 
-        .modal-content .form-control {
-            width: 100%; padding: 12px 14px; border: 2px solid #e5e5ea;
-            border-radius: 12px; background: #fff; color: #1c1c1e;
-            font-size: 15px; box-sizing: border-box;
-            transition: border-color 0.2s; font-family: inherit;
-            -webkit-appearance: none;
-        }
-        .modal-content .form-control:focus { outline: none; border-color: #007aff; }
-        .modal-content .form-group { margin-bottom: 12px; }
-        .modal-content .form-group label {
-            display: block; color: #1c1c1e; font-weight: 600;
-            margin-bottom: 6px; font-size: 13px;
-        }
-
-        /* ===== БЕЙДЖ НА КНОПКЕ "НОВЫЕ" ===== */
+        /* ===== БЕЙДЖ НА КНОПКЕ НОВЫЕ ===== */
         .nav-item { position: relative; }
         .nav-badge {
             position: absolute; top: -8px; right: -14px;
-            background: #ff3b30; color: white;
-            font-size: 10px; font-weight: 800;
-            min-width: 16px; height: 16px;
-            border-radius: 8px; padding: 0 4px;
-            display: none; align-items: center; justify-content: center;
-            line-height: 1;
+            background: #ff3b30; color: white; font-size: 10px; font-weight: 800;
+            min-width: 16px; height: 16px; border-radius: 8px; padding: 0 4px;
+            display: none; align-items: center; justify-content: center; line-height: 1;
         }
         .nav-badge.show { display: flex; }
 
@@ -174,13 +136,11 @@
         }
         .profile-hero::before {
             content: ''; position: absolute; top: -40px; right: -40px;
-            width: 160px; height: 160px;
-            background: rgba(255,255,255,0.08); border-radius: 50%;
+            width: 160px; height: 160px; background: rgba(255,255,255,0.08); border-radius: 50%;
         }
         .profile-hero::after {
             content: ''; position: absolute; bottom: -30px; left: -30px;
-            width: 120px; height: 120px;
-            background: rgba(255,255,255,0.06); border-radius: 50%;
+            width: 120px; height: 120px; background: rgba(255,255,255,0.06); border-radius: 50%;
         }
         .profile-avatar {
             width: 80px; height: 80px; border-radius: 50%;
@@ -196,11 +156,7 @@
             font-size: 12px; font-weight: 700; letter-spacing: 0.5px;
             text-transform: uppercase; margin-top: 6px; position: relative; z-index: 1;
         }
-        .profile-online-dot {
-            display: inline-block; width: 8px; height: 8px;
-            background: #4cd964; border-radius: 50%;
-            margin-right: 5px; box-shadow: 0 0 6px #4cd964;
-        }
+        .profile-online-dot { display: inline-block; width: 8px; height: 8px; background: #4cd964; border-radius: 50%; margin-right: 5px; box-shadow: 0 0 6px #4cd964; }
         .stats-grid-4 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
         .stat-box-new {
             background: white; border-radius: 16px; padding: 16px 12px;
@@ -208,11 +164,7 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.04); transition: transform 0.15s;
         }
         .stat-box-new:active { transform: scale(0.97); }
-        .stat-icon-wrap {
-            width: 40px; height: 40px; border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            margin: 0 auto 10px; font-size: 18px;
-        }
+        .stat-icon-wrap { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-size: 18px; }
         .stat-num-new { font-size: 28px; font-weight: 900; line-height: 1; margin-bottom: 4px; }
         .stat-label-new { font-size: 11px; color: #8e8e93; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;}
         .achievement-card {
@@ -221,20 +173,12 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.04);
         }
         .achievement-header { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
-        .achievement-icon-wrap {
-            width: 52px; height: 52px; border-radius: 14px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 26px; flex-shrink: 0;
-        }
+        .achievement-icon-wrap { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; }
         .achievement-title { font-size: 16px; font-weight: 800; color: #1c1c1e; margin: 0 0 3px;}
         .achievement-subtitle { font-size: 12px; color: #8e8e93; margin: 0;}
         .progress-wrap { margin-top: 4px; }
         .progress-bar-bg { background: #f2f2f7; border-radius: 10px; height: 8px; overflow: hidden; margin-bottom: 6px; }
-        .progress-bar-fill {
-            height: 100%; border-radius: 10px;
-            background: linear-gradient(90deg, #007aff, #00c2ff);
-            transition: width 1s cubic-bezier(.4,0,.2,1);
-        }
+        .progress-bar-fill { height: 100%; border-radius: 10px; background: linear-gradient(90deg, #007aff, #00c2ff); transition: width 1s cubic-bezier(.4,0,.2,1); }
         .progress-labels { display: flex; justify-content: space-between; font-size: 11px; color: #8e8e93; font-weight: 600;}
         .activity-card {
             background: white; border-radius: 16px; padding: 16px;
@@ -242,10 +186,7 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.04);
         }
         .activity-title { font-size: 14px; font-weight: 800; color: #1c1c1e; margin: 0 0 12px;}
-        .activity-row {
-            display: flex; align-items: center; gap: 10px;
-            padding: 8px 0; border-bottom: 1px solid #f5f5f5;
-        }
+        .activity-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f5f5f5; }
         .activity-row:last-child { border-bottom: none; }
         .activity-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
         .activity-text { font-size: 13px; color: #3a3a3c; flex: 1; }
@@ -259,10 +200,7 @@
             box-shadow: 0 2px 10px rgba(255,59,48,0.07); transition: background 0.15s;
         }
         .logout-btn:active { background: #fff0f0; }
-        .section-label {
-            font-size: 11px; font-weight: 700; color: #8e8e93;
-            text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 8px 4px;
-        }
+        .section-label { font-size: 11px; font-weight: 700; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 8px 4px; }
         .empty-state { text-align: center; padding: 50px 20px; color: #8e8e93; }
         .empty-state i { font-size: 48px; margin-bottom: 12px; display: block; color: #d1d1d6; }
         .empty-state h3 { margin: 0 0 6px; color: #3a3a3c; }
@@ -280,19 +218,52 @@
             width: 100%; padding: 12px 14px; border: 2px solid #e5e5ea;
             border-radius: 12px; background: #fff; color: #1c1c1e;
             font-size: 15px; box-sizing: border-box;
-            transition: border-color 0.2s; font-family: inherit;
-            -webkit-appearance: none;
+            transition: border-color 0.2s; font-family: inherit; -webkit-appearance: none;
         }
         .form-control:focus { outline: none; border-color: #007aff; }
         .form-group { margin-bottom: 14px; }
-        .form-group label {
-            display: block; color: #1c1c1e; font-weight: 600;
-            margin-bottom: 6px; font-size: 13px;
+        .form-group label { display: block; color: #1c1c1e; font-weight: 600; margin-bottom: 6px; font-size: 13px; }
+        .field-hint { font-size: 11px; color: #8e8e93; margin-top: 4px; padding-left: 2px; }
+
+        /* ===== ТИП ЗАЯВКИ ===== */
+        .ticket-type-buttons { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+        .type-btn {
+            flex: 1; min-width: 100px; padding: 10px 8px;
+            border: 2px solid #e5e5ea; border-radius: 12px;
+            background: white; cursor: pointer; font-size: 13px;
+            transition: all 0.2s; font-weight: 600; color: #3a3a3c;
+        }
+        .type-btn:hover { border-color: #007aff; }
+        .type-btn.active { border-color: #007aff; background: #e5f1ff; color: #007aff; }
+        .payment-options { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+        .payment-options label { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #1c1c1e; cursor: pointer; }
+        .payment-options input[type="radio"] { transform: scale(1.2); accent-color: #007aff; }
+
+        /* ===== ОЦЕНКА МАСТЕРА ===== */
+        .rate-stars { display: flex; gap: 4px; margin: 10px 0; font-size: 28px; }
+        .rate-stars i { color: #e5e5ea; cursor: pointer; transition: color 0.15s; }
+        .rate-stars i.active { color: #ff9500; }
+        .rate-stars i:hover { transform: scale(1.1); }
+        .rate-comment {
+            width: 100%; padding: 10px 12px; border: 2px solid #e5e5ea;
+            border-radius: 10px; font-size: 14px; margin-top: 8px;
+            resize: vertical; min-height: 60px; box-sizing: border-box;
+            font-family: inherit;
+        }
+        .rate-comment:focus { outline: none; border-color: #007aff; }
+        .rate-btns { display: flex; gap: 8px; margin-top: 12px; }
+        .rate-btns .btn { flex: 1; font-weight: 700; }
+        .rate-badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            background: #fff3e0; color: #ff9500; padding: 4px 10px;
+            border-radius: 20px; font-size: 11px; font-weight: 700; margin-left: 8px;
         }
 
-        /* ===== ХИНТ под полем ===== */
-        .field-hint {
-            font-size: 11px; color: #8e8e93; margin-top: 4px; padding-left: 2px;
+        /* ===== СТАТУС ПРИНЯТА ===== */
+        .ticket-accepted-info {
+            background: #fff3e0; border-radius: 10px; padding: 8px 12px;
+            font-size: 12px; color: #ff9500; margin-top: 6px;
+            display: flex; align-items: center; gap: 6px;
         }
     </style>
 </head>
@@ -313,6 +284,30 @@
                            placeholder="Начните вводить адрес..."
                            oninput="filterAddresses()" onfocus="filterAddresses()">
                     <div id="customAddressList" class="custom-dropdown"></div>
+                </div>
+
+                <!-- ТИП ЗАЯВКИ -->
+                <div class="form-group">
+                    <label><i class="fa-solid fa-list-check"></i> Тип заявки:</label>
+                    <div class="ticket-type-buttons">
+                        <button type="button" class="type-btn" onclick="selectTicketType(this, 'Аварийная')">🚨 Аварийная</button>
+                        <button type="button" class="type-btn" onclick="selectTicketType(this, 'Линейная')">🔧 Линейная</button>
+                        <button type="button" class="type-btn" onclick="selectTicketType(this, 'Монтажная')">🏗️ Монтажная</button>
+                    </div>
+                    <div class="field-hint">Выберите тип — от этого зависят опции оплаты</div>
+                </div>
+
+                <!-- ТИП ОПЛАТЫ -->
+                <div id="paymentBlock" class="form-group" style="display:none">
+                    <label><i class="fa-solid fa-wallet"></i> Тип оплаты:</label>
+                    <div id="paymentOptions" class="payment-options"></div>
+                </div>
+
+                <!-- ПРЕДУПРЕЖДЕНИЕ для монтажной -->
+                <div id="invoiceWarning" class="form-group" style="display:none">
+                    <div style="background:#fff3cd; padding:12px; border-radius:12px; color:#856404; font-size:13px;">
+                        ⚠️ <b>Монтажная работа</b> — необходимо выставить счёт. Оплата не указывается в заявке.
+                    </div>
                 </div>
 
                 <!-- ПОДЪЕЗД + КВАРТИРЫ -->
@@ -434,7 +429,7 @@
             </div>
 
             <p class="section-label profile-animate">Достижение</p>
-            <div class="achievement-card profile-animate" id="achievementBadge">
+            <div class="achievement-card profile-animate">
                 <div class="achievement-header">
                     <div class="achievement-icon-wrap" id="badgeIconWrap" style="background:#e5f1ff;">
                         <i class="fa-solid fa-medal" id="badgeIcon" style="color:#007aff;"></i>
@@ -460,7 +455,7 @@
                 <div class="activity-title">📊 Разбивка по статусам</div>
                 <div class="activity-row">
                     <div class="activity-dot" style="background:#007aff;"></div>
-                    <div class="activity-text">Новые (активные)</div>
+                    <div class="activity-text">Новые / В работе</div>
                     <div class="activity-val" id="actOpen" style="color:#007aff;">—</div>
                 </div>
                 <div class="activity-row">
@@ -481,11 +476,10 @@
         </div>
     </div>
 
-    <!-- МОДАЛ: ПОДТВЕРЖДЕНИЕ ПЕРЕД ОТПРАВКОЙ -->
+    <!-- МОДАЛ: ПОДТВЕРЖДЕНИЕ -->
     <div id="confirmModal">
         <div class="confirm-content">
             <div class="confirm-title">✅ Всё правильно?</div>
-
             <div class="confirm-row">
                 <div class="confirm-icon" style="background:#e5f1ff;">
                     <i class="fa-solid fa-location-dot" style="color:#007aff;"></i>
@@ -495,7 +489,15 @@
                     <div class="confirm-value" id="cfAddress">—</div>
                 </div>
             </div>
-
+            <div class="confirm-row">
+                <div class="confirm-icon" style="background:#e5f1ff;">
+                    <i class="fa-solid fa-list-check" style="color:#007aff;"></i>
+                </div>
+                <div>
+                    <div class="confirm-label">Тип заявки / Оплата</div>
+                    <div class="confirm-value" id="cfType">—</div>
+                </div>
+            </div>
             <div class="confirm-row">
                 <div class="confirm-icon" style="background:#f3e5f5;">
                     <i class="fa-solid fa-door-open" style="color:#af52de;"></i>
@@ -505,7 +507,6 @@
                     <div class="confirm-value" id="cfApt">—</div>
                 </div>
             </div>
-
             <div class="confirm-row">
                 <div class="confirm-icon" style="background:#e8f5e9;">
                     <i class="fa-solid fa-phone" style="color:#34c759;"></i>
@@ -515,7 +516,6 @@
                     <div class="confirm-value" id="cfPhone">—</div>
                 </div>
             </div>
-
             <div class="confirm-row">
                 <div class="confirm-icon" style="background:#fff3e0;">
                     <i class="fa-solid fa-triangle-exclamation" style="color:#ff9500;"></i>
@@ -525,7 +525,6 @@
                     <div class="confirm-value" id="cfProblem">—</div>
                 </div>
             </div>
-
             <div class="confirm-row">
                 <div class="confirm-icon" style="background:#f2f2f7;">
                     <i class="fa-solid fa-helmet-safety" style="color:#3a3a3c;"></i>
@@ -535,10 +534,8 @@
                     <div class="confirm-value" id="cfMaster">—</div>
                 </div>
             </div>
-
             <div class="confirm-btns">
-                <button class="btn" style="background:#f2f2f7; color:#3a3a3c;"
-                        onclick="closeConfirmModal()">
+                <button class="btn" style="background:#f2f2f7; color:#3a3a3c;" onclick="closeConfirmModal()">
                     <i class="fa-solid fa-pen"></i> Изменить
                 </button>
                 <button class="btn btn-primary" id="btnConfirmSend" onclick="sendTicket()">
@@ -548,7 +545,7 @@
         </div>
     </div>
 
-    <!-- МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ -->
+    <!-- МОДАЛ: РЕДАКТИРОВАНИЕ -->
     <div id="editModal">
         <div class="modal-content">
             <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px;">
@@ -570,65 +567,86 @@
                        oninput="filterEditMasters()" onfocus="filterEditMasters()">
                 <div id="customEditMasterList" class="custom-dropdown"></div>
             </div>
-            <button class="btn btn-primary" id="btnSaveEdit" onclick="saveEdit()"
-                    style="margin-bottom:10px;">
+            <div class="form-group">
+                <label>Тип заявки:</label>
+                <select class="form-control" id="editTicketType">
+                    <option value="Аварийная">🚨 Аварийная</option>
+                    <option value="Линейная">🔧 Линейная</option>
+                    <option value="Монтажная">🏗️ Монтажная</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Тип оплаты:</label>
+                <select class="form-control" id="editPaymentType">
+                    <option value="Бесплатно">Бесплатно (в счёт содержания)</option>
+                    <option value="Платно">Платно (от заказчика)</option>
+                    <option value="Коммерческая">Коммерческая</option>
+                    <option value="Платная">Платная</option>
+                    <option value="В счёт содержания">В счёт содержания</option>
+                    <option value="Счёт">Счёт (монтаж)</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" id="btnSaveEdit" onclick="saveEdit()" style="margin-bottom:10px;">
                 💾 Сохранить изменения
             </button>
-            <button class="btn" style="background:#f2f2f7; color:#ff3b30;"
-                    onclick="closeEditModal()">Отмена</button>
+            <button class="btn" style="background:#f2f2f7; color:#ff3b30;" onclick="closeEditModal()">Отмена</button>
         </div>
     </div>
 
-    <!-- МОДАЛЬНОЕ ОКНО ЗАКРЫТИЯ ЗАЯВКИ -->
+    <!-- МОДАЛ: ЗАКРЫТИЕ ЗАЯВКИ -->
     <div id="closeTicketModal">
         <div class="modal-content">
             <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px;">
                 <i class="fa-solid fa-circle-check" style="color:#34c759;"></i> Закрыть заявку
             </h3>
-
             <div style="background:#f2f2f7; border-radius:12px; padding:12px 14px; margin-bottom:14px;">
                 <div id="closeAddress" style="font-weight:700; color:#1c1c1e; margin-bottom:4px;"></div>
                 <div id="closeProblem" style="font-size:13px; color:#3a3a3c;"></div>
             </div>
-
             <div class="form-group">
                 <label>Описание выполненных работ:</label>
                 <textarea class="form-control" id="closeDescription" rows="3"
                           placeholder="Что было сделано..."></textarea>
             </div>
-
-            <label class="free-toggle">
-                <input type="checkbox" id="closeIsFree" onchange="toggleCloseMoney()">
-                <span>В счёт содержания жилья (бесплатно)</span>
-            </label>
-
-            <div id="closeMoneyBlock">
-                <div class="form-group">
-                    <label>Работа (руб):</label>
-                    <input type="number" class="form-control" id="closeWork"
-                           value="0" oninput="calcCloseTotal()" inputmode="numeric" min="0">
-                </div>
-                <div class="form-group">
-                    <label>Материалы (руб):</label>
-                    <input type="number" class="form-control" id="closeMaterial"
-                           value="0" oninput="calcCloseTotal()" inputmode="numeric" min="0">
-                </div>
-                <div class="form-group">
-                    <label>Доставка (руб):</label>
-                    <input type="number" class="form-control" id="closeDelivery"
-                           value="0" oninput="calcCloseTotal()" inputmode="numeric" min="0">
-                </div>
-                <div class="total-price">
-                    Итого: <span id="closeTotal">0</span> ₽
-                </div>
-            </div>
-
-            <button class="btn" id="btnConfirmClose" onclick="confirmCloseTicket()"
-                style="background:#34c759; color:white; margin-bottom:10px; font-weight:700;">
+            <button class="btn btn-primary" id="btnConfirmClose" onclick="confirmCloseTicket()"
+                    style="background:#34c759; margin-bottom:10px; font-weight:700;">
                 <i class="fa-solid fa-check-double"></i> Закрыть заявку
             </button>
-            <button class="btn" style="background:#f2f2f7; color:#ff3b30;"
-                    onclick="closeCloseModal()">Отмена</button>
+            <button class="btn" style="background:#f2f2f7; color:#ff3b30;" onclick="closeCloseModal()">Отмена</button>
+        </div>
+    </div>
+
+    <!-- МОДАЛ: ОЦЕНКА МАСТЕРА -->
+    <div id="rateModal">
+        <div class="modal-content">
+            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px;">
+                <i class="fa-solid fa-star" style="color:#ff9500;"></i> Оценить работу мастера
+            </h3>
+            <div style="background:#f2f2f7; border-radius:12px; padding:12px 14px; margin-bottom:14px;">
+                <div id="rateAddress" style="font-weight:700; color:#1c1c1e; margin-bottom:4px;"></div>
+                <div id="rateMaster" style="font-size:13px; color:#3a3a3c;"></div>
+            </div>
+            <div class="form-group">
+                <label>Ваша оценка:</label>
+                <div class="rate-stars" id="rateStars">
+                    <i class="fa-solid fa-star" data-value="1"></i>
+                    <i class="fa-solid fa-star" data-value="2"></i>
+                    <i class="fa-solid fa-star" data-value="3"></i>
+                    <i class="fa-solid fa-star" data-value="4"></i>
+                    <i class="fa-solid fa-star" data-value="5"></i>
+                </div>
+                <input type="hidden" id="rateValue" value="0">
+            </div>
+            <div class="form-group">
+                <label>Комментарий (необязательно):</label>
+                <textarea class="rate-comment" id="rateComment" placeholder="Что понравилось / что улучшить..."></textarea>
+            </div>
+            <div class="rate-btns">
+                <button class="btn" style="background:#f2f2f7; color:#3a3a3c;" onclick="closeRateModal()">Отмена</button>
+                <button class="btn btn-primary" id="btnSubmitRate" onclick="submitRate()">
+                    <i class="fa-solid fa-paper-plane"></i> Отправить оценку
+                </button>
+            </div>
         </div>
     </div>
 
@@ -639,9 +657,7 @@
         </div>
         <div class="nav-item" onclick="switchTab('new')" id="nav-new">
             <i class="fa-solid fa-bolt"></i>
-            <span style="position:relative;">
-                Новые<span class="nav-badge" id="navBadge"></span>
-            </span>
+            <span style="position:relative;">Новые<span class="nav-badge" id="navBadge"></span></span>
         </div>
         <div class="nav-item" onclick="switchTab('done')" id="nav-done">
             <i class="fa-solid fa-check-double"></i><span>Закрытые</span>
@@ -652,713 +668,919 @@
     </div>
 
     <script>
-        const URL_GOOGLE_SERVER = "https://script.google.com/macros/s/AKfycbxfMMoR5LATkWt4HeT8XCxjOipYSay-c_9YVZExPPZ9edVLciR4YbHrqjadC_nSdFGfjg/exec";
+    const URL_GOOGLE_SERVER = "https://script.google.com/macros/s/AKfycbxfMMoR5LATkWt4HeT8XCxjOipYSay-c_9YVZExPPZ9edVLciR4YbHrqjadC_nSdFGfjg/exec";
 
-        const $ = (id) => document.getElementById(id);
+    const $ = (id) => document.getElementById(id);
 
-        let allAddresses   = [];
-        let allMasters     = [];
-        let currentUser    = null;
-        let myTicketsArray = [];
-        let currentEditId  = null;
-        let currentCloseId = null;
-        let aptList        = [];       // массив добавленных квартир
-        let recognition    = null;     // Web Speech API
-        let isRecording    = false;
+    let allAddresses       = [];
+    let allMasters         = [];
+    let currentUser        = null;
+    let myTicketsArray     = [];
+    let currentEditId      = null;
+    let currentCloseId     = null;
+    let currentRateTicketId = null;
+    let aptList            = [];
+    let recognition        = null;
+    let isRecording        = false;
+    let selectedTicketType = '';
 
-        // ==========================================
-        // ИНИЦИАЛИЗАЦИЯ
-        // ==========================================
-        window.onload = async function () {
-            const userStr = localStorage.getItem("currentUser");
-            if (!userStr) { window.location.replace("index.html"); return; }
-            currentUser = JSON.parse(userStr);
-            if (currentUser.role !== "диспетчер") { window.location.replace("index.html"); return; }
+    // ==========================================
+    // ИНИЦИАЛИЗАЦИЯ
+    // ==========================================
+    window.onload = async function () {
+        const userStr = localStorage.getItem("currentUser");
+        if (!userStr) { window.location.replace("index.html"); return; }
+        currentUser = JSON.parse(userStr);
+        if (currentUser.role !== "диспетчер") { window.location.replace("index.html"); return; }
 
-            $("profileName").innerText = currentUser.name;
+        $("profileName").innerText = currentUser.name;
 
-            if (!window.location.hash) {
-                history.replaceState({ tab: 'create' }, "", "#create");
-            } else {
-                applyTab(window.location.hash.replace('#', ''));
-            }
+        if (!window.location.hash) {
+            history.replaceState({ tab: 'create' }, "", "#create");
+        } else {
+            applyTab(window.location.hash.replace('#', ''));
+        }
 
-            try {
-                const [addrs, users] = await Promise.all([
-                    fetch(URL_GOOGLE_SERVER + "?action=getAddresses").then(r => r.json()),
-                    fetch(URL_GOOGLE_SERVER).then(r => r.json())
-                ]);
-                allAddresses = addrs.map(a => String(a).trim());
-                allMasters   = users.filter(u => u.role === "мастер").map(u => String(u.name).trim());
-            } catch (e) {
-                console.log("Ошибка загрузки справочников", e);
-            }
+        try {
+            const [addrs, users] = await Promise.all([
+                fetch(URL_GOOGLE_SERVER + "?action=getAddresses").then(r => r.json()),
+                fetch(URL_GOOGLE_SERVER).then(r => r.json())
+            ]);
+            allAddresses = addrs.map(a => String(a).trim());
+            allMasters   = users.filter(u => u.role === "мастер").map(u => String(u.name).trim());
+        } catch (e) {
+            console.log("Ошибка загрузки справочников", e);
+        }
 
-            // Инициализация распознавания речи
-            initSpeech();
+        initSpeech();
 
-            // Закрываем дропдауны при клике вне
-            document.addEventListener('click', function (e) {
-                const ids     = ['address','masterInput','editAddress','editMaster'];
-                const dropIds = ['customAddressList','customMasterList',
-                                 'customEditAddressList','customEditMasterList'];
-                ids.forEach((id, i) => {
-                    if (e.target.id !== id) {
-                        const el = $(dropIds[i]);
-                        if (el) el.style.display = 'none';
-                    }
-                });
+        // Звёзды в модале оценки
+        $('rateStars').addEventListener('click', function(e) {
+            const star = e.target.closest('i[data-value]');
+            if (!star) return;
+            const val = parseInt(star.dataset.value);
+            $('rateValue').value = val;
+            document.querySelectorAll('#rateStars i').forEach((s, idx) => {
+                s.classList.toggle('active', idx < val);
             });
+        });
+
+        // Закрываем дропдауны при клике вне
+        document.addEventListener('click', function (e) {
+            const ids     = ['address','masterInput','editAddress','editMaster'];
+            const dropIds = ['customAddressList','customMasterList',
+                             'customEditAddressList','customEditMasterList'];
+            ids.forEach((id, i) => {
+                if (e.target.id !== id) {
+                    const el = $(dropIds[i]);
+                    if (el) el.style.display = 'none';
+                }
+            });
+        });
+
+        // Enter в поле квартиры
+        $('aptInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') { e.preventDefault(); addApt(); }
+        });
+    };
+
+    window.addEventListener('popstate', (event) => {
+        applyTab(event.state && event.state.tab ? event.state.tab : 'create');
+    });
+
+    function switchTab(tabName) {
+        history.pushState({ tab: tabName }, "", "#" + tabName);
+        applyTab(tabName);
+    }
+
+    function applyTab(tabName) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+        const tabEl = $('tab-' + tabName);
+        const navEl = $('nav-' + tabName);
+        if (tabEl) tabEl.classList.add('active');
+        if (navEl) navEl.classList.add('active');
+
+        const titles = {
+            'create':  'Новая заявка',
+            'new':     'Активные заявки',
+            'done':    'Закрытые заявки',
+            'profile': 'Профиль'
         };
+        $('headerTitle').innerText = titles[tabName] || 'Служба ЖКХ';
 
-        window.addEventListener('popstate', (event) => {
-            applyTab(event.state && event.state.tab ? event.state.tab : 'create');
+        if (tabName === 'new' || tabName === 'done') loadMyTickets();
+        if (tabName === 'profile') loadStats();
+    }
+
+    // ==========================================
+    // ТИП ЗАЯВКИ + ОПЛАТА
+    // ==========================================
+    function selectTicketType(btn, type) {
+        document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedTicketType = type;
+        updatePaymentOptions(type);
+    }
+
+    function updatePaymentOptions(type) {
+        const block   = $('paymentBlock');
+        const options = $('paymentOptions');
+        const warning = $('invoiceWarning');
+
+        warning.style.display = 'none';
+
+        if (type === 'Аварийная') {
+            block.style.display = 'block';
+            options.innerHTML = `
+                <label><input type="radio" name="payment" value="Бесплатно" checked> Бесплатно (в счёт содержания)</label>
+                <label><input type="radio" name="payment" value="Платно"> Платно (от заказчика)</label>
+            `;
+        } else if (type === 'Линейная') {
+            block.style.display = 'block';
+            options.innerHTML = `
+                <label><input type="radio" name="payment" value="Коммерческая" checked> Коммерческая</label>
+                <label><input type="radio" name="payment" value="Платная"> Платная</label>
+                <label><input type="radio" name="payment" value="В счёт содержания"> В счёт содержания</label>
+            `;
+        } else if (type === 'Монтажная') {
+            block.style.display = 'none';
+            warning.style.display = 'block';
+        }
+    }
+
+    function getSelectedPaymentType() {
+        if (selectedTicketType === 'Монтажная') return 'Счёт';
+        const radio = document.querySelector('input[name="payment"]:checked');
+        return radio ? radio.value : 'Бесплатно';
+    }
+
+    // ==========================================
+    // ТЕЛЕФОН
+    // ==========================================
+    function formatPhone(input) {
+        let val = input.value.replace(/\D/g, '');
+        if (val.startsWith('8')) val = '7' + val.slice(1);
+        if (!val.startsWith('7') && val.length > 0) val = '7' + val;
+
+        let result = '';
+        if (val.length > 0)  result = '+7';
+        if (val.length > 1)  result += ' (' + val.slice(1, 4);
+        if (val.length >= 4) result += ') ' + val.slice(4, 7);
+        if (val.length >= 7) result += '-' + val.slice(7, 9);
+        if (val.length >= 9) result += '-' + val.slice(9, 11);
+
+        input.value = result;
+    }
+
+    function clearPhone() {
+        $('phone').value = '';
+        $('phone').focus();
+    }
+
+    // ==========================================
+    // КВАРТИРЫ
+    // ==========================================
+    function addApt() {
+        const val = $('aptInput').value.trim();
+        if (!val || isNaN(Number(val)) || Number(val) < 1) { $('aptInput').focus(); return; }
+        if (aptList.includes(val)) { $('aptInput').value = ''; return; }
+        aptList.push(val);
+        renderAptTags();
+        $('aptInput').value = '';
+        $('aptInput').focus();
+    }
+
+    function removeApt(val) {
+        aptList = aptList.filter(a => a !== val);
+        renderAptTags();
+    }
+
+    function renderAptTags() {
+        const wrap = $('aptTags');
+        wrap.innerHTML = '';
+        aptList.forEach(val => {
+            const tag = document.createElement('div');
+            tag.className = 'apt-tag';
+            tag.innerHTML = `кв. ${val} <span class="apt-tag-remove" onclick="removeApt('${val}')">×</span>`;
+            wrap.appendChild(tag);
         });
+    }
 
-        function switchTab(tabName) {
-            history.pushState({ tab: tabName }, "", "#" + tabName);
-            applyTab(tabName);
+    // ==========================================
+    // РЕЧЬ
+    // ==========================================
+    function initSpeech() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            $('speechBtn').style.display = 'none';
+            return;
         }
 
-        function applyTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        recognition = new SpeechRecognition();
+        recognition.lang = 'ru-RU';
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.maxAlternatives = 1;
 
-            const tabEl = $('tab-' + tabName);
-            const navEl = $('nav-' + tabName);
-            if (tabEl) tabEl.classList.add('active');
-            if (navEl) navEl.classList.add('active');
+        let finalTranscript = '';
 
-            const titles = {
-                'create':  'Новая заявка',
-                'new':     'Активные заявки',
-                'done':    'Закрытые заявки',
-                'profile': 'Профиль'
-            };
-            $('headerTitle').innerText = titles[tabName] || 'Служба ЖКХ';
-
-            if (tabName === 'new' || tabName === 'done') loadMyTickets();
-            if (tabName === 'profile') loadStats();
-        }
-
-        // ==========================================
-        // ТЕЛЕФОН — форматирование
-        // ==========================================
-        function formatPhone(input) {
-            let val = input.value.replace(/\D/g, '');
-
-            // Если начинается с 8 — заменяем на 7
-            if (val.startsWith('8')) val = '7' + val.slice(1);
-            // Если начинается с 7 — форматируем как +7
-            if (!val.startsWith('7') && val.length > 0) val = '7' + val;
-
-            let result = '';
-            if (val.length > 0)  result = '+7';
-            if (val.length > 1)  result += ' (' + val.slice(1, 4);
-            if (val.length >= 4) result += ') ' + val.slice(4, 7);
-            if (val.length >= 7) result += '-' + val.slice(7, 9);
-            if (val.length >= 9) result += '-' + val.slice(9, 11);
-
-            input.value = result;
-        }
-
-        function clearPhone() {
-            $('phone').value = '';
-            $('phone').focus();
-        }
-
-        // ==========================================
-        // КВАРТИРЫ — добавление тегов
-        // ==========================================
-        function addApt() {
-            const val = $('aptInput').value.trim();
-            if (!val || isNaN(Number(val)) || Number(val) < 1) {
-                $('aptInput').focus();
-                return;
-            }
-            if (aptList.includes(val)) {
-                $('aptInput').value = '';
-                return;
-            }
-            aptList.push(val);
-            renderAptTags();
-            $('aptInput').value = '';
-            $('aptInput').focus();
-        }
-
-        // Добавление квартиры по Enter
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && document.activeElement === $('aptInput')) {
-                e.preventDefault();
-                addApt();
-            }
-        });
-
-        function removeApt(val) {
-            aptList = aptList.filter(a => a !== val);
-            renderAptTags();
-        }
-
-        function renderAptTags() {
-            const wrap = $('aptTags');
-            wrap.innerHTML = '';
-            aptList.forEach(val => {
-                const tag = document.createElement('div');
-                tag.className = 'apt-tag';
-                tag.innerHTML = `кв. ${val} <span class="apt-tag-remove" onclick="removeApt('${val}')">×</span>`;
-                wrap.appendChild(tag);
-            });
-        }
-
-        // ==========================================
-        // РЕЧЬ — Web Speech API
-        // ==========================================
-        function initSpeech() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) {
-                $('speechBtn').style.display = 'none'; // Браузер не поддерживает
-                return;
-            }
-            recognition = new SpeechRecognition();
-            recognition.lang = 'ru-RU';
-            recognition.continuous = true;
-            recognition.interimResults = true;
-
-            let finalTranscript = '';
-
-            recognition.onresult = function(event) {
-                let interim = '';
-                for (let i = event.resultIndex; i < event.results.length; i++) {
-                    const transcript = event.results[i][0].transcript;
-                    if (event.results[i].isFinal) {
-                        finalTranscript += transcript + ' ';
-                    } else {
-                        interim = transcript;
-                    }
-                }
-                $('problem').value = finalTranscript + interim;
-            };
-
-            recognition.onerror = function(event) {
-                console.log('Speech error:', event.error);
-                stopSpeech();
-            };
-
-            recognition.onend = function() {
-                if (isRecording) {
-                    // Перезапускаем если пользователь не остановил
-                    try { recognition.start(); } catch(e) {}
-                }
-            };
-
-            // Сохраняем finalTranscript при каждом старте
-            recognition._resetTranscript = function() {
-                finalTranscript = $('problem').value || '';
-            };
-        }
-
-        function toggleSpeech() {
-            if (isRecording) {
-                stopSpeech();
-            } else {
-                startSpeech();
-            }
-        }
-
-        function startSpeech() {
-            if (!recognition) return;
+        recognition.onstart = function() {
             isRecording = true;
-            recognition._resetTranscript();
-            try {
-                recognition.start();
-            } catch(e) {}
             $('speechBtn').classList.add('recording');
             $('speechIcon').className = 'fa-solid fa-stop';
-            $('speechLabel').textContent = '⏹ Остановить запись';
-        }
+            $('speechLabel').textContent = '⏹ Остановить';
+        };
 
-        function stopSpeech() {
-            isRecording = false;
-            if (recognition) {
-                try { recognition.stop(); } catch(e) {}
+        recognition.onresult = function(event) {
+            let interim = '';
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript;
+                if (event.results[i].isFinal) {
+                    finalTranscript += transcript + ' ';
+                } else {
+                    interim = transcript;
+                }
             }
-            $('speechBtn').classList.remove('recording');
-            $('speechIcon').className = 'fa-solid fa-microphone';
-            $('speechLabel').textContent = '🎙 Надиктовать';
-        }
+            $('problem').value = finalTranscript + interim;
+        };
 
-        // ==========================================
-        // ПОДТВЕРЖДЕНИЕ ПЕРЕД ОТПРАВКОЙ
-        // ==========================================
-        function askConfirm() {
-            const address = $("address").value.trim();
-            const problem = $("problem").value.trim();
-            const master  = $("masterInput").value.trim();
-            const phone   = $("phone").value.trim();
-            const entrance = $("entrance").value.trim();
+        recognition.onerror = function(event) {
+            if (event.error === 'not-allowed' || event.error === 'permission-denied') {
+                alert('🎤 Доступ к микрофону запрещён. Проверьте настройки браузера.');
+            }
+            stopSpeech();
+        };
 
-            if (!address || !problem || !master) {
-                alert("Заполните адрес, проблему и мастера!"); return;
-            }
-            if (!allAddresses.includes(address)) {
-                alert("❌ Такого адреса нет в базе! Выберите из списка."); return;
-            }
-            if (!allMasters.includes(master)) {
-                alert("❌ Такого мастера нет! Выберите из списка."); return;
-            }
-
-            // Стоп запись если вдруг идёт
+        recognition.onend = function() {
             if (isRecording) stopSpeech();
+        };
 
-            // Заполняем модал подтверждения
-            $('cfAddress').textContent = address;
+        recognition._resetTranscript = function() {
+            finalTranscript = $('problem').value || '';
+        };
+    }
 
-            let aptText = '';
-            if (entrance) aptText += 'Подъезд ' + entrance;
-            if (aptList.length > 0) aptText += (aptText ? ', ' : '') + 'кв. ' + aptList.join(', ');
-            $('cfApt').textContent = aptText || '—';
-
-            $('cfPhone').textContent  = phone || '—';
-            $('cfProblem').textContent = problem;
-            $('cfMaster').textContent  = master;
-
-            $('confirmModal').style.display = 'flex';
-        }
-
-        function closeConfirmModal() {
-            $('confirmModal').style.display = 'none';
-        }
-
-        // ==========================================
-        // СОЗДАНИЕ ЗАЯВКИ
-        // ==========================================
-        async function sendTicket() {
-            const address  = $("address").value.trim();
-            const master   = $("masterInput").value.trim();
-            const phone    = $("phone").value.trim();
-            const entrance = $("entrance").value.trim();
-
-            // Собираем полную строку проблемы:
-            // проблема + подъезд/квартиры + телефон
-            let problemParts = [$("problem").value.trim()];
-            if (entrance || aptList.length > 0) {
-                let aptStr = '';
-                if (entrance) aptStr += 'Подъезд ' + entrance;
-                if (aptList.length > 0) aptStr += (aptStr ? ', ' : '') + 'кв. ' + aptList.join(', ');
-                problemParts.push(aptStr);
+    async function requestMicPermission() {
+        try {
+            if (navigator.permissions && navigator.permissions.query) {
+                const result = await navigator.permissions.query({ name: 'microphone' });
+                if (result.state === 'denied') {
+                    alert('🎤 Доступ к микрофону заблокирован. Разрешите в настройках браузера.');
+                    return false;
+                }
             }
-            if (phone) problemParts.push('Тел: ' + phone);
-            const fullProblem = problemParts.filter(Boolean).join(' | ');
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            stream.getTracks().forEach(track => track.stop());
+            return true;
+        } catch (err) {
+            alert('🎤 Для голосового ввода разрешите доступ к микрофону.');
+            return false;
+        }
+    }
 
-            const btn = $("btnConfirmSend");
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Отправляем...';
+    async function toggleSpeech() {
+        if (isRecording) { stopSpeech(); return; }
+        const hasPermission = await requestMicPermission();
+        if (!hasPermission) return;
+        if (!recognition) initSpeech();
+        if (!recognition) return;
+        startSpeech();
+    }
 
-            try {
-                const res = await fetch(URL_GOOGLE_SERVER, {
-                    method: "POST",
-                    body: JSON.stringify({
-                        action: "createTicket",
-                        dispatcherName: currentUser.name,
-                        address,
-                        problem: fullProblem,
-                        masterName: master
-                    }),
-                    headers: { "Content-Type": "text/plain;charset=utf-8" }
-                });
-                await res.json();
+    function startSpeech() {
+        if (!recognition) return;
+        isRecording = true;
+        recognition._resetTranscript();
+        try { recognition.start(); } catch(e) {}
+        $('speechBtn').classList.add('recording');
+        $('speechIcon').className = 'fa-solid fa-stop';
+        $('speechLabel').textContent = '⏹ Остановить запись';
+    }
 
-                // Закрываем модал
-                closeConfirmModal();
+    function stopSpeech() {
+        isRecording = false;
+        if (recognition) { try { recognition.stop(); } catch(e) {} }
+        $('speechBtn').classList.remove('recording');
+        $('speechIcon').className = 'fa-solid fa-microphone';
+        $('speechLabel').textContent = '🎙 Надиктовать';
+    }
 
-                // Сброс формы
-                $("address").value     = "";
-                $("problem").value     = "";
-                $("masterInput").value = "";
-                $("phone").value       = "";
-                $("entrance").value    = "";
-                aptList = [];
-                renderAptTags();
+    // ==========================================
+    // ПОДТВЕРЖДЕНИЕ ПЕРЕД ОТПРАВКОЙ
+    // ==========================================
+    function askConfirm() {
+        const address  = $("address").value.trim();
+        const problem  = $("problem").value.trim();
+        const master   = $("masterInput").value.trim();
+        const phone    = $("phone").value.trim();
+        const entrance = $("entrance").value.trim();
 
-                // Кнопка "Готово"
-                const mainBtn = $("btnSubmitTicket");
-                mainBtn.innerHTML = '<i class="fa-solid fa-check"></i> Готово!';
-                mainBtn.style.background = "#34c759";
-                setTimeout(() => {
-                    mainBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить заявку';
-                    mainBtn.style.background = "#007aff";
-                }, 2000);
+        if (!address) { alert("Укажите адрес!"); return; }
+        if (!problem)  { alert("Опишите проблему!"); return; }
+        if (!master)   { alert("Назначьте мастера!"); return; }
+        if (!selectedTicketType) { alert("Выберите тип заявки!"); return; }
 
-                localStorage.removeItem("cachedDispatcherTickets_" + currentUser.name);
+        if (!allAddresses.includes(address)) {
+            alert("❌ Такого адреса нет в базе! Выберите из списка."); return;
+        }
+        if (!allMasters.includes(master)) {
+            alert("❌ Такого мастера нет! Выберите из списка."); return;
+        }
 
+        if (isRecording) stopSpeech();
+
+        $('cfAddress').textContent = address;
+        $('cfType').textContent    = selectedTicketType + (selectedTicketType !== 'Монтажная' ? ' / ' + getSelectedPaymentType() : ' / Счёт');
+
+        let aptText = '';
+        if (entrance) aptText += 'Подъезд ' + entrance;
+        if (aptList.length > 0) aptText += (aptText ? ', ' : '') + 'кв. ' + aptList.join(', ');
+        $('cfApt').textContent     = aptText || '—';
+        $('cfPhone').textContent   = phone || '—';
+        $('cfProblem').textContent = problem;
+        $('cfMaster').textContent  = master;
+
+        $('confirmModal').style.display = 'flex';
+    }
+
+    function closeConfirmModal() {
+        $('confirmModal').style.display = 'none';
+    }
+
+    // ==========================================
+    // СОЗДАНИЕ ЗАЯВКИ
+    // ==========================================
+    async function sendTicket() {
+        const address  = $("address").value.trim();
+        const master   = $("masterInput").value.trim();
+        const phone    = $("phone").value.trim();
+        const entrance = $("entrance").value.trim();
+        const problem  = $("problem").value.trim();
+
+        // Собираем полную строку проблемы
+        let problemParts = [problem];
+        if (entrance || aptList.length > 0) {
+            let aptStr = '';
+            if (entrance) aptStr += 'Подъезд ' + entrance;
+            if (aptList.length > 0) aptStr += (aptStr ? ', ' : '') + 'кв. ' + aptList.join(', ');
+            problemParts.push(aptStr);
+        }
+        if (phone) problemParts.push('Тел: ' + phone);
+        const fullProblem = problemParts.filter(Boolean).join(' | ');
+
+        const btn = $("btnConfirmSend");
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Отправляем...';
+
+        try {
+            const res = await fetch(URL_GOOGLE_SERVER, {
+                method: "POST",
+                body: JSON.stringify({
+                    action:         "createTicket",
+                    dispatcherName: currentUser.name,
+                    address:        address,
+                    problem:        fullProblem,
+                    masterName:     master,
+                    ticketType:     selectedTicketType || "Аварийная",
+                    paymentType:    getSelectedPaymentType()
+                }),
+                headers: { "Content-Type": "text/plain;charset=utf-8" }
+            });
+            const result = await res.json();
+
+            if (result.status === 'error') {
+                alert("⚠️ " + (result.message || "Ошибка создания заявки"));
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить';
-
-            } catch (e) {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить';
-                closeConfirmModal();
-                alert("Ошибка. Проверьте интернет и попробуйте снова.");
-            }
-        }
-
-        // ==========================================
-        // ЗАГРУЗКА ЗАЯВОК
-        // ==========================================
-        async function loadMyTickets() {
-            const containerNew  = $("ticketsContainerNew");
-            const containerDone = $("ticketsContainerDone");
-
-            if (!containerNew.innerHTML.trim())  showLoader('New');
-            if (!containerDone.innerHTML.trim()) showLoader('Done');
-
-            const cached = localStorage.getItem("cachedDispatcherTickets_" + currentUser.name);
-            if (cached) {
-                try { renderTicketsList(JSON.parse(cached)); } catch (e) {}
-            }
-
-            try {
-                const res = await fetch(URL_GOOGLE_SERVER +
-                    "?action=getDispatcherTickets&dispatcherName=" +
-                    encodeURIComponent(currentUser.name));
-                const freshTickets = await res.json();
-                localStorage.setItem("cachedDispatcherTickets_" + currentUser.name,
-                    JSON.stringify(freshTickets));
-                renderTicketsList(freshTickets);
-            } catch (e) {
-                if (!cached) { showError('New'); showError('Done'); }
-            }
-        }
-
-        function showLoader(suffix) {
-            const msg = $('noTicketsMsg' + suffix);
-            msg.style.display = 'block';
-            msg.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><p>Загрузка...</p>';
-        }
-
-        function showError(suffix) {
-            const msg = $('noTicketsMsg' + suffix);
-            msg.style.display = 'block';
-            msg.innerHTML = '<i class="fa-solid fa-wifi-slash"></i><h3>Нет сети</h3><p>Проверьте интернет</p>';
-        }
-
-        function renderTicketsList(ticketsArray) {
-            myTicketsArray = ticketsArray;
-
-            const newTickets  = ticketsArray.filter(t => t.status === "Новая");
-            const doneTickets = ticketsArray.filter(t => t.status !== "Новая");
-
-            const badge = $('navBadge');
-            if (newTickets.length > 0) {
-                badge.classList.add('show');
-                badge.innerText = newTickets.length > 99 ? '99+' : newTickets.length;
-            } else {
-                badge.classList.remove('show');
-            }
-
-            renderGroup(newTickets,  'ticketsContainerNew',  'noTicketsMsgNew',
-                '<i class="fa-solid fa-bolt"></i><h3>Нет активных заявок</h3><p>Все заявки обработаны!</p>', true);
-            renderGroup(doneTickets, 'ticketsContainerDone', 'noTicketsMsgDone',
-                '<i class="fa-solid fa-check-double"></i><h3>Нет закрытых заявок</h3><p>Закрытые заявки появятся здесь</p>', false);
-        }
-
-        function renderGroup(tickets, containerId, msgId, emptyHtml, isNew) {
-            const container = $(containerId);
-            const msg       = $(msgId);
-            container.innerHTML = "";
-            msg.style.display = "none";
-
-            if (tickets.length === 0) {
-                msg.style.display = "block";
-                msg.innerHTML = emptyHtml;
                 return;
             }
 
+            closeConfirmModal();
+            resetCreateForm();
+
+            const mainBtn = $("btnSubmitTicket");
+            mainBtn.innerHTML = '<i class="fa-solid fa-check"></i> Готово!';
+            mainBtn.style.background = "#34c759";
+            setTimeout(() => {
+                mainBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить заявку';
+                mainBtn.style.background = "";
+            }, 2500);
+
+            localStorage.removeItem("cachedDispatcherTickets_" + currentUser.name);
+
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить';
+
+        } catch (e) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить';
+            closeConfirmModal();
+            alert("Ошибка. Проверьте интернет и попробуйте снова.");
+        }
+    }
+
+    function resetCreateForm() {
+        $("address").value     = "";
+        $("problem").value     = "";
+        $("masterInput").value = "";
+        $("phone").value       = "";
+        $("entrance").value    = "";
+        aptList = [];
+        renderAptTags();
+        selectedTicketType = '';
+        document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+        $('paymentBlock').style.display  = 'none';
+        $('invoiceWarning').style.display = 'none';
+    }
+
+    // ==========================================
+    // ЗАГРУЗКА ЗАЯВОК
+    // ==========================================
+    async function loadMyTickets() {
+        const containerNew  = $("ticketsContainerNew");
+        const containerDone = $("ticketsContainerDone");
+
+        if (!containerNew.innerHTML.trim())  showLoader('New');
+        if (!containerDone.innerHTML.trim()) showLoader('Done');
+
+        const cacheKey = "cachedDispatcherTickets_" + currentUser.name;
+        const cached   = localStorage.getItem(cacheKey);
+        if (cached) {
+            try { renderTicketsList(JSON.parse(cached)); } catch (e) {}
+        }
+
+        try {
+            const res = await fetch(URL_GOOGLE_SERVER +
+                "?action=getDispatcherTickets&dispatcherName=" +
+                encodeURIComponent(currentUser.name));
+            const freshTickets = await res.json();
+            localStorage.setItem(cacheKey, JSON.stringify(freshTickets));
+            renderTicketsList(freshTickets);
+        } catch (e) {
+            if (!cached) { showError('New'); showError('Done'); }
+        }
+    }
+
+    function showLoader(suffix) {
+        const msg = $('noTicketsMsg' + suffix);
+        msg.style.display = 'block';
+        msg.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><p>Загрузка...</p>';
+    }
+
+    function showError(suffix) {
+        const msg = $('noTicketsMsg' + suffix);
+        msg.style.display = 'block';
+        msg.innerHTML = '<i class="fa-solid fa-wifi-slash"></i><h3>Нет сети</h3><p>Проверьте интернет</p>';
+    }
+
+    function renderTicketsList(ticketsArray) {
+        myTicketsArray = ticketsArray;
+
+        // Активные: Новая + Принята
+        const activeTickets = ticketsArray.filter(t => t.status === "Новая" || t.status === "Принята");
+        // Закрытые: Выполнено
+        const doneTickets   = ticketsArray.filter(t => t.status === "Выполнено");
+
+        // Бейдж — только Новые (не принятые)
+        const newCount = ticketsArray.filter(t => t.status === "Новая").length;
+        const badge    = $('navBadge');
+        if (newCount > 0) {
+            badge.classList.add('show');
+            badge.innerText = newCount > 99 ? '99+' : newCount;
+        } else {
+            badge.classList.remove('show');
+            badge.innerText = '';
+        }
+
+        renderGroup(
+            activeTickets, 'ticketsContainerNew', 'noTicketsMsgNew',
+            '<i class="fa-solid fa-bolt"></i><h3>Нет активных заявок</h3><p>Все заявки обработаны!</p>',
+            true
+        );
+        renderGroup(
+            doneTickets, 'ticketsContainerDone', 'noTicketsMsgDone',
+            '<i class="fa-solid fa-check-double"></i><h3>Нет закрытых заявок</h3><p>Закрытые заявки появятся здесь</p>',
+            false
+        );
+    }
+
+    function renderGroup(tickets, containerId, msgId, emptyHtml, isActive) {
+        const container = $(containerId);
+        const msg       = $(msgId);
+        container.innerHTML = "";
+        msg.style.display   = "none";
+
+        if (tickets.length === 0) {
+            msg.style.display = "block";
+            msg.innerHTML     = emptyHtml;
+            return;
+        }
+
+        const frag = document.createDocumentFragment();
+        tickets.forEach(ticket => {
+            const div = document.createElement("div");
+            div.className = "card";
+
+            // Бейдж статуса
+            let badgeClass = 'status-new';
+            let statusText = 'Новая';
+            if (ticket.status === 'Принята') { badgeClass = 'status-accepted'; statusText = 'В работе'; }
+            if (ticket.status === 'Выполнено') { badgeClass = 'status-done'; statusText = 'Выполнено'; }
+
+            // Блок под картой — доп. инфо
+            let extraInfo = '';
+            if (ticket.status === 'Принята' && ticket.acceptedAt) {
+                extraInfo = `<div class="ticket-accepted-info">
+                    <i class="fa-solid fa-clock"></i> Принята мастером: ${ticket.acceptedAt}
+                </div>`;
+            }
+
+            // Кнопки действий
+            let actionHtml = '';
+            if (isActive) {
+                // Можно редактировать только если статус "Новая"
+                const canEdit = ticket.status === 'Новая';
+                actionHtml = `<div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;">
+                    ${canEdit ? `<button class="edit-btn" onclick="openEditModal(${ticket.id})">
+                        <i class="fa-solid fa-pen"></i> Изменить
+                    </button>` : ''}
+                    <button class="close-btn" onclick="openCloseModal(${ticket.id})">
+                        <i class="fa-solid fa-circle-xmark"></i> Закрыть
+                    </button>
+                </div>`;
+            } else {
+                // Закрытые — оценка
+                if (!ticket.rated) {
+                    actionHtml = `<button class="edit-btn" style="background:#fff3e0;color:#ff9500;"
+                        onclick="openRateModal(${ticket.id})">
+                        <i class="fa-solid fa-star"></i> Оценить
+                    </button>`;
+                } else {
+                    actionHtml = `<span class="rate-badge">
+                        <i class="fa-solid fa-star"></i> ${ticket.rating}/5
+                    </span>`;
+                }
+            }
+
+            // Тип заявки + оплата
+            let typeInfo = '';
+            if (ticket.ticketType || ticket.paymentType) {
+                typeInfo = `<div style="font-size:12px;color:#8e8e93;margin-top:4px;">
+                    ${ticket.ticketType ? '📋 ' + ticket.ticketType : ''}
+                    ${ticket.paymentType ? ' · 💳 ' + ticket.paymentType : ''}
+                </div>`;
+            }
+
+            div.innerHTML = `
+                <div class="status-badge ${badgeClass}">${statusText}</div>
+                <div style="font-weight:bold;font-size:16px;margin-bottom:4px;">${ticket.address}</div>
+                <div style="font-size:14px;color:#3a3a3c;">${ticket.problem}</div>
+                ${typeInfo}
+                ${extraInfo}
+                <div class="ticket-info">
+                    <div><i class="fa-solid fa-helmet-safety"></i> ${ticket.master}</div>
+                    ${actionHtml}
+                </div>`;
+
+            frag.appendChild(div);
+        });
+        container.appendChild(frag);
+    }
+
+    // ==========================================
+    // РЕДАКТИРОВАНИЕ (только статус "Новая")
+    // ==========================================
+    function openEditModal(id) {
+        currentEditId = id;
+        const ticket  = myTicketsArray.find(t => t.id == id);
+        if (!ticket) return;
+
+        if (ticket.status !== 'Новая') {
+            alert('❌ Нельзя редактировать — мастер уже принял заявку в работу.');
+            return;
+        }
+
+        $("editAddress").value     = ticket.address;
+        $("editProblem").value     = ticket.problem;
+        $("editMaster").value      = ticket.master;
+        $("editTicketType").value  = ticket.ticketType  || 'Аварийная';
+        $("editPaymentType").value = ticket.paymentType || 'Бесплатно';
+        $("editModal").style.display = "flex";
+    }
+
+    function closeEditModal() { $("editModal").style.display = "none"; }
+
+    async function saveEdit() {
+        const newAddress     = $("editAddress").value.trim();
+        const newProblem     = $("editProblem").value.trim();
+        const newMaster      = $("editMaster").value.trim();
+        const newTicketType  = $("editTicketType").value;
+        const newPaymentType = $("editPaymentType").value;
+
+        if (!newAddress || !newProblem || !newMaster) { alert("Заполните все поля!"); return; }
+        if (!allAddresses.includes(newAddress)) { alert("❌ Такого адреса нет в базе!"); return; }
+        if (!allMasters.includes(newMaster))    { alert("❌ Такого мастера нет!"); return; }
+
+        const btn = $("btnSaveEdit");
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Сохраняем...';
+
+        try {
+            const res = await fetch(URL_GOOGLE_SERVER, {
+                method: "POST",
+                body: JSON.stringify({
+                    action:      "editTicket",
+                    ticketId:    currentEditId,
+                    address:     newAddress,
+                    problem:     newProblem,
+                    masterName:  newMaster,
+                    ticketType:  newTicketType,
+                    paymentType: newPaymentType
+                }),
+                headers: { "Content-Type": "text/plain;charset=utf-8" }
+            });
+            const result = await res.json();
+
+            if (result.status === 'error') {
+                alert("⚠️ " + (result.message || "Ошибка редактирования"));
+                btn.disabled = false;
+                btn.innerHTML = '💾 Сохранить изменения';
+                return;
+            }
+
+            closeEditModal();
+            btn.disabled = false;
+            btn.innerHTML = '💾 Сохранить изменения';
+            localStorage.removeItem("cachedDispatcherTickets_" + currentUser.name);
+            loadMyTickets();
+
+        } catch (e) {
+            alert("Ошибка сохранения. Проверьте интернет.");
+            btn.disabled = false;
+            btn.innerHTML = '💾 Сохранить изменения';
+        }
+    }
+
+    // ==========================================
+    // ЗАКРЫТИЕ ЗАЯВКИ (диспетчером принудительно)
+    // ==========================================
+    function openCloseModal(id) {
+        currentCloseId = id;
+        const ticket   = myTicketsArray.find(t => t.id == id);
+        if (!ticket) return;
+
+        $("closeAddress").innerText     = "📍 " + ticket.address;
+        $("closeProblem").innerText     = ticket.problem;
+        $("closeDescription").value     = "";
+        $("closeTicketModal").style.display = "flex";
+        setTimeout(() => $("closeDescription").focus(), 150);
+    }
+
+    function closeCloseModal() {
+        $("closeTicketModal").style.display = "none";
+        currentCloseId = null;
+    }
+
+    async function confirmCloseTicket() {
+        if (!currentCloseId) return;
+
+        const desc = $("closeDescription").value.trim();
+        if (!desc) {
+            alert("Напишите описание выполненных работ!");
+            $("closeDescription").focus();
+            return;
+        }
+
+        const ticket     = myTicketsArray.find(t => t.id == currentCloseId);
+        const masterName = ticket ? ticket.master : "";
+
+        const btn = $("btnConfirmClose");
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Закрываем...';
+
+        try {
+            const res = await fetch(URL_GOOGLE_SERVER, {
+                method: "POST",
+                body: JSON.stringify({
+                    action:        "submitReport",
+                    ticketId:      currentCloseId,
+                    masterName:    masterName,
+                    closedBy:      currentUser.name,
+                    description:   desc,
+                    forced:        true,
+                    forcedReason:  "Закрыто диспетчером",
+                    photoBeforeOk: false,
+                    photoAfterOk:  false
+                }),
+                headers: { "Content-Type": "text/plain;charset=utf-8" }
+            });
+            const result = await res.json();
+
+            if (result.status === 'error') {
+                alert("⚠️ " + (result.message || "Ошибка закрытия"));
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-check-double"></i> Закрыть заявку';
+                return;
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-check-double"></i> Закрыть заявку';
+            closeCloseModal();
+            localStorage.removeItem("cachedDispatcherTickets_" + currentUser.name);
+            loadMyTickets();
+
+        } catch (e) {
+            alert("Ошибка при закрытии заявки. Проверьте интернет.");
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-check-double"></i> Закрыть заявку';
+        }
+    }
+
+    // ==========================================
+    // ОЦЕНКА МАСТЕРА — action: rateTicket
+    // ==========================================
+    function openRateModal(id) {
+        currentRateTicketId = id;
+        const ticket = myTicketsArray.find(t => t.id == id);
+        if (!ticket) return;
+
+        $('rateAddress').innerText = '📍 ' + ticket.address;
+        $('rateMaster').innerText  = '👷 ' + ticket.master;
+        $('rateValue').value       = '0';
+        $('rateComment').value     = '';
+        document.querySelectorAll('#rateStars i').forEach(i => i.classList.remove('active'));
+        $('rateModal').style.display = 'flex';
+    }
+
+    function closeRateModal() {
+        $('rateModal').style.display = 'none';
+        currentRateTicketId = null;
+    }
+
+    async function submitRate() {
+        const rating  = parseInt($('rateValue').value);
+        const comment = $('rateComment').value.trim();
+
+        if (rating === 0) { alert('Выберите оценку от 1 до 5!'); return; }
+
+        const btn = $('btnSubmitRate');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Отправляем...';
+
+        try {
+            const res = await fetch(URL_GOOGLE_SERVER, {
+                method: 'POST',
+                body: JSON.stringify({
+                    action:   'rateTicket',       // ✅ правильный action
+                    ticketId: currentRateTicketId,
+                    rating:   rating,
+                    comment:  comment,
+                    ratedBy:  currentUser.name    // ✅ правильное поле
+                }),
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+            });
+            const result = await res.json();
+
+            if (result.status === 'error') {
+                alert("⚠️ " + (result.message || "Ошибка отправки оценки"));
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить оценку';
+                return;
+            }
+
+            closeRateModal();
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить оценку';
+            localStorage.removeItem('cachedDispatcherTickets_' + currentUser.name);
+            loadMyTickets();
+
+        } catch (e) {
+            alert('Ошибка отправки оценки. Проверьте интернет.');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить оценку';
+        }
+    }
+
+    // ==========================================
+    // ПРОФИЛЬ / СТАТИСТИКА
+    // ==========================================
+    async function loadStats() {
+        const cacheKey = "cachedDispatcherStats_" + currentUser.name;
+        const cached   = localStorage.getItem(cacheKey);
+        if (cached) {
+            try { renderDispatcherStats(JSON.parse(cached)); } catch(e) {}
+        }
+
+        try {
+            const res = await fetch(URL_GOOGLE_SERVER +
+                "?action=getDispatcherStats&dispatcherName=" +
+                encodeURIComponent(currentUser.name));
+            const stats = await res.json();
+            localStorage.setItem(cacheKey, JSON.stringify(stats));
+            renderDispatcherStats(stats);
+        } catch (e) {
+            if (!cached) $("badgeTitle").innerText = "Ошибка загрузки";
+        }
+    }
+
+    function renderDispatcherStats(stats) {
+        const total   = stats.allTimeTickets  || 0;
+        const monthly = stats.monthlyTickets  || 0;
+
+        // Берём open/closed из кэша тикетов для точности
+        let openCount = 0, closedCount = 0;
+        const cachedTickets = localStorage.getItem("cachedDispatcherTickets_" + currentUser.name);
+        if (cachedTickets) {
+            try {
+                const arr   = JSON.parse(cachedTickets);
+                openCount   = arr.filter(t => t.status === "Новая" || t.status === "Принята").length;
+                closedCount = arr.filter(t => t.status === "Выполнено").length;
+            } catch(e) {}
+        }
+
+        // Всего = архивные (закрытые) + текущие открытые
+        // allTimeTickets из stats = все когда-либо созданные
+        const rate = total > 0 ? Math.round(((total - openCount) / total) * 100) : 0;
+
+        $("statMonthly").innerText = monthly;
+        $("statAllTime").innerText = total;
+        $("statOpen").innerText    = openCount;
+        $("statClosed").innerText  = total - openCount;
+        $("actOpen").innerText     = openCount;
+        $("actClosed").innerText   = total - openCount;
+        $("actRate").innerText     = rate + "%";
+
+        // Уровни
+        const levels = [
+            { min: 0,   max: 50,       title: "Надёжный тыл 🥉",     desc: "Отличное начало! Продолжайте в том же духе.",        icon: "fa-headset",          iconColor: "#8d6e63", bg: "#efebe9" },
+            { min: 50,  max: 200,      title: "Мастер логистики 🥈",  desc: "Ни одна заявка не потеряется, пока вы на смене!",    icon: "fa-satellite-dish",   iconColor: "#607d8b", bg: "#eceff1" },
+            { min: 200, max: 500,      title: "Опора компании 🥇",    desc: "Вы контролируете весь город!",                      icon: "fa-microphone-lines", iconColor: "#ffb300", bg: "#fff8e1" },
+            { min: 500, max: Infinity, title: "Легенда службы 🏆",    desc: "Высший статус. Вы — эталон диспетчерской службы!",  icon: "fa-trophy",           iconColor: "#ff6b00", bg: "#fff3e0" },
+        ];
+        const level = levels.find(l => total >= l.min && total < l.max) || levels[levels.length - 1];
+
+        $("badgeTitle").innerText           = level.title;
+        $("badgeDesc").innerText            = level.desc;
+        $("badgeIcon").className            = "fa-solid " + level.icon;
+        $("badgeIcon").style.color          = level.iconColor;
+        $("badgeIconWrap").style.background = level.bg;
+
+        const progressMax = level.max === Infinity ? Math.max(total, 1) : level.max;
+        const pct         = Math.min(100, Math.round((total / progressMax) * 100));
+        setTimeout(() => { $("progressFill").style.width = pct + "%"; }, 100);
+        $("progressCurrent").innerText = total;
+        $("progressNext").innerText    = level.max === Infinity ? "∞" : level.max;
+    }
+
+    // ==========================================
+    // ДРОПДАУНЫ
+    // ==========================================
+    function buildDropdown(inputId, listId, source, limit) {
+        const inputVal = $(inputId).value.toLowerCase().trim();
+        const list     = $(listId);
+        list.innerHTML = "";
+
+        if (!inputVal && source.length > 5) { list.style.display = "none"; return; }
+
+        const filtered = source
+            .filter(a => a.toLowerCase().includes(inputVal))
+            .slice(0, limit || 15);
+
+        if (filtered.length > 0) {
             const frag = document.createDocumentFragment();
-            tickets.forEach(ticket => {
+            filtered.forEach(val => {
                 const div = document.createElement("div");
-                div.className = "card";
-                const badgeClass = isNew ? "status-new" : "status-done";
-                const statusText = isNew ? "Новая" : "Выполнено";
-
-                const actionHtml = isNew
-                    ? `<div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;">
-                           <button class="edit-btn" onclick="openEditModal(${ticket.id})">
-                               <i class="fa-solid fa-pen"></i> Изменить
-                           </button>
-                           <button class="close-btn" onclick="openCloseModal(${ticket.id})">
-                               <i class="fa-solid fa-circle-xmark"></i> Закрыть
-                           </button>
-                       </div>`
-                    : `<span style="color:#34c759;font-size:12px;font-weight:bold;">
-                           <i class="fa-solid fa-check-double"></i> Выполнено
-                       </span>`;
-
-                div.innerHTML = `
-                    <div class="status-badge ${badgeClass}">${statusText}</div>
-                    <div style="font-weight:bold;font-size:16px;margin-bottom:4px;">${ticket.address}</div>
-                    <div style="font-size:14px;color:#3a3a3c;">${ticket.problem}</div>
-                    <div class="ticket-info">
-                        <div><i class="fa-solid fa-helmet-safety"></i> ${ticket.master}</div>
-                        ${actionHtml}
-                    </div>`;
+                div.innerText = val;
+                div.className = "dropdown-item";
+                div.addEventListener('mousedown', function(e) {
+                    e.preventDefault(); // не теряем фокус
+                    $(inputId).value  = val;
+                    list.style.display = "none";
+                });
                 frag.appendChild(div);
             });
-            container.appendChild(frag);
+            list.appendChild(frag);
+            list.style.display = "block";
+        } else {
+            list.style.display = "none";
         }
+    }
 
-        // ==========================================
-        // РЕДАКТИРОВАНИЕ
-        // ==========================================
-        function openEditModal(id) {
-            currentEditId = id;
-            const ticket = myTicketsArray.find(t => t.id == id);
-            if (ticket) {
-                $("editAddress").value = ticket.address;
-                $("editProblem").value = ticket.problem;
-                $("editMaster").value  = ticket.master;
-                $("editModal").style.display = "flex";
-            }
-        }
+    function filterAddresses()     { buildDropdown('address',     'customAddressList',     allAddresses, 15); }
+    function filterMasters()       { buildDropdown('masterInput', 'customMasterList',      allMasters,   20); }
+    function filterEditAddresses() { buildDropdown('editAddress', 'customEditAddressList', allAddresses, 15); }
+    function filterEditMasters()   { buildDropdown('editMaster',  'customEditMasterList',  allMasters,   20); }
 
-        function closeEditModal() { $("editModal").style.display = "none"; }
-
-        async function saveEdit() {
-            const newAddress = $("editAddress").value.trim();
-            const newProblem = $("editProblem").value.trim();
-            const newMaster  = $("editMaster").value.trim();
-
-            if (!newAddress || !newProblem || !newMaster) { alert("Заполните все поля!"); return; }
-            if (!allAddresses.includes(newAddress)) { alert("❌ Такого адреса нет в базе!"); return; }
-            if (!allMasters.includes(newMaster))    { alert("❌ Такого мастера нет!"); return; }
-
-            const btn = $("btnSaveEdit");
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Сохраняем...';
-
-            try {
-                await fetch(URL_GOOGLE_SERVER, {
-                    method: "POST",
-                    body: JSON.stringify({
-                        action: "editTicket",
-                        ticketId: currentEditId,
-                        address: newAddress,
-                        problem: newProblem,
-                        masterName: newMaster
-                    }),
-                    headers: { "Content-Type": "text/plain;charset=utf-8" }
-                });
-                closeEditModal();
-                btn.disabled = false;
-                btn.innerHTML = '💾 Сохранить изменения';
-                localStorage.removeItem("cachedDispatcherTickets_" + currentUser.name);
-                loadMyTickets();
-            } catch (e) {
-                alert("Ошибка сохранения. Проверьте интернет.");
-                btn.disabled = false;
-                btn.innerHTML = '💾 Сохранить изменения';
-            }
-        }
-
-        // ==========================================
-        // ЗАКРЫТИЕ ЗАЯВКИ
-        // ==========================================
-        function openCloseModal(id) {
-            currentCloseId = id;
-            const ticket = myTicketsArray.find(t => t.id == id);
-            if (!ticket) return;
-
-            $("closeAddress").innerText = "📍 " + ticket.address;
-            $("closeProblem").innerText = ticket.problem;
-            $("closeDescription").value = "";
-            $("closeIsFree").checked    = false;
-            $("closeWork").value        = "0";
-            $("closeMaterial").value    = "0";
-            $("closeDelivery").value    = "0";
-            $("closeTotal").innerText   = "0";
-
-            toggleCloseMoney();
-            $("closeTicketModal").style.display = "flex";
-            setTimeout(() => $("closeDescription").focus(), 150);
-        }
-
-        function closeCloseModal() {
-            $("closeTicketModal").style.display = "none";
-            currentCloseId = null;
-        }
-
-        function toggleCloseMoney() {
-            const isFree = $("closeIsFree").checked;
-            $("closeMoneyBlock").style.display = isFree ? "none" : "block";
-            if (!isFree) calcCloseTotal();
-        }
-
-        function calcCloseTotal() {
-            const w = parseInt($("closeWork").value, 10)     || 0;
-            const m = parseInt($("closeMaterial").value, 10) || 0;
-            const d = parseInt($("closeDelivery").value, 10) || 0;
-            $("closeTotal").innerText = w + m + d;
-        }
-
-        async function confirmCloseTicket() {
-            if (!currentCloseId) return;
-
-            const desc   = $("closeDescription").value.trim();
-            const isFree = $("closeIsFree").checked;
-
-            if (!desc) {
-                alert("Напишите описание выполненных работ!");
-                $("closeDescription").focus();
-                return;
-            }
-
-            const workCost     = isFree ? 0 : (parseInt($("closeWork").value, 10)     || 0);
-            const materialCost = isFree ? 0 : (parseInt($("closeMaterial").value, 10) || 0);
-            const deliveryCost = isFree ? 0 : (parseInt($("closeDelivery").value, 10) || 0);
-            const totalCost    = isFree ? 0 : (workCost + materialCost + deliveryCost);
-
-            const btn = $("btnConfirmClose");
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Закрываем...';
-
-            const ticket = myTicketsArray.find(t => t.id == currentCloseId);
-            const masterName = ticket ? ticket.master : "";
-
-            try {
-                const res = await fetch(URL_GOOGLE_SERVER, {
-                    method: "POST",
-                    body: JSON.stringify({
-                        action:       "submitReport",
-                        ticketId:     currentCloseId,
-                        masterName:   masterName,
-                        closedBy:     currentUser.name,
-                        description:  desc,
-                        paymentType:  isFree ? "Бесплатно" : "Платно",
-                        workCost,
-                        materialCost,
-                        deliveryCost,
-                        totalCost
-                    }),
-                    headers: { "Content-Type": "text/plain;charset=utf-8" }
-                });
-                await res.json();
-
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-check-double"></i> Закрыть заявку';
-                closeCloseModal();
-                localStorage.removeItem("cachedDispatcherTickets_" + currentUser.name);
-                loadMyTickets();
-            } catch (e) {
-                alert("Ошибка при закрытии заявки. Проверьте интернет.");
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-check-double"></i> Закрыть заявку';
-            }
-        }
-
-        // ==========================================
-        // ПРОФИЛЬ / СТАТИСТИКА
-        // ==========================================
-        async function loadStats() {
-            const cached = localStorage.getItem("cachedDispatcherStats_" + currentUser.name);
-            if (cached) renderDispatcherStats(JSON.parse(cached));
-            else $("badgeTitle").innerText = "Загрузка...";
-
-            try {
-                const res = await fetch(URL_GOOGLE_SERVER +
-                    "?action=getDispatcherStats&dispatcherName=" +
-                    encodeURIComponent(currentUser.name));
-                const stats = await res.json();
-                localStorage.setItem("cachedDispatcherStats_" + currentUser.name, JSON.stringify(stats));
-                renderDispatcherStats(stats);
-            } catch (e) {
-                if (!cached) $("badgeTitle").innerText = "Ошибка загрузки";
-            }
-        }
-
-        function renderDispatcherStats(stats) {
-            const total   = stats.allTimeTickets || 0;
-            const monthly = stats.monthlyTickets || 0;
-
-            let openCount = 0, closedCount = 0;
-            const cachedTickets = localStorage.getItem("cachedDispatcherTickets_" + currentUser.name);
-            if (cachedTickets) {
-                try {
-                    const arr = JSON.parse(cachedTickets);
-                    openCount   = arr.filter(t => t.status === "Новая").length;
-                    closedCount = arr.filter(t => t.status !== "Новая").length;
-                } catch (e) { closedCount = total; }
-            } else {
-                closedCount = total;
-            }
-            const rate = total > 0 ? Math.round((closedCount / total) * 100) : 0;
-
-            $("statMonthly").innerText = monthly;
-            $("statAllTime").innerText = total;
-            $("statOpen").innerText    = openCount;
-            $("statClosed").innerText  = closedCount;
-            $("actOpen").innerText     = openCount;
-            $("actClosed").innerText   = closedCount;
-            $("actRate").innerText     = rate + "%";
-
-            const levels = [
-                { min: 0,   max: 50,       title: "Надёжный тыл 🥉",    desc: "Отличное начало! Продолжайте в том же духе.",       icon: "fa-headset",          iconColor: "#8d6e63", bg: "#efebe9" },
-                { min: 50,  max: 200,      title: "Мастер логистики 🥈", desc: "Ни одна заявка не потеряется, пока вы на смене!",   icon: "fa-satellite-dish",   iconColor: "#607d8b", bg: "#eceff1" },
-                { min: 200, max: 500,      title: "Опора компании 🥇",   desc: "Вы контролируете весь город!",                     icon: "fa-microphone-lines", iconColor: "#ffb300", bg: "#fff8e1" },
-                { min: 500, max: Infinity, title: "Легенда службы 🏆",   desc: "Высший статус. Вы — эталон диспетчерской службы!", icon: "fa-trophy",           iconColor: "#ff6b00", bg: "#fff3e0" },
-            ];
-            const level = levels.find(l => total >= l.min && total < l.max) || levels[levels.length - 1];
-
-            $("badgeTitle").innerText           = level.title;
-            $("badgeDesc").innerText            = level.desc;
-            $("badgeIcon").className            = "fa-solid " + level.icon;
-            $("badgeIcon").style.color          = level.iconColor;
-            $("badgeIconWrap").style.background = level.bg;
-
-            const fill = $("progressFill");
-            const progressMax = level.max === Infinity ? (total || 1) : level.max;
-            const pct = Math.min(100, Math.round((total / progressMax) * 100));
-            setTimeout(() => { fill.style.width = pct + "%"; }, 100);
-            $("progressCurrent").innerText = total;
-            $("progressNext").innerText    = level.max === Infinity ? "∞" : level.max;
-        }
-
-        // ==========================================
-        // ДРОПДАУНЫ
-        // ==========================================
-        function buildDropdown(inputId, listId, source, limit) {
-            const input = $(inputId).value.toLowerCase();
-            const list  = $(listId);
-            list.innerHTML = "";
-            if (!input && source.length > 5) { list.style.display = "none"; return; }
-            const filtered = source.filter(a => a.toLowerCase().includes(input)).slice(0, limit || 15);
-            if (filtered.length > 0) {
-                const frag = document.createDocumentFragment();
-                filtered.forEach(val => {
-                    const div = document.createElement("div");
-                    div.innerText = val;
-                    div.className = "dropdown-item";
-                    div.onclick = () => {
-                        $(inputId).value = val;
-                        list.style.display = "none";
-                    };
-                    frag.appendChild(div);
-                });
-                list.appendChild(frag);
-                list.style.display = "block";
-            } else {
-                list.style.display = "none";
-            }
-        }
-
-        function filterAddresses()     { buildDropdown('address',     'customAddressList',     allAddresses, 15); }
-        function filterMasters()       { buildDropdown('masterInput', 'customMasterList',      allMasters,   20); }
-        function filterEditAddresses() { buildDropdown('editAddress', 'customEditAddressList', allAddresses, 15); }
-        function filterEditMasters()   { buildDropdown('editMaster',  'customEditMasterList',  allMasters,   20); }
-
-        function logout() {
-            localStorage.removeItem("currentUser");
-            window.location.href = "index.html";
-        }
+    // ==========================================
+    // ВЫХОД
+    // ==========================================
+    function logout() {
+        if (!confirm("Выйти из аккаунта?")) return;
+        localStorage.removeItem("currentUser");
+        window.location.href = "index.html";
+    }
     </script>
 
     <script>
@@ -1368,5 +1590,6 @@
                 .catch(err => console.log('Ошибка SW', err));
         }
     </script>
+
 </body>
 </html>
