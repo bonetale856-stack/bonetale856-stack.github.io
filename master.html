@@ -38,11 +38,6 @@
             animation: none;
         }
 
-        .ticket-badge.pending {
-            background: #ff9500;
-            box-shadow: 0 2px 8px rgba(255, 149, 0, 0.3);
-        }
-
         @keyframes pulse {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.05); }
@@ -146,18 +141,11 @@
             color: #8e8e93;
         }
 
-        .modal-close:hover {
-            background: #e5e5ea;
-            color: #1c1c1e;
-        }
+        .modal-close:hover { background: #e5e5ea; color: #1c1c1e; }
 
-        .modal-body {
-            padding: 20px;
-        }
+        .modal-body { padding: 20px; }
 
-        .modal-section {
-            margin-bottom: 20px;
-        }
+        .modal-section { margin-bottom: 20px; }
 
         .modal-section-title {
             font-size: 12px;
@@ -191,28 +179,10 @@
         }
 
         .modal-info-content { flex: 1; }
-
-        .modal-info-label {
-            font-size: 12px;
-            color: #8e8e93;
-            margin-bottom: 2px;
-        }
-
-        .modal-info-value {
-            font-size: 15px;
-            color: #1c1c1e;
-            font-weight: 500;
-        }
-
-        .modal-info-value.address {
-            font-size: 16px;
-            font-weight: 700;
-        }
-
-        .modal-info-value.problem {
-            font-size: 15px;
-            line-height: 1.4;
-        }
+        .modal-info-label { font-size: 12px; color: #8e8e93; margin-bottom: 2px; }
+        .modal-info-value { font-size: 15px; color: #1c1c1e; font-weight: 500; }
+        .modal-info-value.address { font-size: 16px; font-weight: 700; }
+        .modal-info-value.problem { font-size: 15px; line-height: 1.4; }
 
         /* ===== КНОПКИ ДЕЙСТВИЙ ===== */
         .modal-actions {
@@ -272,7 +242,6 @@
         }
 
         .btn-close-ticket:active { transform: scale(0.98); }
-        .btn-close-ticket:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
         .btn-listen {
             background: #e5f1ff;
@@ -300,7 +269,7 @@
             animation: pulse 1s infinite;
         }
 
-        /* ===== TOGGLE БЕСПЛАТНО ===== */
+        /* ===== TOGGLE ===== */
         .free-toggle {
             background: #f2f2f7;
             padding: 14px 12px;
@@ -319,26 +288,11 @@
             accent-color: #34c759;
             cursor: pointer;
         }
-        .free-toggle span {
-            font-weight: 600;
-            color: #34c759;
-            font-size: 15px;
-        }
+        .free-toggle span { font-weight: 600; color: #34c759; font-size: 15px; }
 
-        /* ===== ПОЛЯ СТОИМОСТИ ===== */
-        .cost-field {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 12px;
-        }
+        .cost-field { display: flex; gap: 10px; margin-bottom: 12px; }
         .cost-input { flex: 1; }
-        .cost-input label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            color: #1c1c1e;
-            margin-bottom: 6px;
-        }
+        .cost-input label { display: block; font-size: 13px; font-weight: 600; color: #1c1c1e; margin-bottom: 6px; }
         .cost-input input {
             width: 100%;
             padding: 12px;
@@ -347,14 +301,8 @@
             font-size: 15px;
             box-sizing: border-box;
         }
-        .cost-input input:focus {
-            outline: none;
-            border-color: #007aff;
-        }
-        .cost-input input:disabled {
-            background: #f9f9f9;
-            color: #8e8e93;
-        }
+        .cost-input input:focus { outline: none; border-color: #007aff; }
+        .cost-input input:disabled { background: #f9f9f9; color: #8e8e93; }
 
         .total-price {
             background: linear-gradient(135deg, #e5f1ff, #cce4ff);
@@ -370,12 +318,6 @@
             align-items: center;
         }
         .total-price span { font-size: 13px; color: #3a3a3c; font-weight: 500; }
-
-        /* ===== СТАТИСТИКА ===== */
-        .stats-grid { display: flex; gap: 10px; margin-bottom: 20px; }
-        .stat-box { flex: 1; background: #f9f9f9; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid #eee; }
-        .stat-num { font-size: 24px; font-weight: 800; color: #ff9500; margin-bottom: 5px; }
-        .stat-label { font-size: 12px; color: #8e8e93; font-weight: 600; text-transform: uppercase;}
 
         /* ===== OFFLINE TOAST ===== */
         .offline-toast {
@@ -394,17 +336,13 @@
             transition: top 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             box-shadow: 0 8px 30px rgba(0,0,0,0.15);
             white-space: nowrap;
-            pointer-events: none;
         }
         .offline-toast.show { top: 16px; }
         .offline-toast.offline { background: #1c1c1e; color: white; }
         .offline-toast.online { background: #34c759; color: white; }
 
         /* ===== ФОРМА ОТЧЁТА ===== */
-        #reportScreen {
-            background: #ffffff;
-        }
-
+        #reportScreen { background: #ffffff; }
         #reportScreen .card {
             background: #1c1c1e;
             border: none;
@@ -413,10 +351,8 @@
             padding: 16px;
             margin-bottom: 16px;
         }
-
         #reportScreen #reportAddress { color: #ffffff; font-weight: 700; margin-bottom: 6px; }
         #reportScreen #reportProblem { color: #c7c7cc; font-size: 14px; }
-
         #reportScreen .form-group { margin-bottom: 14px; }
         #reportScreen .form-group label {
             display: block;
@@ -425,7 +361,6 @@
             margin-bottom: 6px;
             font-size: 13px;
         }
-
         #reportScreen .form-control {
             width: 100%;
             padding: 12px 14px;
@@ -437,13 +372,10 @@
             box-sizing: border-box;
             transition: border-color 0.2s;
         }
-
         #reportScreen .form-control:focus { outline: none; border-color: #007aff; }
         #reportScreen .form-control::placeholder { color: #c7c7cc; }
         #reportScreen .form-control:disabled { background: #f9f9f9; color: #8e8e93; }
 
-        /* ===== КНОПКА РЕЧИ ===== */
-        #reportScreen .speech-btn,
         .speech-btn {
             margin-top: 6px;
             width: 100%;
@@ -461,9 +393,7 @@
             transition: all 0.2s;
             font-size: 14px;
         }
-        #reportScreen .speech-btn:hover,
         .speech-btn:hover { border-color: #007aff; background: #e5f1ff; }
-        #reportScreen .speech-btn.recording,
         .speech-btn.recording {
             background: #ff3b30;
             color: white;
@@ -508,7 +438,6 @@
         }
         #reportScreen .btn-back:hover { background: #e5e5ea; }
 
-        /* ===== РАЗРЕШЕНИЯ ===== */
         .permission-badge {
             background: #f2f2f7;
             padding: 10px 12px;
@@ -536,7 +465,6 @@
             overflow: hidden;
             box-shadow: 0 8px 30px rgba(255, 94, 58, 0.3);
         }
-
         .master-hero::before {
             content: '';
             position: absolute;
@@ -547,12 +475,10 @@
             background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
             animation: shimmer 3s infinite;
         }
-
         @keyframes shimmer {
             0%, 100% { transform: rotate(0deg); }
             50% { transform: rotate(180deg); }
         }
-
         .master-avatar {
             width: 80px;
             height: 80px;
@@ -568,11 +494,9 @@
             position: relative;
             z-index: 1;
         }
-
         .master-name { font-size: 24px; font-weight: 800; margin: 0 0 6px 0; position: relative; z-index: 1; }
         .master-role { font-size: 14px; opacity: 0.9; font-weight: 500; position: relative; z-index: 1; }
 
-        /* ===== PUSH КАРТОЧКА ===== */
         .push-card {
             background: white;
             border-radius: 16px;
@@ -585,11 +509,8 @@
             border: 2px solid transparent;
             transition: all 0.3s;
         }
-
         .push-card:hover { border-color: #007aff; transform: translateY(-2px); }
-
         .push-info { display: flex; align-items: center; gap: 14px; }
-
         .push-icon {
             width: 48px;
             height: 48px;
@@ -601,11 +522,9 @@
             font-size: 22px;
             color: #007aff;
         }
-
         .push-text h4 { margin: 0; font-size: 15px; color: #1c1c1e; font-weight: 600; }
         .push-text p { margin: 4px 0 0 0; font-size: 12px; color: #8e8e93; }
 
-        /* ===== ДОСТИЖЕНИЯ ===== */
         .achievement-hero {
             background: linear-gradient(145deg, #1c1c1e 0%, #2c2c2e 100%);
             border-radius: 24px;
@@ -615,7 +534,6 @@
             overflow: hidden;
             box-shadow: 0 10px 40px rgba(0,0,0,0.2);
         }
-
         .achievement-hero::before {
             content: '';
             position: absolute;
@@ -627,12 +545,10 @@
             background-size: 200% 100%;
             animation: gradientMove 3s ease infinite;
         }
-
         @keyframes gradientMove {
             0%, 100% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
         }
-
         .achievement-header { text-align: center; margin-bottom: 20px; }
         .achievement-title {
             font-size: 13px;
@@ -656,7 +572,6 @@
             transition: stroke-dashoffset 1s ease-out;
             filter: drop-shadow(0 0 8px rgba(255, 149, 0, 0.5));
         }
-
         .rank-circle-content {
             position: absolute;
             top: 50%;
@@ -664,19 +579,16 @@
             transform: translate(-50%, -50%);
             text-align: center;
         }
-
         .rank-icon {
             font-size: 42px;
             margin-bottom: 8px;
             display: block;
             animation: bounce 2s infinite;
         }
-
         @keyframes bounce {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-6px); }
         }
-
         .rank-name { font-size: 16px; font-weight: 800; color: white; margin: 0; }
         .rank-level { font-size: 11px; color: #8e8e93; margin: 4px 0 0 0; }
 
@@ -686,11 +598,9 @@
             padding: 14px 16px;
             margin-top: 16px;
         }
-
         .next-rank-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
         .next-rank-label { font-size: 12px; color: #c7c7cc; font-weight: 500; }
         .next-rank-value { font-size: 12px; color: #ff9500; font-weight: 700; }
-
         .progress-bar { height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
         .progress-fill {
             height: 100%;
@@ -700,14 +610,12 @@
             transition: width 1s ease-out;
         }
 
-        /* ===== СТАТЫ НОВЫЕ ===== */
         .stats-grid-new {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 12px;
             margin-bottom: 16px;
         }
-
         .stat-card {
             background: white;
             border-radius: 16px;
@@ -718,7 +626,6 @@
             position: relative;
             overflow: hidden;
         }
-
         .stat-card::before {
             content: '';
             position: absolute;
@@ -728,9 +635,7 @@
             height: 3px;
             background: linear-gradient(90deg, #ff9500, #ff5e3a);
         }
-
         .stat-card:active { transform: scale(0.96); }
-
         .stat-icon {
             width: 40px;
             height: 40px;
@@ -743,9 +648,7 @@
             font-size: 18px;
             color: #ff9500;
         }
-
         .stat-value { font-size: 22px; font-weight: 800; color: #1c1c1e; margin: 0 0 4px 0; }
-
         .stat-label {
             font-size: 10px;
             color: #8e8e93;
@@ -755,7 +658,6 @@
             line-height: 1.3;
         }
 
-        /* ===== КНОПКА ВЫХОДА ===== */
         .logout-btn {
             background: linear-gradient(135deg, #ff3b30, #ff2d55);
             color: white;
@@ -773,10 +675,8 @@
             box-shadow: 0 6px 20px rgba(255, 59, 48, 0.3);
             transition: all 0.2s;
         }
-
         .logout-btn:active { transform: scale(0.98); box-shadow: 0 4px 15px rgba(255, 59, 48, 0.25); }
 
-        /* ===== PUSH НАПОМИНАНИЕ ===== */
         .push-reminder {
             background: linear-gradient(135deg, #fff3e0, #ffe0b2);
             border-left: 4px solid #ff9500;
@@ -794,17 +694,13 @@
         .push-reminder-text p { margin: 0; font-size: 12px; color: #8e8e93; }
         .push-reminder-arrow { margin-left: auto; color: #ff9500; font-size: 14px; }
 
-        /* ===== LOADER ===== */
         .inline-loader { text-align: center; color: #8e8e93; padding: 40px 20px; }
         .inline-loader i { font-size: 30px; margin-bottom: 10px; }
 
-        /* ===== ЛОАДЕР ДЛЯ КНОПКИ ===== */
-        .btn-loading { pointer-events: none; }
         .btn-loading i { animation: spin 1s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     </style>
 
-    <!-- ONESIGNAL PUSH NOTIFICATIONS -->
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
     <script>
       window.OneSignalDeferred = window.OneSignalDeferred || [];
@@ -881,7 +777,6 @@
 </head>
 <body>
 
-    <!-- ===== OFFLINE TOAST ===== -->
     <div class="offline-toast" id="offlineToast">
         <i id="toastIcon" class="fa-solid fa-wifi-slash"></i>
         <span id="toastText">Нет подключения к интернету</span>
@@ -890,8 +785,6 @@
     <div class="top-bar" id="headerTitle">Мои задачи</div>
 
     <div class="container" id="mainContainer">
-
-        <!-- ЭКРАН 1: ЗАДАЧИ -->
         <div id="tab-tasks" class="tab-content active">
             <div class="push-reminder" id="pushReminder" onclick="switchTab('profile')">
                 <i class="fa-regular fa-bell"></i>
@@ -914,7 +807,6 @@
             <div id="ticketsContainer"></div>
         </div>
 
-        <!-- ЭКРАН 1.5: ИСТОРИЯ ВЫПОЛНЕННЫХ -->
         <div id="tab-history" class="tab-content">
             <div id="loadingHistory" class="inline-loader" style="display: none;">
                 <i class="fa-solid fa-circle-notch fa-spin"></i><br>Грузим историю...
@@ -927,28 +819,21 @@
             <div id="historyContainer"></div>
         </div>
 
-        <!-- ЭКРАН 2: ПРОФИЛЬ -->
         <div id="tab-profile" class="tab-content">
             <div id="loadingProfile" class="inline-loader" style="display: none;">
                 <i class="fa-solid fa-circle-notch fa-spin"></i><br>Считаем успехи...
             </div>
 
             <div id="profileContent" style="display: none;">
-                <!-- Карточка мастера -->
                 <div class="master-hero">
-                    <div class="master-avatar">
-                        <i class="fa-solid fa-user-gear"></i>
-                    </div>
+                    <div class="master-avatar"><i class="fa-solid fa-user-gear"></i></div>
                     <h2 class="master-name" id="profileName">Загрузка...</h2>
                     <p class="master-role">Мастер Гильдии</p>
                 </div>
 
-                <!-- Push-уведомления -->
                 <div class="push-card">
                     <div class="push-info">
-                        <div class="push-icon">
-                            <i class="fa-regular fa-bell"></i>
-                        </div>
+                        <div class="push-icon"><i class="fa-regular fa-bell"></i></div>
                         <div class="push-text">
                             <h4>Push-уведомления</h4>
                             <p>О новых заявках от диспетчера</p>
@@ -957,12 +842,10 @@
                     <button id="btnPush" class="btn" style="width: auto; padding: 10px 18px; font-size: 13px; background: #e5f1ff; color: #007aff; border-radius: 12px; font-weight: 600; border: none; cursor: pointer;" onclick="enablePush()">Включить</button>
                 </div>
 
-                <!-- Достижения HERO -->
                 <div class="achievement-hero" id="achievementHero">
                     <div class="achievement-header">
                         <p class="achievement-title">Ваш ранг</p>
                     </div>
-
                     <div class="rank-circle">
                         <svg viewBox="0 0 180 180">
                             <defs>
@@ -980,7 +863,6 @@
                             <p class="rank-level" id="rankLevel">Уровень 1</p>
                         </div>
                     </div>
-
                     <div class="next-rank">
                         <div class="next-rank-header">
                             <span class="next-rank-label">До следующего ранга</span>
@@ -992,7 +874,6 @@
                     </div>
                 </div>
 
-                <!-- Статистика -->
                 <div class="stats-grid-new">
                     <div class="stat-card">
                         <div class="stat-icon"><i class="fa-solid fa-check-double"></i></div>
@@ -1019,7 +900,7 @@
         </div>
     </div>
 
-    <!-- ===== МОДАЛЬНОЕ ОКНО ЗАЯВКИ ===== -->
+    <!-- МОДАЛЬНОЕ ОКНО ЗАЯВКИ -->
     <div class="modal-overlay" id="ticketModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1028,28 +909,16 @@
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-
-            <div class="modal-body" id="modalBody">
-                <!-- Контент загружается динамически -->
-                <div class="inline-loader">
-                    <i class="fa-solid fa-circle-notch fa-spin"></i><br>Загрузка...
-                </div>
-            </div>
-
+            <div class="modal-body" id="modalBody"></div>
             <div class="modal-actions">
-                <!-- Кнопка прослушать -->
                 <button class="btn-listen" id="btnListenTicket" onclick="toggleListenTicket()">
                     <i class="fa-solid fa-volume-high" id="listenIcon"></i>
                     <span id="listenLabel">Прослушать заявку</span>
                 </button>
-
-                <!-- Кнопка принять -->
                 <button class="btn-accept" id="btnAcceptTicket" onclick="acceptTicket()">
                     <i class="fa-solid fa-check"></i>
                     <span id="acceptLabel">Принять заявку</span>
                 </button>
-
-                <!-- Кнопка закрыть (появляется после принятия) -->
                 <button class="btn-close-ticket" id="btnCloseTicket" onclick="openReportForm()" style="display: none;">
                     <i class="fa-solid fa-flag-checkered"></i>
                     Закрыть заявку
@@ -1062,13 +931,11 @@
     <div class="container" id="reportScreen" style="display: none; padding-bottom: 20px;">
         <button class="btn-back" onclick="closeReport()"><i class="fa-solid fa-chevron-left"></i> Назад к списку</button>
 
-        <!-- Информация о заявке -->
         <div class="card">
             <div id="reportAddress" style="font-weight: 700; margin-bottom: 5px;"></div>
             <div id="reportProblem" style="font-size: 14px; color: #c7c7cc;"></div>
         </div>
 
-        <!-- Описание работ -->
         <div class="form-group">
             <label><i class="fa-solid fa-pen"></i> Описание выполненных работ:</label>
             <textarea class="form-control" id="repDescription" rows="3" placeholder="Опишите что вы сделали..."></textarea>
@@ -1078,13 +945,11 @@
             </button>
         </div>
 
-        <!-- Чекбокс "Бесплатно" -->
         <label class="free-toggle" onclick="toggleFreeMode()">
             <input type="checkbox" id="isFree" onchange="toggleFreeMode()">
             <span>Выполнить бесплатно</span>
         </label>
 
-        <!-- Стоимость работ (2 колонки) -->
         <div class="cost-field">
             <div class="cost-input">
                 <label>Работа (руб.):</label>
@@ -1096,19 +961,16 @@
             </div>
         </div>
 
-        <!-- Доставка -->
         <div class="form-group">
             <label>Доставка (руб.):</label>
             <input type="number" id="repDelivery" value="0" min="0" class="form-control" onchange="updateTotal()" oninput="updateTotal()" disabled>
         </div>
 
-        <!-- Итого -->
         <div class="total-price">
             <span>Сумма к оплате:</span>
             <div id="totalSum">0 ₽</div>
         </div>
 
-        <!-- Разрешения -->
         <div id="permissionsContainer" style="margin-bottom: 16px; display: none;">
             <p style="font-size: 12px; color: #8e8e93; margin: 0 0 10px 0; text-transform: uppercase; font-weight: 600;">Разрешения:</p>
             <div class="permission-badge" id="micPermission">
@@ -1121,13 +983,11 @@
             </div>
         </div>
 
-        <!-- Кнопка отправки -->
         <button class="btn-primary" id="btnSubmitReport" onclick="submitReport()">
             <i class="fa-solid fa-check-double"></i> Закрыть заявку
         </button>
     </div>
 
-    <!-- НИЖНЕЕ МЕНЮ -->
     <div class="bottom-nav" id="bottomNav">
         <div class="nav-item active" onclick="switchTab('tasks')" id="nav-tasks"><i class="fa-solid fa-screwdriver-wrench"></i><span>Задачи</span></div>
         <div class="nav-item" onclick="switchTab('history')" id="nav-history"><i class="fa-solid fa-clock-rotate-left"></i><span>История</span></div>
@@ -1141,7 +1001,7 @@
         let activeTicketData = null;
         const CLOSED_VISIBLE_HOURS = 24;
 
-        // ===== OFFLINE TOAST ЛОГИКА =====
+        // OFFLINE TOAST
         (function() {
             const toast = document.getElementById('offlineToast');
             const toastText = document.getElementById('toastText');
@@ -1167,7 +1027,7 @@
             if (!navigator.onLine) showToast(false);
         })();
 
-        // ===== ИНИЦИАЛИЗАЦИЯ =====
+        // ИНИЦИАЛИЗАЦИЯ
         window.onload = async function() {
             const userStr = localStorage.getItem("currentUser");
             if (!userStr) { window.location.replace("index.html"); return; }
@@ -1175,6 +1035,9 @@
             if (currentUser.role !== "мастер") { window.location.replace("index.html"); return; }
 
             document.getElementById("profileName").innerText = currentUser.name;
+
+            // Всегда сбрасываем кэш при загрузке
+            localStorage.removeItem("cachedMasterTickets_" + currentUser.name);
 
             if (!window.location.hash) {
                 history.replaceState({tab: 'tasks'}, "", "#tasks");
@@ -1185,7 +1048,6 @@
             }
 
             initReportSpeech();
-            checkPermissionsOnOpen();
         };
 
         window.addEventListener('popstate', (event) => {
@@ -1204,7 +1066,7 @@
             }
         });
 
-        // ===== НАВИГАЦИЯ =====
+        // НАВИГАЦИЯ
         function switchTab(tabName) {
             history.pushState({tab: tabName}, "", "#" + tabName);
             applyTab(tabName);
@@ -1227,7 +1089,7 @@
             if (tabName === 'history') loadHistory();
         }
 
-        // ===== ЗАГРУЗКА ДАННЫХ =====
+        // ЗАГРУЗКА ДАННЫХ - ИСПРАВЛЕНО: всегда получаем свежие данные
         async function loadStats() {
             const cachedStats = localStorage.getItem("cachedMasterStats_" + currentUser.name);
             if (cachedStats) {
@@ -1247,13 +1109,15 @@
                 localStorage.setItem("cachedMasterStats_" + currentUser.name, JSON.stringify(stats));
                 renderMasterStats(stats);
             } catch (error) {
-                if (!cachedStats) document.getElementById("loadingProfile").innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:red;"></i><br>Ошибка сети';
+                if (!cachedStats) {
+                    document.getElementById("loadingProfile").innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:red;"></i><br>Ошибка сети';
+                }
             }
         }
 
         function renderMasterStats(stats) {
-            const totalAllTime = stats.allTimeTickets;
-            const monthlyTickets = stats.monthlyTickets;
+            const totalAllTime = stats.allTimeTickets || 0;
+            const monthlyTickets = stats.monthlyTickets || 0;
 
             document.getElementById("statTotal").innerText = totalAllTime;
             document.getElementById("statMonth").innerText = monthlyTickets;
@@ -1268,25 +1132,13 @@
             let rank, icon, target, level;
 
             if (totalAllTime < 20) {
-                rank = "Новичок";
-                icon = "🥉";
-                target = 20;
-                level = 1;
+                rank = "Новичок"; icon = "🥉"; target = 20; level = 1;
             } else if (totalAllTime < 50) {
-                rank = "Опытный мастер";
-                icon = "🥈";
-                target = 50;
-                level = 2;
+                rank = "Опытный мастер"; icon = "🥈"; target = 50; level = 2;
             } else if (totalAllTime < 100) {
-                rank = "Профессионал";
-                icon = "🥇";
-                target = 100;
-                level = 3;
+                rank = "Профессионал"; icon = "🥇"; target = 100; level = 3;
             } else {
-                rank = "Легенда Гильдии";
-                icon = "👑";
-                target = 100;
-                level = "MAX";
+                rank = "Легенда Гильдии"; icon = "👑"; target = 100; level = "MAX";
             }
 
             rankName.innerText = rank;
@@ -1296,14 +1148,9 @@
             const prevTarget = level === 1 ? 0 : level === 2 ? 20 : level === 3 ? 50 : 100;
             const progress = level === "MAX" ? 100 : Math.min(100, ((totalAllTime - prevTarget) / (target - prevTarget)) * 100);
 
-            setTimeout(() => {
-                progressFill.style.width = progress + "%";
-            }, 100);
-
+            setTimeout(() => { progressFill.style.width = progress + "%"; }, 100);
             const offset = 440 - (progress / 100) * 440;
-            setTimeout(() => {
-                rankProgress.style.strokeDashoffset = offset;
-            }, 100);
+            setTimeout(() => { rankProgress.style.strokeDashoffset = offset; }, 100);
 
             if (level === "MAX") {
                 nextRankValue.innerText = "Максимальный ранг!";
@@ -1313,68 +1160,71 @@
             }
         }
 
+        // ИСПРАВЛЕНО: loadTickets теперь всегда показывает loader и получает свежие данные
         async function loadTickets() {
-            const cachedTickets = localStorage.getItem("cachedMasterTickets_" + currentUser.name);
-            if (cachedTickets) {
-                document.getElementById("loadingTasks").style.display = "none";
-                renderMasterTickets(JSON.parse(cachedTickets));
-            } else {
-                document.getElementById("loadingTasks").style.display = "block";
-                document.getElementById("ticketsContainer").innerHTML = "";
-                document.getElementById("emptyMsg").style.display = "none";
-            }
+            document.getElementById("loadingTasks").style.display = "block";
+            document.getElementById("ticketsContainer").innerHTML = "";
+            document.getElementById("emptyMsg").style.display = "none";
+
+            // Очищаем кэш перед загрузкой
+            localStorage.removeItem("cachedMasterTickets_" + currentUser.name);
 
             try {
                 const response = await fetch(URL_GOOGLE_SERVER + "?action=getTickets&masterName=" + encodeURIComponent(currentUser.name));
                 const tickets = await response.json();
                 document.getElementById("loadingTasks").style.display = "none";
+
+                // Кэшируем данные
                 localStorage.setItem("cachedMasterTickets_" + currentUser.name, JSON.stringify(tickets));
                 renderMasterTickets(tickets);
             } catch (error) {
-                if (!cachedTickets) {
-                    document.getElementById("loadingTasks").innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:red;"></i><br>Ошибка сети';
-                }
+                console.error("Error loading tickets:", error);
+                document.getElementById("loadingTasks").style.display = "none";
+                document.getElementById("ticketsContainer").innerHTML = `
+                    <div class="card" style="text-align: center; padding: 40px; color: #ff3b30;">
+                        <i class="fa-solid fa-triangle-exclamation" style="font-size: 40px; margin-bottom: 15px;"></i>
+                        <p>Ошибка загрузки заявок</p>
+                        <button class="btn" onclick="loadTickets()" style="background:#f2f2f7; color:#007aff; margin-top:10px;">
+                            <i class="fa-solid fa-rotate-right"></i> Повторить
+                        </button>
+                    </div>
+                `;
             }
 
             checkPushReminder();
         }
 
         async function loadHistory() {
-            const cachedHistory = localStorage.getItem("cachedMasterHistory_" + currentUser.name);
-            if (cachedHistory) {
-                document.getElementById("loadingHistory").style.display = "none";
-                renderMasterHistory(JSON.parse(cachedHistory));
-            } else {
-                document.getElementById("loadingHistory").style.display = "block";
-                document.getElementById("historyContainer").innerHTML = "";
-                document.getElementById("emptyHistoryMsg").style.display = "none";
-            }
+            document.getElementById("loadingHistory").style.display = "block";
+            document.getElementById("historyContainer").innerHTML = "";
+            document.getElementById("emptyHistoryMsg").style.display = "none";
 
             try {
                 const response = await fetch(URL_GOOGLE_SERVER + "?action=getMasterHistory&masterName=" + encodeURIComponent(currentUser.name));
                 const tickets = await response.json();
                 document.getElementById("loadingHistory").style.display = "none";
-                localStorage.setItem("cachedMasterHistory_" + currentUser.name, JSON.stringify(tickets));
                 renderMasterHistory(tickets);
             } catch (error) {
-                if (!cachedHistory) {
-                    document.getElementById("loadingHistory").innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:red;"></i><br>Ошибка сети';
-                }
+                document.getElementById("loadingHistory").style.display = "none";
+                document.getElementById("historyContainer").innerHTML = `
+                    <div class="card" style="text-align: center; padding: 40px; color: #ff3b30;">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Ошибка загрузки
+                    </div>
+                `;
             }
         }
 
-        // ===== РЕНДЕРИНГ =====
+        // РЕНДЕРИНГ
         function renderMasterHistory(tickets) {
             const container = document.getElementById("historyContainer");
             const msg = document.getElementById("emptyHistoryMsg");
             container.innerHTML = "";
             msg.style.display = "none";
-            if (tickets.length === 0) { msg.style.display = "block"; return; }
+            if (!tickets || tickets.length === 0) { msg.style.display = "block"; return; }
             tickets.forEach(ticket => {
                 const div = document.createElement("div");
                 div.className = "card";
                 div.style.borderLeft = "4px solid #34c759";
-                div.style.opacity = "0.9";
                 div.innerHTML = `
                     <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
                         <span style="font-size:12px; color:#8e8e93;"><i class="fa-regular fa-calendar-check"></i> ${ticket.date || ''}</span>
@@ -1392,80 +1242,70 @@
             const msg = document.getElementById("emptyMsg");
             container.innerHTML = "";
             msg.style.display = "none";
-            if (tickets.length === 0) { msg.style.display = "block"; return; }
+
+            if (!tickets || tickets.length === 0) {
+                msg.style.display = "block";
+                return;
+            }
 
             tickets.forEach(ticket => {
                 const div = document.createElement("div");
                 const isAccepted = ticket.status === "Принята";
-                div.className = `card ticket-card status-${ticket.status === "Новая" ? "new" : "accepted"}`;
+                div.className = `card ticket-card status-${isAccepted ? "accepted" : "new"}`;
 
-                let badgeClass = "ticket-badge";
-                let badgeText = '<i class="fa-solid fa-circle-exclamation"></i> Новая';
-                let badgeIcon = "fa-circle-exclamation";
-
-                if (isAccepted) {
-                    badgeClass = "ticket-badge accepted";
-                    badgeText = '<i class="fa-solid fa-clock"></i> Принята';
-                    badgeIcon = "fa-clock";
-                }
+                let badgeClass = isAccepted ? "ticket-badge accepted" : "ticket-badge";
+                let badgeIcon = isAccepted ? "fa-clock" : "fa-circle-exclamation";
+                let badgeText = isAccepted ? "Принята" : "Закройте заявку";
 
                 div.innerHTML = `
                     <div class="${badgeClass}">
                         <i class="fa-solid ${badgeIcon}"></i>
-                        <span>${isAccepted ? 'Принята' : 'Закройте заявку'}</span>
+                        <span>${badgeText}</span>
                     </div>
                     <div class="ticket-date"><i class="fa-regular fa-clock"></i> ${ticket.date || formatDate(ticket.createdAt)}</div>
                     <div class="ticket-address">${ticket.address || ''}</div>
                     <div class="ticket-problem"><i class="fa-solid fa-wrench" style="color:#8e8e93;"></i> ${ticket.problem || ''}</div>
                     ${ticket.ticketType ? `<span class="ticket-type-badge">${ticket.ticketType}</span>` : ''}
                 `;
-                div.onclick = () => openTicketModal(ticket.id);
+                div.onclick = () => openTicketModal(ticket.id, ticket);
                 container.appendChild(div);
             });
         }
 
         function formatDate(dateObj) {
             if (!dateObj) return '';
-            const d = new Date(dateObj);
-            const day = String(d.getDate()).padStart(2, '0');
-            const month = String(d.getMonth() + 1).padStart(2, '0');
-            const year = d.getFullYear();
-            const hours = String(d.getHours()).padStart(2, '0');
-            const minutes = String(d.getMinutes()).padStart(2, '0');
-            return `${day}.${month}.${year} ${hours}:${minutes}`;
+            try {
+                const d = new Date(dateObj);
+                if (isNaN(d.getTime())) return String(dateObj);
+                const day = String(d.getDate()).padStart(2, '0');
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const year = d.getFullYear();
+                const hours = String(d.getHours()).padStart(2, '0');
+                const minutes = String(d.getMinutes()).padStart(2, '0');
+                return `${day}.${month}.${year} ${hours}:${minutes}`;
+            } catch (e) {
+                return String(dateObj);
+            }
         }
 
-        // ===== МОДАЛЬНОЕ ОКНО ЗАЯВКИ =====
-        async function openTicketModal(ticketId) {
+        // МОДАЛЬНОЕ ОКНО ЗАЯВКИ - используем данные из списка (без лишнего запроса)
+        function openTicketModal(ticketId, ticket) {
             activeTicketId = ticketId;
             const modal = document.getElementById('ticketModal');
-            const modalBody = document.getElementById('modalBody');
 
             modal.classList.add('show');
             document.body.style.overflow = 'hidden';
 
-            modalBody.innerHTML = `
-                <div class="inline-loader">
-                    <i class="fa-solid fa-circle-notch fa-spin"></i><br>Загрузка данных...
-                </div>
-            `;
-
             resetModalButtons();
 
-            try {
-                const response = await fetch(URL_GOOGLE_SERVER + "?action=getTicketDetails&ticketId=" + encodeURIComponent(ticketId));
-                const ticket = await response.json();
+            if (ticket && Object.keys(ticket).length > 0) {
                 activeTicketData = ticket;
-
                 renderTicketModal(ticket);
-            } catch (error) {
-                modalBody.innerHTML = `
+            } else {
+                document.getElementById('modalBody').innerHTML = `
                     <div style="text-align: center; padding: 40px 20px; color: #ff3b30;">
                         <i class="fa-solid fa-triangle-exclamation" style="font-size: 40px; margin-bottom: 15px;"></i>
-                        <p>Ошибка загрузки данных</p>
-                        <button class="btn" onclick="openTicketModal('${ticketId}')" style="background: #f2f2f7; color: #007aff; margin-top: 10px;">
-                            <i class="fa-solid fa-rotate-right"></i> Повторить
-                        </button>
+                        <p>Данные заявки не найдены</p>
                     </div>
                 `;
             }
@@ -1473,8 +1313,12 @@
 
         function renderTicketModal(ticket) {
             const modalBody = document.getElementById('modalBody');
-            const isAccepted = ticket.status === "Принята";
+            if (!ticket || Object.keys(ticket).length === 0) {
+                modalBody.innerHTML = '<div class="inline-loader"><i class="fa-solid fa-triangle-exclamation" style="color:#ff3b30;"></i><br>Данные не найдены</div>';
+                return;
+            }
 
+            const isAccepted = ticket.status === "Принята";
             let statusBadge = '';
             if (ticket.status === "Новая") {
                 statusBadge = '<span class="ticket-badge"><i class="fa-solid fa-circle-exclamation"></i> Новая</span>';
@@ -1483,28 +1327,22 @@
             }
 
             modalBody.innerHTML = `
-                <!-- Статус -->
                 ${statusBadge ? `<div style="margin-bottom: 16px;">${statusBadge}</div>` : ''}
 
-                <!-- Основная информация -->
                 <div class="modal-section">
                     <div class="modal-section-title">Информация о заявке</div>
 
                     <div class="modal-info-row">
-                        <div class="modal-info-icon">
-                            <i class="fa-solid fa-calendar"></i>
-                        </div>
+                        <div class="modal-info-icon"><i class="fa-solid fa-calendar"></i></div>
                         <div class="modal-info-content">
                             <div class="modal-info-label">Дата создания</div>
-                            <div class="modal-info-value">${ticket.createdAt || formatDate(ticket.createdAt)}</div>
+                            <div class="modal-info-value">${ticket.createdAt || ticket.date || formatDate(ticket.id) || '—'}</div>
                         </div>
                     </div>
 
                     ${ticket.dispatcher ? `
                     <div class="modal-info-row">
-                        <div class="modal-info-icon">
-                            <i class="fa-solid fa-headset"></i>
-                        </div>
+                        <div class="modal-info-icon"><i class="fa-solid fa-headset"></i></div>
                         <div class="modal-info-content">
                             <div class="modal-info-label">Диспетчер</div>
                             <div class="modal-info-value">${ticket.dispatcher}</div>
@@ -1514,9 +1352,7 @@
 
                     ${ticket.ticketType ? `
                     <div class="modal-info-row">
-                        <div class="modal-info-icon">
-                            <i class="fa-solid fa-tag"></i>
-                        </div>
+                        <div class="modal-info-icon"><i class="fa-solid fa-tag"></i></div>
                         <div class="modal-info-content">
                             <div class="modal-info-label">Тип заявки</div>
                             <div class="modal-info-value">${ticket.ticketType}</div>
@@ -1526,9 +1362,7 @@
 
                     ${ticket.paymentType ? `
                     <div class="modal-info-row">
-                        <div class="modal-info-icon">
-                            <i class="fa-solid fa-credit-card"></i>
-                        </div>
+                        <div class="modal-info-icon"><i class="fa-solid fa-credit-card"></i></div>
                         <div class="modal-info-content">
                             <div class="modal-info-label">Тип оплаты</div>
                             <div class="modal-info-value">${ticket.paymentType}</div>
@@ -1537,7 +1371,6 @@
                     ` : ''}
                 </div>
 
-                <!-- Адрес и проблема -->
                 <div class="modal-section">
                     <div class="modal-section-title">Адрес и проблема</div>
 
@@ -1547,7 +1380,7 @@
                         </div>
                         <div class="modal-info-content">
                             <div class="modal-info-label">Адрес</div>
-                            <div class="modal-info-value address">${ticket.address || ''}</div>
+                            <div class="modal-info-value address">${ticket.address || '—'}</div>
                         </div>
                     </div>
 
@@ -1571,13 +1404,12 @@
                         </div>
                         <div class="modal-info-content">
                             <div class="modal-info-label">Проблема</div>
-                            <div class="modal-info-value problem">${ticket.problem || ''}</div>
+                            <div class="modal-info-value problem">${ticket.problem || '—'}</div>
                         </div>
                     </div>
                 </div>
 
                 ${ticket.acceptedAt ? `
-                <!-- Время принятия -->
                 <div class="modal-section">
                     <div class="modal-section-title">Время</div>
                     <div class="modal-info-row">
@@ -1593,7 +1425,6 @@
                 ` : ''}
 
                 ${ticket.geoAccuracy ? `
-                <!-- Геолокация -->
                 <div class="modal-section">
                     <div class="modal-section-title">Геолокация</div>
                     <div class="modal-info-row">
@@ -1645,9 +1476,11 @@
             btnAccept.querySelector('i').className = 'fa-solid fa-check';
             btnClose.style.display = 'none';
 
-            listenBtn.classList.remove('playing');
-            document.getElementById('listenLabel').textContent = 'Прослушать заявку';
-            document.getElementById('listenIcon').className = 'fa-solid fa-volume-high';
+            if (listenBtn) {
+                listenBtn.classList.remove('playing');
+                document.getElementById('listenLabel').textContent = 'Прослушать заявку';
+                document.getElementById('listenIcon').className = 'fa-solid fa-volume-high';
+            }
 
             stopCurrentSpeech();
         }
@@ -1661,7 +1494,7 @@
             stopCurrentSpeech();
         }
 
-        // ===== ПРИНЯТЬ ЗАЯВКУ =====
+        // ПРИНЯТЬ ЗАЯВКУ
         async function acceptTicket() {
             if (!activeTicketId) return;
 
@@ -1713,12 +1546,13 @@
 
                     document.getElementById('btnCloseTicket').style.display = 'flex';
 
+                    // Очищаем кэш и перезагружаем
                     localStorage.removeItem("cachedMasterTickets_" + currentUser.name);
                     loadTickets();
 
                     setTimeout(() => {
                         closeTicketModal();
-                    }, 1000);
+                    }, 1500);
                 } else {
                     throw new Error(result.message || "Ошибка сервера");
                 }
@@ -1732,7 +1566,7 @@
             }
         }
 
-        // ===== ПРОСЛУШИВАНИЕ ЗАЯВКИ =====
+        // ПРОСЛУШИВАНИЕ ЗАЯВКИ
         let currentUtterance = null;
         let isListening = false;
 
@@ -1765,43 +1599,21 @@
                 currentUtterance.rate = 0.9;
                 currentUtterance.pitch = 1;
 
-                currentUtterance.onend = function() {
-                    stopCurrentSpeech();
-                };
-
-                currentUtterance.onerror = function() {
-                    stopCurrentSpeech();
-                };
+                currentUtterance.onend = function() { stopCurrentSpeech(); };
+                currentUtterance.onerror = function() { stopCurrentSpeech(); };
 
                 speechSynthesis.speak(currentUtterance);
             }
         }
 
         function buildListenText(ticket) {
-            let text = '';
+            let text = 'Заявка. ';
 
-            text += 'Заявка. ';
-
-            if (ticket.address) {
-                text += 'Адрес: ' + ticket.address + '. ';
-            }
-
-            if (ticket.problem) {
-                text += 'Проблема: ' + ticket.problem + '. ';
-            }
-
-            if (ticket.ticketType) {
-                text += 'Тип заявки: ' + ticket.ticketType + '. ';
-            }
-
-            if (ticket.paymentType) {
-                text += 'Тип оплаты: ' + ticket.paymentType + '. ';
-            }
-
-            if (ticket.dispatcher) {
-                text += 'Диспетчер: ' + ticket.dispatcher + '. ';
-            }
-
+            if (ticket.address) text += 'Адрес: ' + ticket.address + '. ';
+            if (ticket.problem) text += 'Проблема: ' + ticket.problem + '. ';
+            if (ticket.ticketType) text += 'Тип заявки: ' + ticket.ticketType + '. ';
+            if (ticket.paymentType) text += 'Тип оплаты: ' + ticket.paymentType + '. ';
+            if (ticket.dispatcher) text += 'Диспетчер: ' + ticket.dispatcher + '. ';
             if (ticket.status === 'Принята' && ticket.acceptedAt) {
                 text += 'Заявка принята в ' + ticket.acceptedAt + '. ';
             }
@@ -1818,17 +1630,14 @@
             currentUtterance = null;
 
             const listenBtn = document.getElementById('btnListenTicket');
-            const listenLabel = document.getElementById('listenLabel');
-            const listenIcon = document.getElementById('listenIcon');
-
             if (listenBtn) {
                 listenBtn.classList.remove('playing');
-                listenLabel.textContent = 'Прослушать заявку';
-                listenIcon.className = 'fa-solid fa-volume-high';
+                document.getElementById('listenLabel').textContent = 'Прослушать заявку';
+                document.getElementById('listenIcon').className = 'fa-solid fa-volume-high';
             }
         }
 
-        // ===== ФОРМА ОТЧЁТА =====
+        // ФОРМА ОТЧЁТА
         function openReportForm() {
             if (!activeTicketData) return;
 
@@ -1860,7 +1669,6 @@
             switchTab('tasks');
         }
 
-        // ===== РАСЧЁТ СТОИМОСТИ =====
         function toggleFreeMode() {
             const isFree = document.getElementById("isFree").checked;
             document.getElementById("repWork").disabled = isFree;
@@ -1883,11 +1691,10 @@
             const work = parseInt(document.getElementById("repWork").value) || 0;
             const material = parseInt(document.getElementById("repMaterial").value) || 0;
             const delivery = parseInt(document.getElementById("repDelivery").value) || 0;
-            const total = work + material + delivery;
-            document.getElementById("totalSum").innerText = total + " ₽";
+            document.getElementById("totalSum").innerText = (work + material + delivery) + " ₽";
         }
 
-        // ===== ОТПРАВКА ОТЧЁТА =====
+        // ОТПРАВКА ОТЧЁТА
         async function submitReport() {
             const desc = document.getElementById("repDescription").value.trim();
             if (!desc) {
@@ -1905,24 +1712,23 @@
             const delivery = parseInt(document.getElementById("repDelivery").value) || 0;
             const total = isFree ? 0 : (work + material + delivery);
 
-            const reportData = {
-                action: "submitReport",
-                ticketId: activeTicketId,
-                masterName: currentUser.name,
-                description: desc,
-                paymentType: isFree ? "Бесплатно" : "Платно",
-                workCost: work,
-                materialCost: material,
-                deliveryCost: delivery,
-                totalCost: total
-            };
-
             try {
                 const response = await fetch(URL_GOOGLE_SERVER, {
                     method: "POST",
-                    body: JSON.stringify(reportData),
+                    body: JSON.stringify({
+                        action: "submitReport",
+                        ticketId: activeTicketId,
+                        masterName: currentUser.name,
+                        description: desc,
+                        paymentType: isFree ? "Бесплатно" : "Платно",
+                        workCost: work,
+                        materialCost: material,
+                        deliveryCost: delivery,
+                        totalCost: total
+                    }),
                     headers: { "Content-Type": "text/plain;charset=utf-8" }
                 });
+
                 const result = await response.json();
 
                 if (result.status === "success") {
@@ -1945,14 +1751,12 @@
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa-solid fa-exclamation"></i> Ошибка. Повторить';
                 btn.style.background = "#ff3b30";
-                setTimeout(() => {
-                    btn.style.background = "";
-                }, 3000);
-                alert("Ошибка при отправке отчёта: " + error.message);
+                setTimeout(() => { btn.style.background = ""; }, 3000);
+                alert("Ошибка: " + error.message);
             }
         }
 
-        // ===== ВЫХОД =====
+        // ВЫХОД
         async function logout() {
             if (window.OneSignal) {
                 try { await OneSignal.logout(); } catch(e) {}
@@ -1961,22 +1765,17 @@
             window.location.href = "index.html";
         }
 
-        // ===== ПЛАШКА УВЕДОМЛЕНИЙ =====
         function checkPushReminder() {
             const reminder = document.getElementById("pushReminder");
             if (!reminder) return;
-
             window.OneSignalDeferred.push(function(OneSignal) {
                 const isSubscribed = OneSignal.User.PushSubscription.optedIn;
-                if (!isSubscribed) {
-                    reminder.classList.add("show");
-                } else {
-                    reminder.classList.remove("show");
-                }
+                if (!isSubscribed) reminder.classList.add("show");
+                else reminder.classList.remove("show");
             });
         }
 
-        // ===== ГОЛОСОВОЙ ВВОД ДЛЯ ОТЧЁТА =====
+        // ГОЛОСОВОЙ ВВОД ДЛЯ ОТЧЁТА
         let reportRecognition = null;
         let isReportRecording = false;
 
@@ -1998,11 +1797,8 @@
                 let interim = '';
                 for (let i = event.resultIndex; i < event.results.length; i++) {
                     const transcript = event.results[i][0].transcript;
-                    if (event.results[i].isFinal) {
-                        finalTranscript += transcript + ' ';
-                    } else {
-                        interim = transcript;
-                    }
+                    if (event.results[i].isFinal) finalTranscript += transcript + ' ';
+                    else interim = transcript;
                 }
                 document.getElementById('repDescription').value = finalTranscript + interim;
             };
@@ -2016,10 +1812,7 @@
             };
 
             reportRecognition.onend = function() {
-                if (isReportRecording) {
-                    isReportRecording = false;
-                    stopReportSpeech();
-                }
+                if (isReportRecording) { isReportRecording = false; stopReportSpeech(); }
             };
 
             reportRecognition._resetTranscript = function() {
@@ -2028,10 +1821,7 @@
         }
 
         async function toggleReportSpeech() {
-            if (isReportRecording) {
-                stopReportSpeech();
-                return;
-            }
+            if (isReportRecording) { stopReportSpeech(); return; }
 
             if (!reportRecognition) initReportSpeech();
             if (!reportRecognition) return;
@@ -2047,48 +1837,13 @@
 
         function stopReportSpeech() {
             isReportRecording = false;
-            if (reportRecognition) {
-                try { reportRecognition.stop(); } catch(e) {}
-            }
+            if (reportRecognition) { try { reportRecognition.stop(); } catch(e) {} }
             document.getElementById('reportSpeechBtn').classList.remove('recording');
             document.getElementById('reportSpeechIcon').className = 'fa-solid fa-microphone';
             document.getElementById('reportSpeechLabel').textContent = 'Надиктовать описание';
         }
 
-        // ===== РАЗРЕШЕНИЯ =====
-        async function requestMicPermission() {
-            try {
-                await navigator.mediaDevices.getUserMedia({ audio: true });
-                return true;
-            } catch (error) {
-                console.log("Mic permission denied:", error);
-                return false;
-            }
-        }
-
-        async function requestLocationPermission() {
-            return new Promise((resolve) => {
-                if (!navigator.geolocation) {
-                    console.log("Geolocation not supported");
-                    resolve(false);
-                    return;
-                }
-
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        console.log("Location granted:", position.coords);
-                        updatePermissionUI('locationPermission', true);
-                        resolve(true);
-                    },
-                    (error) => {
-                        console.log("Location denied:", error);
-                        updatePermissionUI('locationPermission', false);
-                        resolve(false);
-                    }
-                );
-            });
-        }
-
+        // РАЗРЕШЕНИЯ
         async function requestPermissions() {
             const container = document.getElementById('permissionsContainer');
             container.style.display = 'block';
@@ -2100,28 +1855,23 @@
                         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                         stream.getTracks().forEach(track => track.stop());
                         updatePermissionUI('micPermission', true);
-                    } catch (e) {
-                        updatePermissionUI('micPermission', false);
-                    }
+                    } catch (e) { updatePermissionUI('micPermission', false); }
                 }
             }
 
-            await requestLocationPermission();
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    () => updatePermissionUI('locationPermission', true),
+                    () => updatePermissionUI('locationPermission', false)
+                );
+            }
         }
-
-        function checkPermissionsOnOpen() {}
 
         function updatePermissionUI(elementId, granted) {
             const el = document.getElementById(elementId);
             if (!el) return;
-
-            if (granted) {
-                el.classList.add('granted');
-                el.classList.remove('denied');
-            } else {
-                el.classList.add('denied');
-                el.classList.remove('granted');
-            }
+            if (granted) { el.classList.add('granted'); el.classList.remove('denied'); }
+            else { el.classList.add('denied'); el.classList.remove('granted'); }
         }
     </script>
 </body>
