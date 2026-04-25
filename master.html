@@ -878,6 +878,7 @@
         });
       }
     </script>
+<base target="_blank">
 </head>
 <body>
 
@@ -909,7 +910,7 @@
                 <i class="fa-solid fa-mug-hot" style="font-size: 40px; margin-bottom: 15px; color: #a8e6cf;"></i>
                 <h3 style="margin-top: 0;">Нет активных задач</h3>
                 <p>Все заявки выполнены!</p>
-                <button class="btn" style="background:#f2f2f7; color:#007aff; margin-top:10px;" onclick="loadTickets()"><i class="fa-solid fa-rotate-right"></i> Обновить</button>
+                <button class="btn" style="background:#f2f2f7; color:#007aff; margin-top:10px;" onclick="loadTickets(true)"><i class="fa-solid fa-rotate-right"></i> Обновить</button>
             </div>
             <div id="ticketsContainer"></div>
         </div>
@@ -1006,7 +1007,7 @@
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon"><i class="fa-solid fa-star"></i></div>
-                        <div class="stat-value" id="statRating">5.0</div>
+                        <div class="stat-value" id="statRating">—</div>
                         <div class="stat-label">Рейтинг</div>
                     </div>
                 </div>
@@ -1141,6 +1142,51 @@
         let activeTicketData = null;
         const CLOSED_VISIBLE_HOURS = 24;
 
+// ===== API DEDUPLICATION & THROTTLING =====
+const MIN_REFRESH_MS = 15000;
+const inFlight = new Map();
+const lastLoadTime = { tasks: 0, history: 0, profile: 0 };
+
+async function apiFetch(url, options = {}) {
+    const key = (options.method || 'GET') + ':' + url + ':' + (options.body || '');
+    if (inFlight.has(key)) return inFlight.get(key);
+    const promise = fetch(url, options).then(async res => {
+        if (!res.ok) {
+            const text = await res.text();
+            throw new Error(`SERVER_ERROR:${res.status}:${text.slice(0, 300)}`);
+        }
+        const raw = await res.text();
+        try {
+            const data = JSON.parse(raw);
+            if (data && data.status === 'error') {
+                throw new Error('SERVER_ERROR:' + (data.message || 'Unknown server error'));
+            }
+            return data;
+        } catch (e) {
+            if (e.message.startsWith('SERVER_ERROR')) throw e;
+            throw new Error('SERVER_ERROR:INVALID_JSON:' + raw.slice(0, 300));
+        }
+    }).catch(err => {
+        if (err.message.startsWith('SERVER_ERROR')) throw err;
+        throw new Error('NETWORK_ERROR:' + err.message);
+    }).finally(() => {
+        setTimeout(() => inFlight.delete(key), 800);
+    });
+    inFlight.set(key, promise);
+    return promise;
+}
+
+function canRefresh(tab) {
+    const now = Date.now();
+    if (now - lastLoadTime[tab] < MIN_REFRESH_MS) {
+        console.log('[Throttle] Skipping refresh for', tab);
+        return false;
+    }
+    lastLoadTime[tab] = now;
+    return true;
+}
+
+
         // ===== OFFLINE TOAST ЛОГИКА =====
         (function() {
             const toast = document.getElementById('offlineToast');
@@ -1186,6 +1232,21 @@
 
             initReportSpeech();
             checkPermissionsOnOpen();
+
+            // Preload data with retry
+            let retries = 0;
+            async function preloadWithRetry() {
+                try {
+                    await loadTickets(true);
+                } catch (e) {
+                    retries++;
+                    if (retries < 3) {
+                        console.log('Retry loadTickets #' + retries);
+                        setTimeout(preloadWithRetry, 2000);
+                    }
+                }
+            }
+            preloadWithRetry();
         };
 
         window.addEventListener('popstate', (event) => {
@@ -1206,6 +1267,8 @@
 
         // ===== НАВИГАЦИЯ =====
         function switchTab(tabName) {
+            const current = window.location.hash.replace('#', '') || 'tasks';
+            if (current === tabName) return;
             history.pushState({tab: tabName}, "", "#" + tabName);
             applyTab(tabName);
         }
@@ -1228,8 +1291,10 @@
         }
 
         // ===== ЗАГРУЗКА ДАННЫХ =====
-        async function loadStats() {
-            const cachedStats = localStorage.getItem("cachedMasterStats_" + currentUser.name);
+        async function loadStats(force = false) {
+            if (!force && !canRefresh('profile')) return;
+            const cacheKey = "cachedMasterStats_" + currentUser.name;
+            const cachedStats = localStorage.getItem(cacheKey);
             if (cachedStats) {
                 document.getElementById("loadingProfile").style.display = "none";
                 document.getElementById("profileContent").style.display = "block";
@@ -1238,16 +1303,18 @@
                 document.getElementById("loadingProfile").style.display = "block";
                 document.getElementById("profileContent").style.display = "none";
             }
-
             try {
-                const response = await fetch(URL_GOOGLE_SERVER + "?action=getMasterStats&masterName=" + encodeURIComponent(currentUser.name));
-                const stats = await response.json();
+                const stats = await apiFetch(URL_GOOGLE_SERVER + "?action=getMasterStats&masterName=" + encodeURIComponent(currentUser.name));
                 document.getElementById("loadingProfile").style.display = "none";
                 document.getElementById("profileContent").style.display = "block";
-                localStorage.setItem("cachedMasterStats_" + currentUser.name, JSON.stringify(stats));
+                localStorage.setItem(cacheKey, JSON.stringify(stats));
                 renderMasterStats(stats);
             } catch (error) {
-                if (!cachedStats) document.getElementById("loadingProfile").innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:red;"></i><br>Ошибка сети';
+                console.error('loadStats error:', error);
+                if (!cachedStats) {
+                    const isServerErr = error.message && error.message.startsWith('SERVER_ERROR');
+                    document.getElementById("loadingProfile").innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:' + (isServerErr ? '#ff9500' : 'red') + ';"></i><br>' + (isServerErr ? 'Ошибка сервера. Попробуйте позже.' : 'Ошибка сети. Проверьте интернет.');
+                }
             }
         }
 
@@ -1313,8 +1380,10 @@
             }
         }
 
-        async function loadTickets() {
-            const cachedTickets = localStorage.getItem("cachedMasterTickets_" + currentUser.name);
+        async function loadTickets(force = false) {
+            if (!force && !canRefresh('tasks')) return;
+            const cacheKey = "cachedMasterTickets_" + currentUser.name;
+            const cachedTickets = localStorage.getItem(cacheKey);
             if (cachedTickets) {
                 document.getElementById("loadingTasks").style.display = "none";
                 renderMasterTickets(JSON.parse(cachedTickets));
@@ -1323,24 +1392,25 @@
                 document.getElementById("ticketsContainer").innerHTML = "";
                 document.getElementById("emptyMsg").style.display = "none";
             }
-
             try {
-                const response = await fetch(URL_GOOGLE_SERVER + "?action=getTickets&masterName=" + encodeURIComponent(currentUser.name));
-                const tickets = await response.json();
+                const tickets = await apiFetch(URL_GOOGLE_SERVER + "?action=getTickets&masterName=" + encodeURIComponent(currentUser.name));
                 document.getElementById("loadingTasks").style.display = "none";
-                localStorage.setItem("cachedMasterTickets_" + currentUser.name, JSON.stringify(tickets));
+                localStorage.setItem(cacheKey, JSON.stringify(tickets));
                 renderMasterTickets(tickets);
             } catch (error) {
+                console.error('loadTickets error:', error);
                 if (!cachedTickets) {
-                    document.getElementById("loadingTasks").innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:red;"></i><br>Ошибка сети';
+                    const isServerErr = error.message && error.message.startsWith('SERVER_ERROR');
+                    document.getElementById("loadingTasks").innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:' + (isServerErr ? '#ff9500' : 'red') + ';"></i><br>' + (isServerErr ? 'Ошибка сервера. Попробуйте позже.' : 'Ошибка сети. Проверьте интернет.');
                 }
             }
-
             checkPushReminder();
         }
 
-        async function loadHistory() {
-            const cachedHistory = localStorage.getItem("cachedMasterHistory_" + currentUser.name);
+        async function loadHistory(force = false) {
+            if (!force && !canRefresh('history')) return;
+            const cacheKey = "cachedMasterHistory_" + currentUser.name;
+            const cachedHistory = localStorage.getItem(cacheKey);
             if (cachedHistory) {
                 document.getElementById("loadingHistory").style.display = "none";
                 renderMasterHistory(JSON.parse(cachedHistory));
@@ -1349,16 +1419,16 @@
                 document.getElementById("historyContainer").innerHTML = "";
                 document.getElementById("emptyHistoryMsg").style.display = "none";
             }
-
             try {
-                const response = await fetch(URL_GOOGLE_SERVER + "?action=getMasterHistory&masterName=" + encodeURIComponent(currentUser.name));
-                const tickets = await response.json();
+                const tickets = await apiFetch(URL_GOOGLE_SERVER + "?action=getMasterHistory&masterName=" + encodeURIComponent(currentUser.name));
                 document.getElementById("loadingHistory").style.display = "none";
-                localStorage.setItem("cachedMasterHistory_" + currentUser.name, JSON.stringify(tickets));
+                localStorage.setItem(cacheKey, JSON.stringify(tickets));
                 renderMasterHistory(tickets);
             } catch (error) {
+                console.error('loadHistory error:', error);
                 if (!cachedHistory) {
-                    document.getElementById("loadingHistory").innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:red;"></i><br>Ошибка сети';
+                    const isServerErr = error.message && error.message.startsWith('SERVER_ERROR');
+                    document.getElementById("loadingHistory").innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:' + (isServerErr ? '#ff9500' : 'red') + ';"></i><br>' + (isServerErr ? 'Ошибка сервера. Попробуйте позже.' : 'Ошибка сети. Проверьте интернет.');
                 }
             }
         }
@@ -1414,7 +1484,7 @@
                         <i class="fa-solid ${badgeIcon}"></i>
                         <span>${isAccepted ? 'Принята' : 'Закройте заявку'}</span>
                     </div>
-                    <div class="ticket-date"><i class="fa-regular fa-clock"></i> ${ticket.date || formatDate(ticket.createdAt)}</div>
+                    <div class="ticket-date"><i class="fa-regular fa-clock"></i> ${ticket.date || ticket.createdAt || ""}</div>
                     <div class="ticket-address">${ticket.address || ''}</div>
                     <div class="ticket-problem"><i class="fa-solid fa-wrench" style="color:#8e8e93;"></i> ${ticket.problem || ''}</div>
                     ${ticket.ticketType ? `<span class="ticket-type-badge">${ticket.ticketType}</span>` : ''}
@@ -1426,7 +1496,11 @@
 
         function formatDate(dateObj) {
             if (!dateObj) return '';
+            if (typeof dateObj === 'string' && /^\d{2}\.\d{2}\.\d{4}/.test(dateObj)) {
+                return dateObj;
+            }
             const d = new Date(dateObj);
+            if (isNaN(d.getTime())) return String(dateObj);
             const day = String(d.getDate()).padStart(2, '0');
             const month = String(d.getMonth() + 1).padStart(2, '0');
             const year = d.getFullYear();
@@ -1453,10 +1527,8 @@
             resetModalButtons();
 
             try {
-                const response = await fetch(URL_GOOGLE_SERVER + "?action=getTicketDetails&ticketId=" + encodeURIComponent(ticketId));
-                const ticket = await response.json();
+                const ticket = await apiFetch(URL_GOOGLE_SERVER + "?action=getTicketDetails&ticketId=" + encodeURIComponent(ticketId));
                 activeTicketData = ticket;
-
                 renderTicketModal(ticket);
             } catch (error) {
                 modalBody.innerHTML = `
@@ -1690,7 +1762,7 @@
                     }
                 }
 
-                const response = await fetch(URL_GOOGLE_SERVER, {
+                const result = await apiFetch(URL_GOOGLE_SERVER, {
                     method: "POST",
                     body: JSON.stringify({
                         action: "acceptTicket",
@@ -1701,8 +1773,6 @@
                     }),
                     headers: { "Content-Type": "text/plain;charset=utf-8" }
                 });
-
-                const result = await response.json();
 
                 if (result.status === "success") {
                     btnAccept.classList.remove('btn-loading');
@@ -1918,12 +1988,11 @@
             };
 
             try {
-                const response = await fetch(URL_GOOGLE_SERVER, {
+                const result = await apiFetch(URL_GOOGLE_SERVER, {
                     method: "POST",
                     body: JSON.stringify(reportData),
                     headers: { "Content-Type": "text/plain;charset=utf-8" }
                 });
-                const result = await response.json();
 
                 if (result.status === "success") {
                     btn.innerHTML = '<i class="fa-solid fa-check"></i> ✓ Принято!';
