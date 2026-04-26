@@ -1645,41 +1645,15 @@
                             <textarea class="form-control" id="repDescription" rows="3" placeholder="Опишите что вы сделали..."></textarea>
                         </div>
 
-                        <label class="free-toggle" onclick="toggleFreeMode()">
-                            <input type="checkbox" id="isFree" onchange="toggleFreeMode()">
-                            <span>Выполнить бесплатно</span>
-                        </label>
-
-                        <div class="cost-field">
-                            <div class="cost-input">
-                                <label>Работа (руб.):</label>
-                                <input type="number" id="repWork" value="0" min="0" onchange="updateTotal()" oninput="updateTotal()" disabled>
-                            </div>
-                            <div class="cost-input">
-                                <label>Материалы (руб.):</label>
-                                <input type="number" id="repMaterial" value="0" min="0" onchange="updateTotal()" oninput="updateTotal()" disabled>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Доставка (руб.):</label>
-                            <input type="number" id="repDelivery" value="0" min="0" class="form-control" onchange="updateTotal()" oninput="updateTotal()" disabled>
-                        </div>
-
-                        <div class="total-price">
-                            <span>Сумма к оплате:</span>
-                            <div id="totalSum">0 ₽</div>
-                        </div>
-
                         <div class="modal-section" style="margin-bottom:20px;">
                             <div class="modal-section-title">Фото и видео отчёт</div>
                             <div class="photo-row">
                                 <button class="btn-folder" onclick="openDriveFolder('before')"><i class="fa-solid fa-camera"></i> Папка ДО</button>
-                                <label class="check-photo"><input type="checkbox" id="photoBeforeOk"><span>Загружено</span></label>
+                                <label class="check-photo"><input type="checkbox" id="photoBeforeOk"><span>Я загрузил</span></label>
                             </div>
                             <div class="photo-row">
                                 <button class="btn-folder" onclick="openDriveFolder('after')"><i class="fa-solid fa-camera"></i> Папка ПОСЛЕ</button>
-                                <label class="check-photo"><input type="checkbox" id="photoAfterOk"><span>Загружено</span></label>
+                                <label class="check-photo"><input type="checkbox" id="photoAfterOk"><span>Я загрузил</span></label>
                             </div>
                         </div>
 
@@ -1943,33 +1917,6 @@
             }
         }
 
-        // ===== РАСЧЁТ СТОИМОСТИ =====
-        function toggleFreeMode() {
-            const isFree = document.getElementById("isFree").checked;
-            document.getElementById("repWork").disabled = isFree;
-            document.getElementById("repMaterial").disabled = isFree;
-            document.getElementById("repDelivery").disabled = isFree;
-            if (isFree) {
-                document.getElementById("repWork").value = "0";
-                document.getElementById("repMaterial").value = "0";
-                document.getElementById("repDelivery").value = "0";
-            }
-            updateTotal();
-        }
-
-        function updateTotal() {
-            const isFree = document.getElementById("isFree").checked;
-            if (isFree) {
-                document.getElementById("totalSum").innerText = "Бесплатно";
-                return;
-            }
-            const work = parseInt(document.getElementById("repWork").value) || 0;
-            const material = parseInt(document.getElementById("repMaterial").value) || 0;
-            const delivery = parseInt(document.getElementById("repDelivery").value) || 0;
-            const total = work + material + delivery;
-            document.getElementById("totalSum").innerText = total + " ₽";
-        }
-
         // ===== ОТПРАВКА ОТЧЁТА =====
         async function submitReport() {
             const desc = document.getElementById("repDescription").value.trim();
@@ -1978,7 +1925,6 @@
                 return;
             }
 
-            const isFree = document.getElementById("isFree").checked;
             const photoBeforeOk = document.getElementById("photoBeforeOk").checked;
             const photoAfterOk = document.getElementById("photoAfterOk").checked;
 
@@ -1986,21 +1932,11 @@
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Отправляем...';
 
-            const work = parseInt(document.getElementById("repWork").value) || 0;
-            const material = parseInt(document.getElementById("repMaterial").value) || 0;
-            const delivery = parseInt(document.getElementById("repDelivery").value) || 0;
-            const total = isFree ? 0 : (work + material + delivery);
-
             const reportData = {
                 action: "submitReport",
                 ticketId: activeTicketId,
                 masterName: currentUser.name,
                 description: desc,
-                paymentType: isFree ? "Бесплатно" : "Платно",
-                workCost: work,
-                materialCost: material,
-                deliveryCost: delivery,
-                totalCost: total,
                 photoBeforeOk: photoBeforeOk,
                 photoAfterOk: photoAfterOk
             };
