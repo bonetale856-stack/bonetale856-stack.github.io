@@ -77,10 +77,13 @@
         .top-bar-mini-fill { height: 100%; background: linear-gradient(90deg,#007aff,#00c2ff); border-radius: 2px;}
 
         /* ===== КАРТОЧКА ЗАЯВКИ ===== */
-        .ticket-card-hot   { background: white; border-radius: 14px; padding: 14px; margin-bottom: 10px; border-left: 4px solid #ff3b30; box-shadow: 0 2px 10px rgba(0,0,0,0.04);}
-        .ticket-card-done  { background: white; border-radius: 14px; padding: 14px; margin-bottom: 10px; border-left: 4px solid #34c759; box-shadow: 0 2px 10px rgba(0,0,0,0.04);}
+        .ticket-card-hot   { background: white; border-radius: 14px; padding: 14px; margin-bottom: 10px; border-left: 4px solid #ff3b30; box-shadow: 0 2px 10px rgba(0,0,0,0.04); cursor: pointer; transition: transform 0.15s;}
+        .ticket-card-hot:active { transform: scale(0.98); }
+        .ticket-card-done  { background: white; border-radius: 14px; padding: 14px; margin-bottom: 10px; border-left: 4px solid #34c759; box-shadow: 0 2px 10px rgba(0,0,0,0.04); cursor: pointer; transition: transform 0.15s;}
+        .ticket-card-done:active { transform: scale(0.98); }
         .ticket-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;}
         .ticket-tag-hot  { font-size: 11px; color: #ff3b30; background:#fff0f0; padding:3px 8px; border-radius:8px; font-weight:700;}
+        .ticket-tag-accepted { font-size: 11px; color: #007aff; background:#e5f1ff; padding:3px 8px; border-radius:8px; font-weight:700;}
         .ticket-tag-done { font-size: 11px; color: #34c759; background:#e8f5e9; padding:3px 8px; border-radius:8px; font-weight:700;}
         .ticket-time { font-size: 11px; color: #8e8e93;}
         .ticket-addr { font-weight: 700; font-size: 15px; margin-bottom: 3px; color:#1c1c1e;}
@@ -89,6 +92,80 @@
         .ticket-meta-row { color: #8e8e93; }
         .ticket-meta-row b { color: #1c1c1e; font-weight: 600;}
         .ticket-amount { font-size: 13px; color: #34c759; font-weight: 700; margin-top: 6px;}
+
+        /* ===== МОДАЛКА ДЕТАЛЕЙ ЗАЯВКИ ===== */
+        .modal-overlay {
+            position: fixed; top:0; left:0; right:0; bottom:0;
+            background: rgba(0,0,0,0.5); z-index: 1000;
+            display: none; justify-content: center; align-items: flex-end;
+            animation: fadeIn 0.2s ease;
+        }
+        .modal-overlay.show { display: flex; }
+        @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
+
+        .modal-content {
+            background: white; border-radius: 24px 24px 0 0;
+            width: 100%; max-height: 92vh; overflow-y: auto;
+            animation: slideUp 0.3s ease;
+            display: flex; flex-direction: column;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        .modal-header {
+            padding: 20px 20px 16px; border-bottom: 1px solid #eee;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; background: white; z-index: 10;
+        }
+        .modal-title { font-size: 18px; font-weight: 700; color: #1c1c1e; margin: 0; }
+        .modal-close {
+            width: 36px; height: 36px; border-radius: 50%; background: #f2f2f7;
+            border: none; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.2s; color: #8e8e93;
+        }
+        .modal-close:hover { background: #e5e5ea; color: #1c1c1e; }
+        .modal-body { padding: 20px; flex: 1; }
+        .modal-section { margin-bottom: 20px; }
+        .modal-section-title {
+            font-size: 12px; font-weight: 700; color: #8e8e93;
+            text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;
+        }
+        .modal-info-row {
+            display: flex; align-items: flex-start; gap: 12px;
+            padding: 12px 0; border-bottom: 1px solid #f2f2f7;
+        }
+        .modal-info-row:last-child { border-bottom: none; }
+        .modal-info-icon {
+            width: 40px; height: 40px; border-radius: 12px; background: #f2f2f7;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; color: #007aff; font-size: 16px;
+        }
+        .modal-info-content { flex: 1; }
+        .modal-info-label { font-size: 12px; color: #8e8e93; margin-bottom: 2px; }
+        .modal-info-value { font-size: 15px; color: #1c1c1e; font-weight: 500; }
+        .modal-info-value.address { font-size: 16px; font-weight: 700; }
+        .modal-info-value.problem { font-size: 15px; line-height: 1.4; }
+
+        .status-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 6px 12px; border-radius: 20px; font-size: 12px;
+            font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px;
+            margin-bottom: 16px;
+        }
+        .status-badge.new { background: #fff0f0; color: #ff3b30; }
+        .status-badge.accepted { background: #e5f1ff; color: #007aff; }
+        .status-badge.done { background: #e8f5e9; color: #34c759; }
+        .status-badge.forced { background: #fff3e0; color: #ff9500; }
+
+        .geo-map-btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: #e5f1ff; color: #007aff; padding: 8px 14px;
+            border-radius: 10px; font-size: 13px; font-weight: 600;
+            text-decoration: none; margin-top: 6px;
+        }
+
+        .rating-stars { color: #ff9500; font-size: 18px; letter-spacing: 2px; }
 
         /* ===== ПЛАН НА ДЕНЬ ===== */
         .plan-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;}
@@ -157,9 +234,14 @@
         }
         .filter-pill.active { background: #007aff; color: white; border-color: #007aff;}
 
-        @keyframes fadeIn { from {opacity:0; transform: translateY(6px);} to {opacity:1; transform: translateY(0);} }
-        .fadein { animation: fadeIn 0.3s both; }
+        @keyframes fadeInAnim { from {opacity:0; transform: translateY(6px);} to {opacity:1; transform: translateY(0);} }
+        .fadein { animation: fadeInAnim 0.3s both; }
+
+        /* ===== INLINE LOADER ===== */
+        .inline-loader { text-align: center; color: #8e8e93; padding: 40px 20px; }
+        .inline-loader i { font-size: 30px; margin-bottom: 10px; }
     </style>
+<base target="_blank">
 <base target="_blank">
 </head>
 <body>
@@ -254,6 +336,23 @@
         </div>
     </div>
 
+    <!-- ===== МОДАЛКА ДЕТАЛЕЙ ЗАЯВКИ ===== -->
+    <div class="modal-overlay" id="ticketModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Заявка <span id="modalTicketId"></span></h3>
+                <button class="modal-close" onclick="closeTicketModal()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <div class="inline-loader">
+                    <i class="fa-solid fa-circle-notch fa-spin"></i><br>Загрузка...
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- НИЖНЕЕ МЕНЮ -->
     <div class="bottom-nav">
         <div class="nav-item active" onclick="switchTab('active')" id="nav-active"><i class="fa-solid fa-fire"></i><span>В работе</span></div>
@@ -263,58 +362,77 @@
     </div>
 
     <script>
-        const URL_GOOGLE_SERVER = "https://script.google.com/macros/s/AKfycbxfMMoR5LATkWt4HeT8XCxjOipYSay-c_9YVZExPPZ9edVLciR4YbHrqjadC_nSdFGfjg/exec";
-        
+        const URL_GOOGLE_SERVER = "***";
 
-// ===== API DEDUPLICATION & THROTTLING =====
-const MIN_REFRESH_MS = 15000;
-const inFlight = new Map();
-const lastLoadTime = { active: 0, closed: 0, profile: 0 };
+        // ===== API DEDUPLICATION & THROTTLING =====
+        const MIN_REFRESH_MS = 15000;
+        const inFlight = new Map();
+        const lastLoadTime = { active: 0, closed: 0, profile: 0 };
 
-async function apiFetch(url, options = {}) {
-    const key = (options.method || 'GET') + ':' + url + ':' + (options.body || '');
-    if (inFlight.has(key)) return inFlight.get(key);
-    const promise = fetch(url, options).then(async res => {
-        if (!res.ok) {
-            const text = await res.text();
-            throw new Error(`SERVER_ERROR:${res.status}:${text.slice(0, 300)}`);
+        async function apiFetch(url, options = {}) {
+            const key = (options.method || 'GET') + ':' + url + ':' + (options.body || '');
+            if (inFlight.has(key)) return inFlight.get(key);
+            const promise = fetch(url, options).then(async res => {
+                if (!res.ok) {
+                    const text = await res.text();
+                    throw new Error(`SERVER_ERROR:${res.status}:${text.slice(0, 300)}`);
+                }
+                const raw = await res.text();
+                try {
+                    const data = JSON.parse(raw);
+                    if (data && data.status === 'error') {
+                        throw new Error('SERVER_ERROR:' + (data.message || 'Unknown server error'));
+                    }
+                    return data;
+                } catch (e) {
+                    if (e.message.startsWith('SERVER_ERROR')) throw e;
+                    throw new Error('SERVER_ERROR:INVALID_JSON:' + raw.slice(0, 300));
+                }
+            }).catch(err => {
+                if (err.message.startsWith('SERVER_ERROR')) throw err;
+                throw new Error('NETWORK_ERROR:' + err.message);
+            }).finally(() => {
+                setTimeout(() => inFlight.delete(key), 800);
+            });
+            inFlight.set(key, promise);
+            return promise;
         }
-        const raw = await res.text();
-        try {
-            const data = JSON.parse(raw);
-            if (data && data.status === 'error') {
-                throw new Error('SERVER_ERROR:' + (data.message || 'Unknown server error'));
+
+        function canRefresh(tab) {
+            const now = Date.now();
+            if (now - lastLoadTime[tab] < MIN_REFRESH_MS) {
+                console.log('[Throttle] Skipping refresh for', tab);
+                return false;
             }
-            return data;
-        } catch (e) {
-            if (e.message.startsWith('SERVER_ERROR')) throw e;
-            throw new Error('SERVER_ERROR:INVALID_JSON:' + raw.slice(0, 300));
+            lastLoadTime[tab] = now;
+            return true;
         }
-    }).catch(err => {
-        if (err.message.startsWith('SERVER_ERROR')) throw err;
-        throw new Error('NETWORK_ERROR:' + err.message);
-    }).finally(() => {
-        setTimeout(() => inFlight.delete(key), 800);
-    });
-    inFlight.set(key, promise);
-    return promise;
-}
 
-function canRefresh(tab) {
-    const now = Date.now();
-    if (now - lastLoadTime[tab] < MIN_REFRESH_MS) {
-        console.log('[Throttle] Skipping refresh for', tab);
-        return false;
-    }
-    lastLoadTime[tab] = now;
-    return true;
-}
-const $ = id => document.getElementById(id);
+        // ===== TICKET DETAIL CACHE =====
+        const TICKET_CACHE_TTL = 5 * 60 * 1000;
+        function getCachedTicket(ticketId) {
+            try {
+                const key = 'boss_ticket_' + ticketId;
+                const item = localStorage.getItem(key);
+                if (!item) return null;
+                const parsed = JSON.parse(item);
+                if (Date.now() - parsed.timestamp > TICKET_CACHE_TTL) {
+                    localStorage.removeItem(key);
+                    return null;
+                }
+                return parsed.data;
+            } catch (e) { return null; }
+        }
+        function setCachedTicket(ticketId, data) {
+            localStorage.setItem('boss_ticket_' + ticketId, JSON.stringify({ data, timestamp: Date.now() }));
+        }
+
+        const $ = id => document.getElementById(id);
 
         let currentUser = null;
         let notes = [];
         let bossData = null;
-        let activeFilter = 'all';   // all | dispatcher name | master name
+        let activeFilter = 'all';
         let closedFilter = 'all';
 
         window.onload = async function () {
@@ -334,7 +452,6 @@ const $ = id => document.getElementById(id);
             renderNotes();
 
             loadBossData(true);
-            // Retry on failure
             let retries = 0;
             async function preloadWithRetry() {
                 try { await loadBossData(true); }
@@ -344,11 +461,16 @@ const $ = id => document.getElementById(id);
                 }
             }
             preloadWithRetry();
-            // Обновляем подсветку просроченных задач каждую минуту
             setInterval(renderNotes, 60000);
         };
 
-        window.addEventListener('popstate', (e) => applyTab(e.state && e.state.tab ? e.state.tab : 'active'));
+        window.addEventListener('popstate', (e) => {
+            if (document.getElementById("ticketModal").classList.contains("show")) {
+                closeTicketModal();
+                return;
+            }
+            applyTab(e.state && e.state.tab ? e.state.tab : 'active');
+        });
 
         function switchTab(tabName) {
             const current = window.location.hash.replace('#', '') || 'active';
@@ -455,11 +577,15 @@ const $ = id => document.getElementById(id);
                 return;
             }
             filtered.forEach(t => {
+                const isAccepted = t.status === 'Принята';
+                const tagClass = isAccepted ? 'ticket-tag-accepted' : 'ticket-tag-hot';
+                const tagText = isAccepted ? '<i class="fa-solid fa-check"></i> Принята' : '<i class="fa-regular fa-clock"></i> В ожидании';
                 const div = document.createElement('div');
                 div.className = 'ticket-card-hot fadein';
+                div.onclick = () => openTicketModal(t.id);
                 div.innerHTML = `
                     <div class="ticket-head">
-                        <span class="ticket-tag-hot"><i class="fa-regular fa-clock"></i> В ожидании</span>
+                        <span class="${tagClass}">${tagText}</span>
                         <span class="ticket-time">${formatDate(t.createdAt)}</span>
                     </div>
                     <div class="ticket-addr"><i class="fa-solid fa-location-dot" style="color:#ff3b30;font-size:12px;"></i> ${t.address}</div>
@@ -485,11 +611,15 @@ const $ = id => document.getElementById(id);
             }
             filtered.forEach(t => {
                 const amount = t.totalCost ? `<div class="ticket-amount"><i class="fa-solid fa-ruble-sign"></i> ${Number(t.totalCost).toLocaleString('ru-RU')} ₽ ${t.paymentType === 'Бесплатно' ? '(бесплатно)' : ''}</div>` : '';
+                const isForced = t.forced === 'Принудительно';
+                const tagClass = isForced ? 'ticket-tag-hot' : 'ticket-tag-done';
+                const tagText = isForced ? '<i class="fa-solid fa-triangle-exclamation"></i> Принудительно' : '<i class="fa-solid fa-check"></i> Выполнено';
                 const div = document.createElement('div');
                 div.className = 'ticket-card-done fadein';
+                div.onclick = () => openTicketModal(t.id);
                 div.innerHTML = `
                     <div class="ticket-head">
-                        <span class="ticket-tag-done"><i class="fa-solid fa-check"></i> Выполнено</span>
+                        <span class="${tagClass}">${tagText}</span>
                         <span class="ticket-time">${formatDate(t.closedAt || t.createdAt)}</span>
                     </div>
                     <div class="ticket-addr"><i class="fa-solid fa-location-dot" style="color:#34c759;font-size:12px;"></i> ${t.address}</div>
@@ -504,7 +634,7 @@ const $ = id => document.getElementById(id);
             });
         }
 
-        // ===== ФИЛЬТРЫ ПО ДИСПЕТЧЕРАМ / МАСТЕРАМ =====
+        // ===== ФИЛЬТРЫ =====
         function renderFilters(containerId, tickets, current, onChange) {
             const container = $(containerId);
             const disps   = [...new Set(tickets.map(t => t.dispatcher).filter(Boolean))];
@@ -529,6 +659,294 @@ const $ = id => document.getElementById(id);
                 if (isNaN(d.getTime())) return v;
                 return d.toLocaleString('ru-RU', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
             } catch(e) { return v; }
+        }
+
+        // ===== МОДАЛКА ДЕТАЛЕЙ ЗАЯВКИ =====
+        async function openTicketModal(ticketId) {
+            const modal = $('ticketModal');
+            const modalBody = $('modalBody');
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+            $('modalTicketId').innerText = '#' + ticketId;
+
+            const cached = getCachedTicket(ticketId);
+            if (cached) {
+                renderTicketDetails(cached);
+            } else {
+                modalBody.innerHTML = `<div class="inline-loader"><i class="fa-solid fa-circle-notch fa-spin"></i><br>Загрузка...</div>`;
+            }
+
+            try {
+                const details = await apiFetch(URL_GOOGLE_SERVER + "?action=getTicketDetails&ticketId=" + encodeURIComponent(ticketId));
+                setCachedTicket(ticketId, details);
+                renderTicketDetails(details);
+            } catch (e) {
+                console.error('Ticket details error:', e);
+                if (!cached) {
+                    modalBody.innerHTML = `
+                        <div style="text-align:center;padding:40px 20px;color:#ff3b30;">
+                            <i class="fa-solid fa-triangle-exclamation" style="font-size:40px;margin-bottom:15px;"></i>
+                            <p>Не удалось загрузить детали</p>
+                            <button class="btn" onclick="openTicketModal('${ticketId}')" style="background:#f2f2f7;color:#007aff;margin-top:10px;border:none;padding:10px 16px;border-radius:10px;font-weight:600;cursor:pointer;">
+                                <i class="fa-solid fa-rotate-right"></i> Повторить
+                            </button>
+                        </div>`;
+                }
+            }
+        }
+
+        function renderTicketDetails(t) {
+            const modalBody = $('modalBody');
+            const status = t.status || 'Новая';
+            let statusBadge = '';
+            if (status === 'Новая') statusBadge = '<span class="status-badge new"><i class="fa-solid fa-circle-exclamation"></i> Новая</span>';
+            else if (status === 'Принята') statusBadge = '<span class="status-badge accepted"><i class="fa-solid fa-check"></i> Принята</span>';
+            else if (status === 'Выполнено') statusBadge = '<span class="status-badge done"><i class="fa-solid fa-check-double"></i> Выполнено</span>';
+
+            const isForced = t.forced === 'Принудительно';
+            const forcedBadge = isForced ? '<span class="status-badge forced"><i class="fa-solid fa-triangle-exclamation"></i> Принудительное закрытие</span>' : '';
+
+            let html = `${statusBadge}${forcedBadge}`;
+
+            html += `
+            <div class="modal-section">
+                <div class="modal-section-title">Основная информация</div>
+                <div class="modal-info-row">
+                    <div class="modal-info-icon"><i class="fa-solid fa-hashtag"></i></div>
+                    <div class="modal-info-content">
+                        <div class="modal-info-label">ID заявки</div>
+                        <div class="modal-info-value">${t.id}</div>
+                    </div>
+                </div>
+                <div class="modal-info-row">
+                    <div class="modal-info-icon"><i class="fa-solid fa-calendar"></i></div>
+                    <div class="modal-info-content">
+                        <div class="modal-info-label">Создана</div>
+                        <div class="modal-info-value">${formatDate(t.createdAt)}</div>
+                    </div>
+                </div>
+                ${t.dispatcher ? `
+                <div class="modal-info-row">
+                    <div class="modal-info-icon" style="background:#f3e5f5;color:#af52de;"><i class="fa-solid fa-headset"></i></div>
+                    <div class="modal-info-content">
+                        <div class="modal-info-label">Диспетчер</div>
+                        <div class="modal-info-value">${t.dispatcher}</div>
+                    </div>
+                </div>` : ''}
+                ${t.master ? `
+                <div class="modal-info-row">
+                    <div class="modal-info-icon" style="background:#e5f1ff;color:#007aff;"><i class="fa-solid fa-helmet-safety"></i></div>
+                    <div class="modal-info-content">
+                        <div class="modal-info-label">Мастер</div>
+                        <div class="modal-info-value">${t.master}</div>
+                    </div>
+                </div>` : ''}
+                ${t.ticketType ? `
+                <div class="modal-info-row">
+                    <div class="modal-info-icon"><i class="fa-solid fa-tag"></i></div>
+                    <div class="modal-info-content">
+                        <div class="modal-info-label">Тип заявки</div>
+                        <div class="modal-info-value">${t.ticketType}</div>
+                    </div>
+                </div>` : ''}
+                ${t.paymentType ? `
+                <div class="modal-info-row">
+                    <div class="modal-info-icon"><i class="fa-solid fa-credit-card"></i></div>
+                    <div class="modal-info-content">
+                        <div class="modal-info-label">Тип оплаты</div>
+                        <div class="modal-info-value">${t.paymentType}</div>
+                    </div>
+                </div>` : ''}
+            </div>`;
+
+            html += `
+            <div class="modal-section">
+                <div class="modal-section-title">Адрес и проблема</div>
+                <div class="modal-info-row">
+                    <div class="modal-info-icon" style="background:#fff3e0;color:#ff9500;"><i class="fa-solid fa-location-dot"></i></div>
+                    <div class="modal-info-content">
+                        <div class="modal-info-label">Адрес</div>
+                        <div class="modal-info-value address">${t.address || '—'}</div>
+                    </div>
+                </div>
+                ${t.mapsLink ? `
+                <div class="modal-info-row">
+                    <div class="modal-info-icon" style="background:#e5f1ff;color:#007aff;"><i class="fa-solid fa-map"></i></div>
+                    <div class="modal-info-content">
+                        <div class="modal-info-label">Карта</div>
+                        <div class="modal-info-value"><a href="${t.mapsLink}" target="_blank" class="geo-map-btn"><i class="fa-solid fa-location-arrow"></i> Открыть на карте</a></div>
+                    </div>
+                </div>` : ''}
+                <div class="modal-info-row">
+                    <div class="modal-info-icon" style="background:#fde2e2;color:#ff3b30;"><i class="fa-solid fa-wrench"></i></div>
+                    <div class="modal-info-content">
+                        <div class="modal-info-label">Проблема</div>
+                        <div class="modal-info-value problem">${t.problem || '—'}</div>
+                    </div>
+                </div>
+            </div>`;
+
+            if (t.acceptedAt || t.geoAccuracy || t.mapsLink) {
+                html += `
+                <div class="modal-section">
+                    <div class="modal-section-title">Принятие заявки</div>
+                    ${t.acceptedAt ? `
+                    <div class="modal-info-row">
+                        <div class="modal-info-icon" style="background:#d1f4e0;color:#34c759;"><i class="fa-solid fa-clock"></i></div>
+                        <div class="modal-info-content">
+                            <div class="modal-info-label">Принята в</div>
+                            <div class="modal-info-value">${t.acceptedAt}</div>
+                        </div>
+                    </div>` : ''}
+                    ${t.geoAccuracy ? `
+                    <div class="modal-info-row">
+                        <div class="modal-info-icon" style="background:#e5f1ff;color:#007aff;"><i class="fa-solid fa-crosshairs"></i></div>
+                        <div class="modal-info-content">
+                            <div class="modal-info-label">Точность геолокации</div>
+                            <div class="modal-info-value">${t.geoAccuracy}</div>
+                        </div>
+                    </div>` : ''}
+                    ${t.mapsLink && !t.acceptedAt ? `
+                    <div class="modal-info-row">
+                        <div class="modal-info-icon" style="background:#e5f1ff;color:#007aff;"><i class="fa-solid fa-map"></i></div>
+                        <div class="modal-info-content">
+                            <div class="modal-info-label">Геолокация</div>
+                            <div class="modal-info-value"><a href="${t.mapsLink}" target="_blank" class="geo-map-btn"><i class="fa-solid fa-location-arrow"></i> Открыть на карте</a></div>
+                        </div>
+                    </div>` : ''}
+                </div>`;
+            }
+
+            if (status === 'Выполнено' || t.closedAt || t.description) {
+                html += `
+                <div class="modal-section">
+                    <div class="modal-section-title">Отчёт мастера</div>
+                    ${t.closedAt ? `
+                    <div class="modal-info-row">
+                        <div class="modal-info-icon" style="background:#d1f4e0;color:#34c759;"><i class="fa-solid fa-flag-checkered"></i></div>
+                        <div class="modal-info-content">
+                            <div class="modal-info-label">Закрыта</div>
+                            <div class="modal-info-value">${formatDate(t.closedAt)}</div>
+                        </div>
+                    </div>` : ''}
+                    ${t.closedBy ? `
+                    <div class="modal-info-row">
+                        <div class="modal-info-icon"><i class="fa-solid fa-user"></i></div>
+                        <div class="modal-info-content">
+                            <div class="modal-info-label">Закрыл</div>
+                            <div class="modal-info-value">${t.closedBy}</div>
+                        </div>
+                    </div>` : ''}
+                    ${t.description ? `
+                    <div class="modal-info-row">
+                        <div class="modal-info-icon" style="background:#fff3e0;color:#ff9500;"><i class="fa-solid fa-pen"></i></div>
+                        <div class="modal-info-content">
+                            <div class="modal-info-label">Описание работ</div>
+                            <div class="modal-info-value problem">${t.description}</div>
+                        </div>
+                    </div>` : ''}
+                    ${t.totalCost !== undefined && t.totalCost !== null ? `
+                    <div class="modal-info-row">
+                        <div class="modal-info-icon" style="background:#e8f5e9;color:#34c759;"><i class="fa-solid fa-ruble-sign"></i></div>
+                        <div class="modal-info-content">
+                            <div class="modal-info-label">Сумма</div>
+                            <div class="modal-info-value" style="font-size:18px;font-weight:800;color:#34c759;">${Number(t.totalCost).toLocaleString('ru-RU')} ₽ ${t.paymentType === 'Бесплатно' ? '(бесплатно)' : ''}</div>
+                        </div>
+                    </div>` : ''}
+                    ${t.workCost ? `
+                    <div class="modal-info-row">
+                        <div class="modal-info-content" style="margin-left:52px;">
+                            <div class="modal-info-label">Работа / Материалы / Доставка</div>
+                            <div class="modal-info-value">${Number(t.workCost||0).toLocaleString('ru-RU')} / ${Number(t.materialCost||0).toLocaleString('ru-RU')} / ${Number(t.deliveryCost||0).toLocaleString('ru-RU')} ₽</div>
+                        </div>
+                    </div>` : ''}
+                    ${isForced && t.forcedReason ? `
+                    <div class="modal-info-row">
+                        <div class="modal-info-icon" style="background:#fff3e0;color:#ff9500;"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                        <div class="modal-info-content">
+                            <div class="modal-info-label">Причина принудительного закрытия</div>
+                            <div class="modal-info-value problem">${t.forcedReason}</div>
+                        </div>
+                    </div>` : ''}
+                </div>`;
+            }
+
+            if (t.rating) {
+                const stars = '★'.repeat(Math.round(Number(t.rating)||0)) + '☆'.repeat(5 - Math.round(Number(t.rating)||0));
+                html += `
+                <div class="modal-section">
+                    <div class="modal-section-title">Оценка клиента</div>
+                    <div class="modal-info-row">
+                        <div class="modal-info-icon" style="background:#fff3e0;color:#ff9500;"><i class="fa-solid fa-star"></i></div>
+                        <div class="modal-info-content">
+                            <div class="modal-info-label">Рейтинг</div>
+                            <div class="modal-info-value"><span class="rating-stars">${stars}</span> <b>${t.rating}</b>/5</div>
+                        </div>
+                    </div>
+                    ${t.ratingComment ? `
+                    <div class="modal-info-row">
+                        <div class="modal-info-icon"><i class="fa-solid fa-comment"></i></div>
+                        <div class="modal-info-content">
+                            <div class="modal-info-label">Комментарий</div>
+                            <div class="modal-info-value problem">${t.ratingComment}</div>
+                        </div>
+                    </div>` : ''}
+                    ${t.ratedBy ? `
+                    <div class="modal-info-row">
+                        <div class="modal-info-icon"><i class="fa-solid fa-user-check"></i></div>
+                        <div class="modal-info-content">
+                            <div class="modal-info-label">Оценил</div>
+                            <div class="modal-info-value">${t.ratedBy}</div>
+                        </div>
+                    </div>` : ''}
+                </div>`;
+            }
+
+            if (t.photoBeforeOk || t.photoAfterOk || t.beforeUrl || t.afterUrl) {
+                html += `
+                <div class="modal-section">
+                    <div class="modal-section-title">Фотоотчёт</div>
+                    ${t.photoBeforeOk ? `
+                    <div class="modal-info-row">
+                        <div class="modal-info-icon" style="background:#e8f5e9;color:#34c759;"><i class="fa-solid fa-camera"></i></div>
+                        <div class="modal-info-content">
+                            <div class="modal-info-label">Фото ДО</div>
+                            <div class="modal-info-value">${t.photoBeforeOk === 'Да' || t.photoBeforeOk === true ? '✅ Загружено' : '❌ Не загружено'}</div>
+                        </div>
+                    </div>` : ''}
+                    ${t.photoAfterOk ? `
+                    <div class="modal-info-row">
+                        <div class="modal-info-icon" style="background:#e8f5e9;color:#34c759;"><i class="fa-solid fa-camera"></i></div>
+                        <div class="modal-info-content">
+                            <div class="modal-info-label">Фото ПОСЛЕ</div>
+                            <div class="modal-info-value">${t.photoAfterOk === 'Да' || t.photoAfterOk === true ? '✅ Загружено' : '❌ Не загружено'}</div>
+                        </div>
+                    </div>` : ''}
+                    ${t.beforeUrl ? `
+                    <div class="modal-info-row">
+                        <div class="modal-info-icon" style="background:#e5f1ff;color:#007aff;"><i class="fa-brands fa-google-drive"></i></div>
+                        <div class="modal-info-content">
+                            <div class="modal-info-label">Папка ДО</div>
+                            <div class="modal-info-value"><a href="${t.beforeUrl}" target="_blank" class="geo-map-btn"><i class="fa-solid fa-folder-open"></i> Открыть папку</a></div>
+                        </div>
+                    </div>` : ''}
+                    ${t.afterUrl ? `
+                    <div class="modal-info-row">
+                        <div class="modal-info-icon" style="background:#e5f1ff;color:#007aff;"><i class="fa-brands fa-google-drive"></i></div>
+                        <div class="modal-info-content">
+                            <div class="modal-info-label">Папка ПОСЛЕ</div>
+                            <div class="modal-info-value"><a href="${t.afterUrl}" target="_blank" class="geo-map-btn"><i class="fa-solid fa-folder-open"></i> Открыть папку</a></div>
+                        </div>
+                    </div>` : ''}
+                </div>`;
+            }
+
+            modalBody.innerHTML = html;
+        }
+
+        function closeTicketModal() {
+            $('ticketModal').classList.remove('show');
+            document.body.style.overflow = '';
         }
 
         // ===== ПЛАН НА ДЕНЬ =====
