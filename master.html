@@ -264,18 +264,19 @@
             background: linear-gradient(135deg, #ff3b30, #ff2d55);
             color: white;
             border: none;
-            padding: 16px 24px;
-            border-radius: 14px;
-            font-size: 16px;
+            padding: 14px 20px;
+            border-radius: 12px;
+            font-size: 15px;
             font-weight: 700;
             width: 100%;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            box-shadow: 0 4px 15px rgba(255, 59, 48, 0.3);
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(255, 59, 48, 0.25);
             transition: all 0.2s;
+            margin-top: 10px;
         }
 
         .btn-close-ticket:active { transform: scale(0.98); }
@@ -980,11 +981,11 @@
                 <div class="modal-section" style="margin-bottom:20px;">
                     <div class="modal-section-title">Фото и видео отчёт</div>
                     <div class="photo-row">
-                        <button class="btn-folder" onclick="openDriveFolder('before')"><i class="fa-solid fa-camera"></i> Папка ДО</button>
+                        <button class="btn-folder" onclick="openDriveFolder('before')"><i class="fa-solid fa-camera"></i> Фото/видео ДО</button>
                         <label class="check-photo"><input type="checkbox" id="photoBeforeOk"><span>Я загрузил</span></label>
                     </div>
                     <div class="photo-row">
-                        <button class="btn-folder" onclick="openDriveFolder('after')"><i class="fa-solid fa-camera"></i> Папка ПОСЛЕ</button>
+                        <button class="btn-folder" onclick="openDriveFolder('after')"><i class="fa-solid fa-camera"></i> Фото/видео ПОСЛЕ</button>
                         <label class="check-photo"><input type="checkbox" id="photoAfterOk"><span>Я загрузил</span></label>
                     </div>
                 </div>
@@ -1366,6 +1367,11 @@
                     badgeIcon = "fa-clock";
                 }
 
+                let closeBtn = '';
+                if (isAccepted) {
+                    closeBtn = `<button class="btn-close-ticket" onclick="event.stopPropagation(); openReportFromCard('${ticket.id}')"><i class="fa-solid fa-flag-checkered"></i> Закрыть заявку</button>`;
+                }
+
                 div.innerHTML = `
                     <div class="${badgeClass}">
                         <i class="fa-solid ${badgeIcon}"></i>
@@ -1375,6 +1381,7 @@
                     <div class="ticket-address">${ticket.address || ''}</div>
                     <div class="ticket-problem"><i class="fa-solid fa-wrench" style="color:#8e8e93;"></i> ${ticket.problem || ''}</div>
                     ${ticket.ticketType ? `<span class="ticket-type-badge">${ticket.ticketType}</span>` : ''}
+                    ${closeBtn}
                 `;
                 div.onclick = () => openTicketModal(ticket.id);
                 container.appendChild(div);
@@ -1437,14 +1444,20 @@
             }
         }
 
+        function isTicketAccepted(ticket) {
+            if (!ticket) return false;
+            const s = (ticket.status || '').toString().trim();
+            return s === "Принята" || s === "Accepted" || s === "accepted" || !!ticket.acceptedAt;
+        }
+
         function renderTicketModal(ticket) {
             const modalBody = document.getElementById('modalBody');
-            const isAccepted = ticket.status === "Принята";
+            const isAccepted = isTicketAccepted(ticket);
 
             let statusBadge = '';
             if (ticket.status === "Новая") {
                 statusBadge = '<span class="ticket-badge" style="position:static; display:inline-flex; margin-bottom:16px;"><i class="fa-solid fa-circle-exclamation"></i> Новая</span>';
-            } else if (ticket.status === "Принята") {
+            } else if (isAccepted) {
                 statusBadge = '<span class="ticket-badge accepted" style="position:static; display:inline-flex; margin-bottom:16px;"><i class="fa-solid fa-clock"></i> Принята</span>';
             }
 
@@ -1612,12 +1625,30 @@
             stopCurrentSpeech();
         }
 
+        // ===== ОТКРЫТИЕ ОТЧЁТА С КАРТОЧКИ =====
+        async function openReportFromCard(ticketId) {
+            activeTicketId = ticketId;
+            const cached = getCachedTicket(ticketId);
+            if (cached && cached.beforeUrl && cached.afterUrl) {
+                activeTicketData = cached;
+                openReportForm();
+                return;
+            }
+            try {
+                const ticket = await apiFetch(URL_GOOGLE_SERVER + "?action=getTicketDetails&ticketId=" + encodeURIComponent(ticketId));
+                activeTicketData = ticket;
+                setCachedTicket(ticketId, ticket);
+                openReportForm();
+            } catch (e) {
+                alert('Не удалось загрузить данные заявки. Проверьте интернет.');
+            }
+        }
+
         // ===== МОДАЛЬНОЕ ОКНО ОТЧЁТА =====
         function openReportForm() {
             const modal = document.getElementById('reportModal');
             modal.classList.add('show');
             document.body.style.overflow = 'hidden';
-            // Reset form
             document.getElementById("repDescription").value = "";
             document.getElementById("photoBeforeOk").checked = false;
             document.getElementById("photoAfterOk").checked = false;
