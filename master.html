@@ -94,6 +94,10 @@
             display: flex;
         }
 
+        .report-modal-overlay {
+            z-index: 2000;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -303,83 +307,6 @@
             animation: pulse 1s infinite;
         }
 
-        /* ===== TOGGLE БЕСПЛАТНО ===== */
-        .free-toggle {
-            background: #f2f2f7;
-            padding: 14px 12px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            margin-bottom: 12px;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: all 0.2s;
-        }
-        .free-toggle:hover { border-color: #34c759; }
-        .free-toggle input {
-            transform: scale(1.4);
-            margin-right: 12px;
-            accent-color: #34c759;
-            cursor: pointer;
-        }
-        .free-toggle span {
-            font-weight: 600;
-            color: #34c759;
-            font-size: 15px;
-        }
-
-        /* ===== ПОЛЯ СТОИМОСТИ ===== */
-        .cost-field {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 12px;
-        }
-        .cost-input { flex: 1; }
-        .cost-input label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            color: #1c1c1e;
-            margin-bottom: 6px;
-        }
-        .cost-input input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e5e5ea;
-            border-radius: 10px;
-            font-size: 15px;
-            box-sizing: border-box;
-        }
-        .cost-input input:focus {
-            outline: none;
-            border-color: #007aff;
-        }
-        .cost-input input:disabled {
-            background: #f9f9f9;
-            color: #8e8e93;
-        }
-
-        .total-price {
-            background: linear-gradient(135deg, #e5f1ff, #cce4ff);
-            color: #007aff;
-            padding: 16px;
-            border-radius: 12px;
-            font-size: 18px;
-            font-weight: 700;
-            text-align: right;
-            margin-bottom: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .total-price span { font-size: 13px; color: #3a3a3c; font-weight: 500; }
-
-        /* ===== СТАТИСТИКА ===== */
-        .stats-grid { display: flex; gap: 10px; margin-bottom: 20px; }
-        .stat-box { flex: 1; background: #f9f9f9; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid #eee; }
-        .stat-num { font-size: 24px; font-weight: 800; color: #ff9500; margin-bottom: 5px; }
-        .stat-label { font-size: 12px; color: #8e8e93; font-weight: 600; text-transform: uppercase;}
-
         /* ===== OFFLINE TOAST ===== */
         .offline-toast {
             position: fixed;
@@ -402,9 +329,6 @@
         .offline-toast.show { top: 16px; }
         .offline-toast.offline { background: #1c1c1e; color: white; }
         .offline-toast.online { background: #34c759; color: white; }
-
-        /* ===== КНОПКА РЕЧИ (удалена с мобильной, стили оставлены на всякий) ===== */
-        .speech-btn { display: none; }
 
         /* ===== РАЗРЕШЕНИЯ ===== */
         .permission-badge {
@@ -701,55 +625,6 @@
         .btn-loading i { animation: spin 1s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        /* ===== СВОРАЧИВАЕМАЯ ФОРМА ЗАКРЫТИЯ ===== */
-        .report-collapsible {
-            border-top: 2px solid #f2f2f7;
-            background: #fafafa;
-            margin: 20px -20px -20px -20px;
-        }
-        .report-collapsible-header {
-            padding: 18px 20px;
-            text-align: center;
-            cursor: pointer;
-            font-weight: 700;
-            color: #007aff;
-            font-size: 15px;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        .report-collapsible-body {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1), padding 0.4s ease, opacity 0.3s ease;
-            padding: 0 20px;
-            opacity: 0;
-        }
-        .report-collapsible.expanded .report-collapsible-body {
-            max-height: 2000px;
-            padding: 0 20px 28px 20px;
-            opacity: 1;
-        }
-        .report-collapsible.expanded .report-collapsible-header {
-            color: #1c1c1e;
-            border-bottom: 1px solid #e5e5ea;
-        }
-        .report-collapsible.expanded #reportCollapsibleIcon {
-            transform: rotate(180deg);
-        }
-        .handle-bar {
-            width: 40px;
-            height: 5px;
-            background: #c7c7cc;
-            border-radius: 3px;
-            position: absolute;
-            top: 8px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
         /* ===== ФОТО ЗАГРУЗКА ===== */
         .photo-row {
             display: flex;
@@ -791,7 +666,7 @@
             cursor: pointer;
         }
 
-        /* ===== ПРАЙМАРИ ВНУТРИ МОДАЛКИ ===== */
+        /* ===== ПРАЙМАРИ ===== */
         .btn-primary {
             background: #34c759;
             color: #ffffff;
@@ -1086,6 +961,43 @@
         </div>
     </div>
 
+    <!-- ===== МОДАЛЬНОЕ ОКНО ОТЧЁТА ===== -->
+    <div class="modal-overlay report-modal-overlay" id="reportModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Заполнить отчёт</h3>
+                <button class="modal-close" onclick="closeReportModal()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="form-group">
+                    <label><i class="fa-solid fa-pen"></i> Описание выполненных работ:</label>
+                    <textarea class="form-control" id="repDescription" rows="4" placeholder="Опишите что вы сделали..."></textarea>
+                </div>
+
+                <div class="modal-section" style="margin-bottom:20px;">
+                    <div class="modal-section-title">Фото и видео отчёт</div>
+                    <div class="photo-row">
+                        <button class="btn-folder" onclick="openDriveFolder('before')"><i class="fa-solid fa-camera"></i> Папка ДО</button>
+                        <label class="check-photo"><input type="checkbox" id="photoBeforeOk"><span>Я загрузил</span></label>
+                    </div>
+                    <div class="photo-row">
+                        <button class="btn-folder" onclick="openDriveFolder('after')"><i class="fa-solid fa-camera"></i> Папка ПОСЛЕ</button>
+                        <label class="check-photo"><input type="checkbox" id="photoAfterOk"><span>Я загрузил</span></label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-primary" id="btnSubmitReport" onclick="submitReport()">
+                    <i class="fa-solid fa-check-double"></i> Закрыть заявку
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- НИЖНЕЕ МЕНЮ -->
     <div class="bottom-nav" id="bottomNav">
         <div class="nav-item active" onclick="switchTab('tasks')" id="nav-tasks"><i class="fa-solid fa-screwdriver-wrench"></i><span>Задачи</span></div>
@@ -1098,8 +1010,7 @@
         let currentUser = null;
         let activeTicketId = null;
         let activeTicketData = null;
-        const CLOSED_VISIBLE_HOURS = 24;
-        const TICKET_CACHE_TTL = 5 * 60 * 1000; // 5 минут
+        const TICKET_CACHE_TTL = 5 * 60 * 1000;
 
         // ===== API DEDUPLICATION & THROTTLING =====
         const MIN_REFRESH_MS = 15000;
@@ -1167,10 +1078,6 @@
             }));
         }
 
-        function invalidateTicketCache(ticketId) {
-            localStorage.removeItem('ticket_detail_' + ticketId);
-        }
-
         // ===== OFFLINE TOAST ЛОГИКА =====
         (function() {
             const toast = document.getElementById('offlineToast');
@@ -1214,7 +1121,6 @@
                 applyTab(hashTab);
             }
 
-            // Preload data with retry
             let retries = 0;
             async function preloadWithRetry() {
                 try {
@@ -1231,6 +1137,10 @@
         };
 
         window.addEventListener('popstate', (event) => {
+            if (document.getElementById("reportModal").classList.contains("show")) {
+                closeReportModal();
+                return;
+            }
             if (document.getElementById("ticketModal").classList.contains("show")) {
                 closeTicketModal();
                 return;
@@ -1631,39 +1541,6 @@
                 </div>`;
             }
 
-            if (isAccepted) {
-                html += `
-                <div class="report-collapsible" id="reportCollapsible" style="display:none;">
-                    <div class="report-collapsible-header" onclick="toggleReportCollapsible()">
-                        <div class="handle-bar"></div>
-                        <span>Заполнить отчёт</span>
-                        <i class="fa-solid fa-chevron-up" id="reportCollapsibleIcon"></i>
-                    </div>
-                    <div class="report-collapsible-body" id="reportCollapsibleBody">
-                        <div class="form-group" style="margin-top:8px;">
-                            <label><i class="fa-solid fa-pen"></i> Описание выполненных работ:</label>
-                            <textarea class="form-control" id="repDescription" rows="3" placeholder="Опишите что вы сделали..."></textarea>
-                        </div>
-
-                        <div class="modal-section" style="margin-bottom:20px;">
-                            <div class="modal-section-title">Фото и видео отчёт</div>
-                            <div class="photo-row">
-                                <button class="btn-folder" onclick="openDriveFolder('before')"><i class="fa-solid fa-camera"></i> Папка ДО</button>
-                                <label class="check-photo"><input type="checkbox" id="photoBeforeOk"><span>Я загрузил</span></label>
-                            </div>
-                            <div class="photo-row">
-                                <button class="btn-folder" onclick="openDriveFolder('after')"><i class="fa-solid fa-camera"></i> Папка ПОСЛЕ</button>
-                                <label class="check-photo"><input type="checkbox" id="photoAfterOk"><span>Я загрузил</span></label>
-                            </div>
-                        </div>
-
-                        <button class="btn-primary" id="btnSubmitReport" onclick="submitReport()">
-                            <i class="fa-solid fa-check-double"></i> Закрыть заявку
-                        </button>
-                    </div>
-                </div>`;
-            }
-
             modalBody.innerHTML = html;
             updateModalButtons(isAccepted);
         }
@@ -1735,20 +1612,26 @@
             stopCurrentSpeech();
         }
 
-        // ===== СВОРАЧИВАНИЕ ФОРМЫ =====
-        function toggleReportCollapsible() {
-            const el = document.getElementById('reportCollapsible');
-            el.classList.toggle('expanded');
+        // ===== МОДАЛЬНОЕ ОКНО ОТЧЁТА =====
+        function openReportForm() {
+            const modal = document.getElementById('reportModal');
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+            // Reset form
+            document.getElementById("repDescription").value = "";
+            document.getElementById("photoBeforeOk").checked = false;
+            document.getElementById("photoAfterOk").checked = false;
+            const btn = document.getElementById("btnSubmitReport");
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-check-double"></i> Закрыть заявку';
+            btn.style.background = "";
         }
 
-        function openReportForm() {
-            const reportSection = document.getElementById('reportCollapsible');
-            if (reportSection) {
-                reportSection.style.display = 'block';
-                setTimeout(() => {
-                    reportSection.classList.add('expanded');
-                    reportSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                }, 10);
+        function closeReportModal() {
+            const modal = document.getElementById('reportModal');
+            modal.classList.remove('show');
+            if (!document.getElementById('ticketModal').classList.contains('show')) {
+                document.body.style.overflow = '';
             }
         }
 
@@ -1956,7 +1839,6 @@
                     if (cached) {
                         cached.status = "Выполнено";
                         cached.description = desc;
-                        cached.totalCost = total;
                         cached.photoBeforeOk = photoBeforeOk ? "Да" : "Нет";
                         cached.photoAfterOk = photoAfterOk ? "Да" : "Нет";
                         setCachedTicket(activeTicketId, cached);
@@ -1966,6 +1848,7 @@
                         btn.disabled = false;
                         btn.innerHTML = '<i class="fa-solid fa-check-double"></i> Закрыть заявку';
                         btn.style.background = "";
+                        closeReportModal();
                         closeTicketModal();
                         localStorage.removeItem("cachedMasterTickets_" + currentUser.name);
                         localStorage.removeItem("cachedMasterHistory_" + currentUser.name);
