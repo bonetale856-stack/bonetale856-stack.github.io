@@ -1269,31 +1269,36 @@
         }
 
         async function loadTickets(force = false) {
-            if (!force && !canRefresh('tasks')) return;
-            const cacheKey = "cachedMasterTickets_" + currentUser.name;
-            const cachedTickets = localStorage.getItem(cacheKey);
-            if (cachedTickets) {
-                document.getElementById("loadingTasks").style.display = "none";
-                renderMasterTickets(JSON.parse(cachedTickets));
-            } else {
-                document.getElementById("loadingTasks").style.display = "block";
-                document.getElementById("ticketsContainer").innerHTML = "";
-                document.getElementById("emptyMsg").style.display = "none";
-            }
-            try {
-                const tickets = await apiFetch(URL_GOOGLE_SERVER + "?action=getTickets&masterName=" + encodeURIComponent(currentUser.name));
-                document.getElementById("loadingTasks").style.display = "none";
-                localStorage.setItem(cacheKey, JSON.stringify(tickets));
-                renderMasterTickets(tickets);
-            } catch (error) {
-                console.error('loadTickets error:', error);
-                if (!cachedTickets) {
-                    const isServerErr = error.message && error.message.startsWith('SERVER_ERROR');
-                    document.getElementById("loadingTasks").innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:' + (isServerErr ? '#ff9500' : 'red') + ';"></i><br>' + (isServerErr ? 'Ошибка сервера. Попробуйте позже.' : 'Ошибка сети. Проверьте интернет.');
-                }
-            }
-            checkPushReminder();
+    if (!force && !canRefresh('tasks')) return;
+    const cacheKey = "cachedMasterTickets_" + currentUser.name;
+    const cachedTickets = localStorage.getItem(cacheKey);
+    if (cachedTickets) {
+        document.getElementById("loadingTasks").style.display = "none";
+        renderMasterTickets(JSON.parse(cachedTickets)); // filtering happens inside
+    } else {
+        document.getElementById("loadingTasks").style.display = "block";
+        document.getElementById("ticketsContainer").innerHTML = "";
+        document.getElementById("emptyMsg").style.display = "none";
+    }
+    try {
+        const tickets = await apiFetch(URL_GOOGLE_SERVER + "?action=getTickets&masterName=" + encodeURIComponent(currentUser.name));
+        document.getElementById("loadingTasks").style.display = "none";
+        
+        // Optional: also filter here before caching, so cache stays clean
+        const activeStatuses = ["Новая", "Принята", "New", "Accepted", "accepted"];
+        const cleanTickets = tickets.filter(t => activeStatuses.includes((t.status || '').toString().trim()));
+        
+        localStorage.setItem(cacheKey, JSON.stringify(cleanTickets));
+        renderMasterTickets(cleanTickets);
+    } catch (error) {
+        console.error('loadTickets error:', error);
+        if (!cachedTickets) {
+            const isServerErr = error.message && error.message.startsWith('SERVER_ERROR');
+            document.getElementById("loadingTasks").innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:' + (isServerErr ? '#ff9500' : 'red') + ';"></i><br>' + (isServerErr ? 'Ошибка сервера. Попробуйте позже.' : 'Ошибка сети. Проверьте интернет.');
         }
+    }
+    checkPushReminder();
+}
 
         async function loadHistory(force = false) {
             if (!force && !canRefresh('history')) return;
@@ -1346,47 +1351,58 @@
         }
 
         function renderMasterTickets(tickets) {
-            const container = document.getElementById("ticketsContainer");
-            const msg = document.getElementById("emptyMsg");
-            container.innerHTML = "";
-            msg.style.display = "none";
-            if (tickets.length === 0) { msg.style.display = "block"; return; }
+    const container = document.getElementById("ticketsContainer");
+    const msg = document.getElementById("emptyMsg");
+    container.innerHTML = "";
+    msg.style.display = "none";
 
-            tickets.forEach(ticket => {
-                const div = document.createElement("div");
-                const isAccepted = ticket.status === "Принята";
-                div.className = `card ticket-card status-${ticket.status === "Новая" ? "new" : "accepted"}`;
+    // === FIX: Filter out completed/closed tasks ===
+    const activeStatuses = ["Новая", "Принята", "New", "Accepted", "accepted"];
+    const activeTickets = tickets.filter(t => {
+        const s = (t.status || '').toString().trim();
+        return activeStatuses.includes(s);
+    });
 
-                let badgeClass = "ticket-badge";
-                let badgeText = '<i class="fa-solid fa-circle-exclamation"></i> Новая';
-                let badgeIcon = "fa-circle-exclamation";
+    if (activeTickets.length === 0) { 
+        msg.style.display = "block"; 
+        return; 
+    }
 
-                if (isAccepted) {
-                    badgeClass = "ticket-badge accepted";
-                    badgeText = '<i class="fa-solid fa-clock"></i> Принята';
-                    badgeIcon = "fa-clock";
-                }
+    activeTickets.forEach(ticket => {
+        const div = document.createElement("div");
+        const isAccepted = ticket.status === "Принята" || ticket.status === "Accepted" || ticket.status === "accepted";
+        div.className = `card ticket-card status-${isAccepted ? "accepted" : "new"}`;
 
-                let closeBtn = '';
-                if (isAccepted) {
-                    closeBtn = `<button class="btn-close-ticket" onclick="event.stopPropagation(); openReportFromCard('${ticket.id}')"><i class="fa-solid fa-flag-checkered"></i> Закрыть заявку</button>`;
-                }
+        let badgeClass = "ticket-badge";
+        let badgeText = '<i class="fa-solid fa-circle-exclamation"></i> Новая';
+        let badgeIcon = "fa-circle-exclamation";
 
-                div.innerHTML = `
-                    <div class="${badgeClass}">
-                        <i class="fa-solid ${badgeIcon}"></i>
-                        <span>${isAccepted ? 'Отправьте отчет' : 'Примите заявку'}</span>
-                    </div>
-                    <div class="ticket-date"><i class="fa-regular fa-clock"></i> ${ticket.date || ticket.createdAt || ""}</div>
-                    <div class="ticket-address">${ticket.address || ''}</div>
-                    <div class="ticket-problem"><i class="fa-solid fa-wrench" style="color:#8e8e93;"></i> ${ticket.problem || ''}</div>
-                    ${ticket.ticketType ? `<span class="ticket-type-badge">${ticket.ticketType}</span>` : ''}
-                    ${closeBtn}
-                `;
-                div.onclick = () => openTicketModal(ticket.id);
-                container.appendChild(div);
-            });
+        if (isAccepted) {
+            badgeClass = "ticket-badge accepted";
+            badgeText = '<i class="fa-solid fa-clock"></i> Принята';
+            badgeIcon = "fa-clock";
         }
+
+        let closeBtn = '';
+        if (isAccepted) {
+            closeBtn = `<button class="btn-close-ticket" onclick="event.stopPropagation(); openReportFromCard('${ticket.id}')"><i class="fa-solid fa-flag-checkered"></i> Закрыть заявку</button>`;
+        }
+
+        div.innerHTML = `
+            <div class="${badgeClass}">
+                <i class="fa-solid ${badgeIcon}"></i>
+                <span>${isAccepted ? 'Отправьте отчет' : 'Примите заявку'}</span>
+            </div>
+            <div class="ticket-date"><i class="fa-regular fa-clock"></i> ${ticket.date || ticket.createdAt || ""}</div>
+            <div class="ticket-address">${ticket.address || ''}</div>
+            <div class="ticket-problem"><i class="fa-solid fa-wrench" style="color:#8e8e93;"></i> ${ticket.problem || ''}</div>
+            ${ticket.ticketType ? `<span class="ticket-type-badge">${ticket.ticketType}</span>` : ''}
+            ${closeBtn}
+        `;
+        div.onclick = () => openTicketModal(ticket.id);
+        container.appendChild(div);
+    });
+}
 
         function formatDate(dateObj) {
             if (!dateObj) return '';
