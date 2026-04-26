@@ -1539,20 +1539,6 @@
                 </div>`;
             }
 
-            if (ticket.geoAccuracy) {
-                html += `
-                <div class="modal-section">
-                    <div class="modal-section-title">Геолокация</div>
-                    <div class="modal-info-row">
-                        <div class="modal-info-icon" style="background: #e5f1ff; color: #007aff;"><i class="fa-solid fa-crosshairs"></i></div>
-                        <div class="modal-info-content">
-                            <div class="modal-info-label">Точность</div>
-                            <div class="modal-info-value">${ticket.geoAccuracy}</div>
-                        </div>
-                    </div>
-                </div>`;
-            }
-
             modalBody.innerHTML = html;
             updateModalButtons(isAccepted);
         }
