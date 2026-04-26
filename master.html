@@ -1582,16 +1582,17 @@
                         <div class="modal-info-content">
                             <div class="modal-info-label">Адрес</div>
                             <div class="modal-info-value address">${ticket.address || ''}</div>
+                            <div style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;">
+                                <a href="https://yandex.ru/maps/?text=${encodeURIComponent(ticket.address || '')}" target="_blank" style="display:inline-flex; align-items:center; gap:6px; background:#ffcc00; color:#000; padding:8px 12px; border-radius:8px; text-decoration:none; font-size:13px; font-weight:600;">
+                                    <i class="fa-solid fa-map-location-dot"></i> Яндекс
+                                </a>
+                                <a href="https://2gis.ru/search/${encodeURIComponent(ticket.address || '')}" target="_blank" style="display:inline-flex; align-items:center; gap:6px; background:#00aeef; color:#fff; padding:8px 12px; border-radius:8px; text-decoration:none; font-size:13px; font-weight:600;">
+                                    <i class="fa-solid fa-map"></i> 2GIS
+                                </a>
+                                ${ticket.mapsLink ? `<a href="${ticket.mapsLink}" target="_blank" style="display:inline-flex; align-items:center; gap:6px; background:#e5e5ea; color:#1c1c1e; padding:8px 12px; border-radius:8px; text-decoration:none; font-size:13px; font-weight:600;"><i class="fa-solid fa-location-arrow"></i> Google</a>` : ''}
+                            </div>
                         </div>
                     </div>
-                    ${ticket.mapsLink ? `
-                    <div class="modal-info-row">
-                        <div class="modal-info-icon" style="background: #e5f1ff; color: #007aff;"><i class="fa-solid fa-map"></i></div>
-                        <div class="modal-info-content">
-                            <div class="modal-info-label">Карта</div>
-                            <div class="modal-info-value"><a href="${ticket.mapsLink}" target="_blank" style="color: #007aff;">Открыть на карте</a></div>
-                        </div>
-                    </div>` : ''}
                     <div class="modal-info-row">
                         <div class="modal-info-icon" style="background: #fde2e2; color: #ff3b30;"><i class="fa-solid fa-wrench"></i></div>
                         <div class="modal-info-content">
@@ -1632,7 +1633,7 @@
 
             if (isAccepted) {
                 html += `
-                <div class="report-collapsible" id="reportCollapsible">
+                <div class="report-collapsible" id="reportCollapsible" style="display:none;">
                     <div class="report-collapsible-header" onclick="toggleReportCollapsible()">
                         <div class="handle-bar"></div>
                         <span>Заполнить отчёт</span>
@@ -1696,14 +1697,18 @@
         function updateModalButtons(isAccepted) {
             const btnAccept = document.getElementById('btnAcceptTicket');
             const btnClose = document.getElementById('btnCloseTicket');
+            const btnListen = document.getElementById('btnListenTicket');
             const modalActions = document.getElementById('modalActions');
             const acceptLabel = document.getElementById('acceptLabel');
             const acceptIcon = btnAccept.querySelector('i');
 
             if (isAccepted) {
                 btnAccept.style.display = 'none';
-                btnClose.style.display = 'none';
-                modalActions.style.display = 'none';
+                btnClose.style.display = 'flex';
+                modalActions.style.display = 'flex';
+                if (btnListen) {
+                    btnListen.style.display = ('speechSynthesis' in window) ? 'flex' : 'none';
+                }
             } else {
                 btnAccept.classList.remove('accepted');
                 btnAccept.disabled = false;
@@ -1712,6 +1717,9 @@
                 acceptIcon.className = 'fa-solid fa-check';
                 btnClose.style.display = 'none';
                 modalActions.style.display = 'flex';
+                if (btnListen) {
+                    btnListen.style.display = ('speechSynthesis' in window) ? 'flex' : 'none';
+                }
             }
         }
 
@@ -1730,9 +1738,16 @@
             btnClose.style.display = 'none';
             modalActions.style.display = 'flex';
 
-            listenBtn.classList.remove('playing');
-            document.getElementById('listenLabel').textContent = 'Прослушать заявку';
-            document.getElementById('listenIcon').className = 'fa-solid fa-volume-high';
+            if (listenBtn) {
+                if (!('speechSynthesis' in window)) {
+                    listenBtn.style.display = 'none';
+                } else {
+                    listenBtn.style.display = 'flex';
+                    listenBtn.classList.remove('playing');
+                    document.getElementById('listenLabel').textContent = 'Прослушать заявку';
+                    document.getElementById('listenIcon').className = 'fa-solid fa-volume-high';
+                }
+            }
 
             stopCurrentSpeech();
         }
@@ -1750,6 +1765,17 @@
         function toggleReportCollapsible() {
             const el = document.getElementById('reportCollapsible');
             el.classList.toggle('expanded');
+        }
+
+        function openReportForm() {
+            const reportSection = document.getElementById('reportCollapsible');
+            if (reportSection) {
+                reportSection.style.display = 'block';
+                setTimeout(() => {
+                    reportSection.classList.add('expanded');
+                    reportSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 10);
+            }
         }
 
         function openDriveFolder(type) {
@@ -1889,6 +1915,7 @@
         function buildListenText(ticket) {
             let text = '';
             text += 'Заявка. ';
+            if (ticket.createdAt) text += 'Дата: ' + formatDate(ticket.createdAt) + '. ';
             if (ticket.address) text += 'Адрес: ' + ticket.address + '. ';
             if (ticket.problem) text += 'Проблема: ' + ticket.problem + '. ';
             if (ticket.ticketType) text += 'Тип заявки: ' + ticket.ticketType + '. ';
