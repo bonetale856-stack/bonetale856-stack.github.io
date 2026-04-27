@@ -1718,7 +1718,7 @@
                     headers: { "Content-Type": "text/plain;charset=utf-8" }
                 });
 
-                if (result.status === "success") {
+                    if (result.status === "success") {
                     btnAccept.classList.remove('btn-loading');
 
                     if (activeTicketData) {
@@ -1732,8 +1732,26 @@
                         renderTicketModal(activeTicketData);
                     }
 
-                    localStorage.removeItem("cachedMasterTickets_" + currentUser.name);
-                    loadTickets();
+                    // === NEW: update list cache locally instead of full reload ===
+                    const cacheKey = "cachedMasterTickets_" + currentUser.name;
+                    const cachedStr = localStorage.getItem(cacheKey);
+                    if (cachedStr && activeTicketData) {
+                        const tickets = JSON.parse(cachedStr);
+                        const idx = tickets.findIndex(t => String(t.id) === String(activeTicketId));
+                        if (idx !== -1) {
+                            tickets[idx] = activeTicketData;
+                            localStorage.setItem(cacheKey, JSON.stringify(tickets));
+                            renderMasterTickets(tickets);
+                        } else {
+                            localStorage.removeItem(cacheKey);
+                            loadTickets(true);
+                        }
+                    } else {
+                        loadTickets(true);
+                    }
+
+                    // Optional: silent background refresh after 3 seconds
+                    setTimeout(() => loadTickets(true), 3000);
                 } else {
                     throw new Error(result.message || "Ошибка сервера");
                 }
@@ -1800,21 +1818,35 @@
                 speechSynthesis.speak(currentUtterance);
             }
         }
+        
+        function expandTtsAbbreviations(text) {
+    if (!text) return "";
+    return text
+        .replace(/(^|[\s,;])кв\.?([\s,;]|$)/gi, "$1квартира$2")
+        .replace(/(^|[\s,;])ул\.?([\s,;]|$)/gi, "$1улица$2")
+        .replace(/(^|[\s,;])д\.?([\s,;]|$)/gi, "$1дом$2")
+        .replace(/(^|[\s,;])пр\.?([\s,;]|$)/gi, "$1проспект$2")
+        .replace(/(^|[\s,;])пер\.?([\s,;]|$)/gi, "$1переулок$2")
+        .replace(/(^|[\s,;])п\.?([\s,;]|$)/gi, "$1поселок$2")
+        .replace(/(^|[\s,;])г\.?([\s,;]|$)/gi, "$1город$2")
+        .replace(/(^|[\s,;])мкр\.?([\s,;]|$)/gi, "$1микрорайон$2")
+        .replace(/(^|[\s,;])б-р([\s,;]|$)/gi, "$1бульвар$2");
+}
 
         function buildListenText(ticket) {
-            let text = '';
-            text += 'Заявка. ';
-            if (ticket.createdAt) text += 'Дата: ' + formatDate(ticket.createdAt) + '. ';
-            if (ticket.address) text += 'Адрес: ' + ticket.address + '. ';
-            if (ticket.problem) text += 'Проблема: ' + ticket.problem + '. ';
-            if (ticket.ticketType) text += 'Тип заявки: ' + ticket.ticketType + '. ';
-            if (ticket.paymentType) text += 'Тип оплаты: ' + ticket.paymentType + '. ';
-            if (ticket.dispatcher) text += 'Диспетчер: ' + ticket.dispatcher + '. ';
-            if (ticket.status === 'Принята' && ticket.acceptedAt) {
-                text += 'Заявка принята в ' + ticket.acceptedAt + '. ';
-            }
-            return text.trim();
-        }
+    let text = '';
+    text += 'Заявка. ';
+    if (ticket.createdAt) text += 'Дата: ' + formatDate(ticket.createdAt) + '. ';
+    if (ticket.address) text += 'Адрес: ' + expandTtsAbbreviations(ticket.address) + '. ';
+    if (ticket.problem) text += 'Проблема: ' + expandTtsAbbreviations(ticket.problem) + '. ';
+    if (ticket.ticketType) text += 'Тип заявки: ' + ticket.ticketType + '. ';
+    if (ticket.paymentType) text += 'Тип оплаты: ' + ticket.paymentType + '. ';
+    if (ticket.dispatcher) text += 'Диспетчер: ' + ticket.dispatcher + '. ';
+    if (ticket.status === 'Принята' && ticket.acceptedAt) {
+        text += 'Заявка принята в ' + ticket.acceptedAt + '. ';
+    }
+    return text.trim();
+}
 
         function stopCurrentSpeech() {
             if ('speechSynthesis' in window) {
@@ -1842,6 +1874,11 @@
 
             const photoBeforeOk = document.getElementById("photoBeforeOk").checked;
             const photoAfterOk = document.getElementById("photoAfterOk").checked;
+            
+              if (!photoBeforeOk || !photoAfterOk) {
+        alert("Пожалуйста, загрузите фото ДО и ПОСЛЕ, затем отметьте обе галочки!");
+        return;
+    }
 
             const btn = document.getElementById("btnSubmitReport");
             btn.disabled = true;
