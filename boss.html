@@ -1184,49 +1184,51 @@
         }
 
         function renderNotes() {
-            const now = nowMinutes();
-            const sorted = [...notes].sort((a, b) => {
-                // Pinned first, then by done status, then by time
-                if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
-                if (a.done !== b.done) return a.done ? 1 : -1;
-                const ta = timeToMinutes(a.time), tb = timeToMinutes(b.time);
-                if (ta === null && tb === null) return 0;
-                if (ta === null) return 1;
-                if (tb === null) return -1;
-                return ta - tb;
-            });
+          const now = nowMinutes();
+    const sorted = [...notes].sort((a, b) => {
+        if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
+        if (a.done !== b.done) return a.done ? 1 : -1;
+        const ta = timeToMinutes(a.time), tb = timeToMinutes(b.time);
+        if (ta === null && tb === null) return 0;
+        if (ta === null) return 1;
+        if (tb === null) return -1;
+        return ta - tb;
+    });
 
-            const container = $("notesContainer");
-            container.innerHTML = "";
+    const container = $("notesContainer");
+    container.innerHTML = "";
 
-            const total = notes.length;
-            const done = notes.filter(n => n.done).length;
-            const pending = notes.filter(n => !n.done).length;
-            const overdue = notes.filter(n => {
-                if (n.done) return false;
-                const tm = timeToMinutes(n.time);
-                return tm !== null && tm < now;
-            }).length;
+    const total = notes.length;
+    const done = notes.filter(n => n.done).length;
+    const pending = notes.filter(n => !n.done).length;
+    const overdue = notes.filter(n => {
+        if (n.done) return false;
+        const tm = timeToMinutes(n.time);
+        return tm !== null && tm < now;
+    }).length;
 
-            // Update progress ring
-            const pct = total === 0 ? 0 : Math.round((done / total) * 100);
-            const circle = $("progressCircle");
-            const circumference = 2 * Math.PI * 30; // r=30
-            const offset = circumference - (pct / 100) * circumference;
-            circle.style.strokeDashoffset = offset;
-            circle.style.stroke = pct === 100 ? '#34c759' : pct >= 50 ? '#007aff' : '#ff9500';
-            $("progressPercent").innerText = pct + '%';
-            $("statDone").innerText = done;
-            $("statPending").innerText = pending;
-            $("statOverdue").innerText = overdue;
+    // Update progress ring
+    const pct = total === 0 ? 0 : Math.round((done / total) * 100);
+    const circle = $("progressCircle");
+    const circumference = 2 * Math.PI * 30;
+    const offset = circumference - (pct / 100) * circumference;
+    circle.style.strokeDashoffset = offset;
+    circle.style.stroke = pct === 100 ? '#34c759' : pct >= 50 ? '#007aff' : '#ff9500';
+    $("progressPercent").innerText = pct + '%';
+    $("statDone").innerText = done;
+    $("statPending").innerText = pending;
+    $("statOverdue").innerText = overdue;
 
-            const activeCount = notes.filter(n => !n.done).length;
-            $("planCountLabel").innerText = activeCount === 0 ? 'Всё сделано 🎉' : `${activeCount} ${plural(activeCount,['задача','задачи','задач'])}`;
+    const activeCount = notes.filter(n => !n.done).length;
+    $("planCountLabel").innerText = activeCount === 0 ? 'Всё сделано 🎉' : `${activeCount} ${plural(activeCount,['задача','задачи','задач'])}`;
 
-            if (notes.length === 0) {
-                container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-clipboard-check"></i><h3>План пуст</h3><p>Добавьте первую задачу или выберите шаблон</p></div>`;
-                return;
-            }
+    // ✅ FIX: Save BEFORE the empty-state check so [] is written to localStorage
+    localStorage.setItem("bossNotes", JSON.stringify(notes));
+
+    if (notes.length === 0) {
+        container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-clipboard-check"></i><h3>План пуст</h3><p>Добавьте первую задачу или выберите шаблон</p></div>`;
+        return;
+    }
 
             sorted.forEach(note => {
                 const realIndex = notes.indexOf(note);
