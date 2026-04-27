@@ -167,45 +167,136 @@
 
         .rating-stars { color: #ff9500; font-size: 18px; letter-spacing: 2px; }
 
-        /* ===== ПЛАН НА ДЕНЬ ===== */
+        /* ===== ПЛАН НА ДЕНЬ — UPGRADED ===== */
         .plan-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;}
         .plan-date { font-size: 13px; color: #8e8e93; font-weight: 600;}
 
-        .add-note-box {
-            background: white; border-radius: 14px; padding: 12px;
-            margin-bottom: 16px; border: 1.5px solid #f0f0f5;
+        /* Progress Ring */
+        .progress-ring-wrap {
+            display: flex; align-items: center; gap: 14px;
+            background: white; border-radius: 16px; padding: 16px;
+            margin-bottom: 14px; border: 1.5px solid #f0f0f5;
             box-shadow: 0 2px 10px rgba(0,0,0,0.04);
         }
-        .add-note-row { display: flex; gap: 8px; }
+        .progress-ring-svg { transform: rotate(-90deg); }
+        .progress-ring-circle {
+            fill: none; stroke: #f2f2f7; stroke-width: 6;
+        }
+        .progress-ring-progress {
+            fill: none; stroke-width: 6; stroke-linecap: round;
+            transition: stroke-dashoffset 0.6s ease;
+        }
+        .progress-ring-text {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 18px; font-weight: 900; color: #1c1c1e;
+        }
+        .progress-ring-container { position: relative; width: 72px; height: 72px; flex-shrink: 0; }
+        .progress-stats { flex: 1; }
+        .progress-stat-row {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 13px; margin-bottom: 6px; color: #3a3a3c;
+        }
+        .progress-stat-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .progress-stat-val { font-weight: 700; margin-left: auto; }
+
+        /* Templates */
+        .template-chips {
+            display: flex; gap: 6px; margin-bottom: 12px;
+            overflow-x: auto; padding: 2px; -webkit-overflow-scrolling: touch;
+        }
+        .template-chip {
+            flex-shrink: 0; padding: 7px 12px; background: white;
+            border: 1.5px solid #e5e5ea; border-radius: 20px;
+            font-size: 12px; font-weight: 600; color: #3a3a3c;
+            cursor: pointer; transition: 0.15s; white-space: nowrap;
+            display: flex; align-items: center; gap: 5px;
+        }
+        .template-chip:active { transform: scale(0.95); }
+        .template-chip:hover { border-color: #007aff; color: #007aff; }
+
+        .add-note-box {
+            background: white; border-radius: 14px; padding: 12px;
+            margin-bottom: 12px; border: 1.5px solid #f0f0f5;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+        }
+        .add-note-row { display: flex; gap: 8px; margin-bottom: 8px; }
         .add-note-row input[type="text"] { flex: 1; margin: 0; padding: 10px 12px; border: 1.5px solid #e5e5ea; border-radius: 10px; font-size: 14px; box-sizing: border-box;}
         .add-note-row input[type="time"] { width: 90px; margin: 0; padding: 10px 8px; border: 1.5px solid #e5e5ea; border-radius: 10px; font-size: 14px; box-sizing: border-box; text-align: center;}
         .add-note-row button { width: 44px; height: 42px; margin: 0; padding: 0; border-radius: 10px; background: #007aff; color: white; border: none; font-size: 16px; cursor: pointer;}
 
+        .note-meta-row {
+            display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
+        }
+        .priority-select {
+            padding: 6px 10px; border-radius: 8px; border: 1.5px solid #e5e5ea;
+            font-size: 12px; font-weight: 700; cursor: pointer; background: white;
+        }
+        .priority-high { color: #ff3b30; border-color: #ff3b30; background: #fff0f0; }
+        .priority-med  { color: #ff9500; border-color: #ff9500; background: #fff3e0; }
+        .priority-low  { color: #007aff; border-color: #007aff; background: #e5f1ff; }
+
+        .tag-input {
+            padding: 6px 10px; border-radius: 8px; border: 1.5px solid #e5e5ea;
+            font-size: 12px; width: 90px; background: white;
+        }
+        .tag-badge {
+            display: inline-flex; align-items: center; gap: 3px;
+            padding: 3px 8px; border-radius: 6px; font-size: 11px;
+            font-weight: 700; margin-right: 4px;
+        }
+        .tag-meeting { background: #e5f1ff; color: #007aff; }
+        .tag-call    { background: #e8f5e9; color: #34c759; }
+        .tag-urgent  { background: #fff0f0; color: #ff3b30; }
+        .tag-check   { background: #f3e5f5; color: #af52de; }
+        .tag-other   { background: #f2f2f7; color: #8e8e93; }
+
         .note-item {
             background: white; border-radius: 14px; padding: 12px;
-            margin-bottom: 8px; display: flex; align-items: center; gap: 10px;
+            margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px;
             border: 1.5px solid #f0f0f5; box-shadow: 0 2px 6px rgba(0,0,0,0.03);
-            transition: 0.2s;
+            transition: 0.2s; position: relative;
         }
-        .note-item.done { opacity: 0.55; background: #fafafa;}
+        .note-item.pinned { border-left: 4px solid #ff9500; }
+        .note-item.pinned::before {
+            content: '📌'; position: absolute; top: -6px; right: 8px;
+            font-size: 14px; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
+        }
+        .note-item.priority-high { border-left: 4px solid #ff3b30; background: linear-gradient(90deg, #fffafa 0%, white 100%); }
+        .note-item.priority-med  { border-left: 4px solid #ff9500; background: linear-gradient(90deg, #fffaf5 0%, white 100%); }
+        .note-item.priority-low  { border-left: 4px solid #007aff; background: linear-gradient(90deg, #f5faff 0%, white 100%); }
+        .note-item.done { opacity: 0.5; background: #fafafa; filter: grayscale(0.4); }
         .note-item.done .note-text { text-decoration: line-through; color: #8e8e93;}
-        .note-item.overdue { border-left: 4px solid #ff3b30; background: #fffafa;}
-        .note-item.soon    { border-left: 4px solid #ff9500;}
-        .note-checkbox { transform: scale(1.3); cursor: pointer; flex-shrink: 0; accent-color: #007aff;}
+        .note-item.overdue { animation: pulseRed 2s infinite; }
+        @keyframes pulseRed {
+            0%, 100% { box-shadow: 0 2px 6px rgba(255,59,48,0.1); }
+            50% { box-shadow: 0 2px 12px rgba(255,59,48,0.25); }
+        }
+        .note-checkbox { transform: scale(1.3); cursor: pointer; flex-shrink: 0; accent-color: #007aff; margin-top: 2px;}
+        .note-content { flex: 1; min-width: 0; }
         .note-time {
             background: #e5f1ff; color: #007aff; font-weight: 700;
-            font-size: 13px; padding: 5px 9px; border-radius: 8px;
-            flex-shrink: 0; min-width: 50px; text-align: center;
+            font-size: 12px; padding: 4px 8px; border-radius: 6px;
+            flex-shrink: 0; min-width: 44px; text-align: center;
+            display: inline-block; margin-bottom: 4px;
         }
         .note-item.overdue .note-time { background: #fff0f0; color: #ff3b30;}
         .note-item.soon    .note-time { background: #fff3e0; color: #ff9500;}
         .note-time.empty   { background: #f2f2f7; color: #c7c7cc;}
-        .note-text { flex: 1; font-size: 14px; color: #1c1c1e; word-break: break-word; line-height: 1.35;}
-        .note-actions { display: flex; gap: 6px; flex-shrink: 0;}
-        .note-copy-btn, .note-delete-btn {
-            border: none; border-radius: 8px; cursor: pointer; font-size: 13px;
-            width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+        .note-text { font-size: 14px; color: #1c1c1e; word-break: break-word; line-height: 1.35; margin-bottom: 4px;}
+        .note-tags-row { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+        .note-ticket-link {
+            color: #007aff; font-size: 12px; font-weight: 700;
+            text-decoration: none; display: inline-flex; align-items: center; gap: 3px;
         }
+        .note-ticket-link::before { content: '#'; }
+        .note-actions { display: flex; gap: 4px; flex-shrink: 0; flex-direction: column;}
+        .note-pin-btn, .note-copy-btn, .note-delete-btn {
+            border: none; border-radius: 8px; cursor: pointer; font-size: 12px;
+            width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+        }
+        .note-pin-btn { background: #fff3e0; color: #ff9500; }
+        .note-pin-btn.pinned { background: #ff9500; color: white; }
         .note-copy-btn { background: #e5f1ff; color: #007aff;}
         .note-delete-btn { background: #fff0f0; color: #ff3b30;}
 
@@ -262,7 +353,7 @@
             <div id="closedTicketsContainer"></div>
         </div>
 
-        <!-- ЭКРАН 3: ПЛАН НА ДЕНЬ -->
+            <!-- ЭКРАН 3: ПЛАН НА ДЕНЬ — UPGRADED -->
         <div id="tab-notes" class="tab-content">
             <div class="plan-header">
                 <div>
@@ -273,11 +364,59 @@
                     <i class="fa-solid fa-broom"></i> Очистить
                 </button>
             </div>
+
+            <!-- Progress Ring -->
+            <div class="progress-ring-wrap" id="progressRingWrap">
+                <div class="progress-ring-container">
+                    <svg class="progress-ring-svg" width="72" height="72">
+                        <circle class="progress-ring-circle" cx="36" cy="36" r="30"></circle>
+                        <circle class="progress-ring-progress" id="progressCircle" cx="36" cy="36" r="30"
+                            stroke="#34c759" stroke-dasharray="188.5" stroke-dashoffset="188.5"></circle>
+                    </svg>
+                    <div class="progress-ring-text" id="progressPercent">0%</div>
+                </div>
+                <div class="progress-stats">
+                    <div class="progress-stat-row">
+                        <div class="progress-stat-dot" style="background:#34c759;"></div>
+                        <span>Выполнено</span>
+                        <span class="progress-stat-val" id="statDone">0</span>
+                    </div>
+                    <div class="progress-stat-row">
+                        <div class="progress-stat-dot" style="background:#ff9500;"></div>
+                        <span>В работе</span>
+                        <span class="progress-stat-val" id="statPending">0</span>
+                    </div>
+                    <div class="progress-stat-row">
+                        <div class="progress-stat-dot" style="background:#ff3b30;"></div>
+                        <span>Просрочено</span>
+                        <span class="progress-stat-val" id="statOverdue">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Templates -->
+            <div class="template-chips">
+                <div class="template-chip" onclick="addTemplate('📞 Позвонить ')"><i class="fa-solid fa-phone"></i> Звонок</div>
+                <div class="template-chip" onclick="addTemplate('🔧 Проверить заявку #')"><i class="fa-solid fa-wrench"></i> Проверить</div>
+                <div class="template-chip" onclick="addTemplate('📋 Отчёт по ')"><i class="fa-solid fa-clipboard"></i> Отчёт</div>
+                <div class="template-chip" onclick="addTemplate('🚨 Срочно: ')"><i class="fa-solid fa-triangle-exclamation"></i> Срочно</div>
+                <div class="template-chip" onclick="addTemplate('📅 Встреча с ')"><i class="fa-solid fa-calendar"></i> Встреча</div>
+            </div>
+
             <div class="add-note-box">
                 <div class="add-note-row">
                     <input type="text" id="newNoteInput" placeholder="Что нужно сделать...">
                     <input type="time" id="newNoteTime">
                     <button onclick="addNote()"><i class="fa-solid fa-plus"></i></button>
+                </div>
+                <div class="note-meta-row">
+                    <select id="newNotePriority" class="priority-select priority-med" onchange="updatePriorityStyle(this)">
+                        <option value="high" class="priority-high">🔴 Высокий</option>
+                        <option value="med" class="priority-med" selected>🟡 Средний</option>
+                        <option value="low" class="priority-low">🔵 Низкий</option>
+                    </select>
+                    <input type="text" id="newNoteTag" class="tag-input" placeholder="Тег..." maxlength="12">
+                    <input type="text" id="newNoteTicket" class="tag-input" placeholder="Заявка #" maxlength="10" style="width:80px;">
                 </div>
             </div>
             <div id="notesContainer"></div>
@@ -460,7 +599,18 @@
             else applyTab(window.location.hash.replace('#', ''));
 
             const savedNotes = localStorage.getItem("bossNotes");
-            if (savedNotes) { try { notes = JSON.parse(savedNotes); } catch(e){ notes=[]; } }
+            if (savedNotes) { 
+                try { 
+                    notes = JSON.parse(savedNotes); 
+                    // Migrate old notes without new fields
+                    notes.forEach(n => {
+                        if (!n.priority) n.priority = 'med';
+                        if (n.pinned === undefined) n.pinned = false;
+                        if (n.tag === undefined) n.tag = '';
+                        if (n.ticketId === undefined) n.ticketId = '';
+                    });
+                } catch(e){ notes=[]; } 
+            }
             renderNotes();
 
             loadBossData(true);
@@ -994,7 +1144,7 @@
             document.body.style.overflow = '';
         }
 
-        // ===== ПЛАН НА ДЕНЬ =====
+        // ===== ПЛАН НА ДЕНЬ — UPGRADED =====
         function updatePlanDate() {
             const d = new Date();
             $("planDate").innerText = d.toLocaleDateString('ru-RU', { weekday:'long', day:'numeric', month:'long' });
@@ -1010,8 +1160,34 @@
             return h * 60 + m;
         }
 
+        function updatePriorityStyle(select) {
+            select.className = 'priority-select priority-' + select.value;
+        }
+
+        function addTemplate(text) {
+            const input = $("newNoteInput");
+            input.value = text;
+            input.focus();
+            // Place cursor at end
+            setTimeout(() => {
+                input.setSelectionRange(input.value.length, input.value.length);
+            }, 0);
+        }
+
+        function getTagClass(tag) {
+            const t = (tag || '').toLowerCase();
+            if (t.includes('встреч')) return 'tag-meeting';
+            if (t.includes('звон')) return 'tag-call';
+            if (t.includes('сроч') || t.includes('urgent')) return 'tag-urgent';
+            if (t.includes('провер') || t.includes('чек')) return 'tag-check';
+            return 'tag-other';
+        }
+
         function renderNotes() {
+            const now = nowMinutes();
             const sorted = [...notes].sort((a, b) => {
+                // Pinned first, then by done status, then by time
+                if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
                 if (a.done !== b.done) return a.done ? 1 : -1;
                 const ta = timeToMinutes(a.time), tb = timeToMinutes(b.time);
                 if (ta === null && tb === null) return 0;
@@ -1023,34 +1199,75 @@
             const container = $("notesContainer");
             container.innerHTML = "";
 
+            const total = notes.length;
+            const done = notes.filter(n => n.done).length;
+            const pending = notes.filter(n => !n.done).length;
+            const overdue = notes.filter(n => {
+                if (n.done) return false;
+                const tm = timeToMinutes(n.time);
+                return tm !== null && tm < now;
+            }).length;
+
+            // Update progress ring
+            const pct = total === 0 ? 0 : Math.round((done / total) * 100);
+            const circle = $("progressCircle");
+            const circumference = 2 * Math.PI * 30; // r=30
+            const offset = circumference - (pct / 100) * circumference;
+            circle.style.strokeDashoffset = offset;
+            circle.style.stroke = pct === 100 ? '#34c759' : pct >= 50 ? '#007aff' : '#ff9500';
+            $("progressPercent").innerText = pct + '%';
+            $("statDone").innerText = done;
+            $("statPending").innerText = pending;
+            $("statOverdue").innerText = overdue;
+
             const activeCount = notes.filter(n => !n.done).length;
             $("planCountLabel").innerText = activeCount === 0 ? 'Всё сделано 🎉' : `${activeCount} ${plural(activeCount,['задача','задачи','задач'])}`;
 
             if (notes.length === 0) {
-                container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-clipboard-check"></i><h3>План пуст</h3><p>Добавьте первую задачу</p></div>`;
+                container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-clipboard-check"></i><h3>План пуст</h3><p>Добавьте первую задачу или выберите шаблон</p></div>`;
                 return;
             }
 
-            const now = nowMinutes();
             sorted.forEach(note => {
                 const realIndex = notes.indexOf(note);
                 let extraClass = note.done ? 'done' : '';
+                extraClass += note.pinned ? ' pinned' : '';
+                extraClass += ' priority-' + (note.priority || 'med');
+                
                 const tMin = timeToMinutes(note.time);
                 if (!note.done && tMin !== null) {
                     if (tMin < now) extraClass += ' overdue';
                     else if (tMin - now <= 30) extraClass += ' soon';
                 }
+
                 const timeHtml = note.time
                     ? `<div class="note-time">${note.time}</div>`
                     : `<div class="note-time empty"><i class="fa-regular fa-clock"></i></div>`;
+
+                const tagHtml = note.tag 
+                    ? `<span class="tag-badge ${getTagClass(note.tag)}">${escapeHtml(note.tag)}</span>` 
+                    : '';
+                
+                const ticketHtml = note.ticketId 
+                    ? `<a href="#" onclick="openTicketModal('${escapeHtml(note.ticketId)}'); return false;" class="note-ticket-link">${escapeHtml(note.ticketId)} <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:9px;"></i></a>` 
+                    : '';
 
                 const div = document.createElement('div');
                 div.className = 'note-item ' + extraClass;
                 div.innerHTML = `
                     <input type="checkbox" class="note-checkbox" ${note.done ? 'checked' : ''} onchange="toggleNote(${realIndex})">
-                    ${timeHtml}
-                    <div class="note-text">${escapeHtml(note.text)}</div>
+                    <div class="note-content">
+                        ${timeHtml}
+                        <div class="note-text">${escapeHtml(note.text)}</div>
+                        <div class="note-tags-row">
+                            ${tagHtml}
+                            ${ticketHtml}
+                        </div>
+                    </div>
                     <div class="note-actions">
+                        <button class="note-pin-btn ${note.pinned ? 'pinned' : ''}" onclick="togglePin(${realIndex}, this)" title="Закрепить">
+                            <i class="fa-solid fa-thumbtack"></i>
+                        </button>
                         <button class="note-copy-btn" onclick="copyNote(${realIndex}, this)"><i class="fa-regular fa-copy"></i></button>
                         <button class="note-delete-btn" onclick="deleteNote(${realIndex})"><i class="fa-solid fa-xmark"></i></button>
                     </div>`;
@@ -1073,15 +1290,38 @@
         function addNote() {
             const input = $("newNoteInput");
             const timeInput = $("newNoteTime");
+            const priorityInput = $("newNotePriority");
+            const tagInput = $("newNoteTag");
+            const ticketInput = $("newNoteTicket");
+            
             const text = input.value.trim();
             if (!text) return;
-            notes.push({ text, time: timeInput.value || '', done: false, createdAt: Date.now() });
+            
+            notes.push({ 
+                text, 
+                time: timeInput.value || '', 
+                done: false, 
+                createdAt: Date.now(),
+                priority: priorityInput.value || 'med',
+                tag: tagInput.value.trim() || '',
+                ticketId: ticketInput.value.trim() || '',
+                pinned: false
+            });
+            
             input.value = "";
             timeInput.value = "";
+            tagInput.value = "";
+            ticketInput.value = "";
+            priorityInput.value = "med";
+            updatePriorityStyle(priorityInput);
             renderNotes();
         }
 
         function toggleNote(i) { notes[i].done = !notes[i].done; renderNotes(); }
+        function togglePin(i, btn) { 
+            notes[i].pinned = !notes[i].pinned; 
+            renderNotes(); 
+        }
         function deleteNote(i) { notes.splice(i, 1); renderNotes(); }
 
         function clearDoneNotes() {
@@ -1093,7 +1333,10 @@
 
         function copyNote(i, btn) {
             const n = notes[i];
-            const text = n.time ? `${n.time} — ${n.text}` : n.text;
+            let text = n.time ? `${n.time} — ${n.text}` : n.text;
+            if (n.tag) text += ` [${n.tag}]`;
+            if (n.ticketId) text += ` #${n.ticketId}`;
+            
             navigator.clipboard.writeText(text).then(() => {
                 const orig = btn.innerHTML;
                 btn.innerHTML = '<i class="fa-solid fa-check"></i>';
