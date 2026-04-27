@@ -409,24 +409,36 @@
         }
 
         // ===== TICKET DETAIL CACHE =====
-        const TICKET_CACHE_TTL = 5 * 60 * 1000;
+               // ===== TICKET CACHE WITH STAGED UPDATE =====
+        const TICKET_CACHE_TTL = 30 * 60 * 1000;        // Static data: 30 min
+        const TICKET_DYNAMIC_TTL = 2 * 60 * 1000;       // Dynamic data: 2 min
+
         function getCachedTicket(ticketId) {
             try {
                 const key = 'boss_ticket_' + ticketId;
                 const item = localStorage.getItem(key);
                 if (!item) return null;
                 const parsed = JSON.parse(item);
-                if (Date.now() - parsed.timestamp > TICKET_CACHE_TTL) {
-                    localStorage.removeItem(key);
-                    return null;
-                }
-                return parsed.data;
+                const age = Date.now() - parsed.timestamp;
+                return {
+                    data: parsed.data,
+                    isFresh: age < TICKET_DYNAMIC_TTL,
+                    isValid: age < TICKET_CACHE_TTL
+                };
             } catch (e) { return null; }
         }
+
         function setCachedTicket(ticketId, data) {
             localStorage.setItem('boss_ticket_' + ticketId, JSON.stringify({ data, timestamp: Date.now() }));
         }
 
+        function hasMeaningfulChanges(oldData, newData) {
+            if (!oldData) return true;
+            const dynamicFields = ['status', 'photoBeforeOk', 'photoAfterOk', 'totalCost', 
+                                  'workCost', 'materialCost', 'deliveryCost', 'rating', 
+                                  'ratingComment', 'closedAt', 'forced', 'forcedReason', 'description'];
+            return dynamicFields.some(field => oldData[field] !== newData[field]);
+        }
         const $ = id => document.getElementById(id);
 
         let currentUser = null;
@@ -502,6 +514,7 @@
                 localStorage.setItem(cacheKey, JSON.stringify(data));
                 bossData = data;
                 renderAll();
+                preloadActiveTicketDetails(); // Background preload
             } catch (e) {
                 console.error('loadBossData error:', e);
                 if (!cached) {
@@ -521,6 +534,27 @@
             renderTopList('topDispatchersList', bossData.topDispatchers || {}, 'fa-headset', '#af52de');
             renderActive();
             renderClosed();
+        }
+        
+                // Preload active ticket details in background after data loads
+        async function preloadActiveTicketDetails() {
+            if (!bossData?.activeTickets) return;
+            const toPreload = bossData.activeTickets.slice(0, 10);
+            
+            for (const ticket of toPreload) {
+                const cached = getCachedTicket(ticket.id);
+                if (!cached || !cached.isFresh) {
+                    try {
+                        const details = await apiFetch(
+                            URL_GOOGLE_SERVER + "?action=getTicketDetails&ticketId=" + encodeURIComponent(ticket.id)
+                        );
+                        setCachedTicket(ticket.id, details);
+                    } catch (e) {
+                        // Silent fail — will retry on open
+                    }
+                    await new Promise(r => setTimeout(r, 250)); // Stagger requests
+                }
+            }
         }
 
         function renderMoney() {
@@ -662,7 +696,7 @@
         }
 
         // ===== МОДАЛКА ДЕТАЛЕЙ ЗАЯВКИ =====
-        async function openTicketModal(ticketId) {
+                async function openTicketModal(ticketId) {
             const modal = $('ticketModal');
             const modalBody = $('modalBody');
             modal.classList.add('show');
@@ -670,27 +704,38 @@
             $('modalTicketId').innerText = '#' + ticketId;
 
             const cached = getCachedTicket(ticketId);
-            if (cached) {
-                renderTicketDetails(cached);
+
+            // INSTANT render from cache — address, master, problem never change
+            if (cached && cached.isValid) {
+                renderTicketDetails(cached.data);
             } else {
                 modalBody.innerHTML = `<div class="inline-loader"><i class="fa-solid fa-circle-notch fa-spin"></i><br>Загрузка...</div>`;
             }
 
-            try {
-                const details = await apiFetch(URL_GOOGLE_SERVER + "?action=getTicketDetails&ticketId=" + encodeURIComponent(ticketId));
-                setCachedTicket(ticketId, details);
-                renderTicketDetails(details);
-            } catch (e) {
-                console.error('Ticket details error:', e);
-                if (!cached) {
-                    modalBody.innerHTML = `
-                        <div style="text-align:center;padding:40px 20px;color:#ff3b30;">
-                            <i class="fa-solid fa-triangle-exclamation" style="font-size:40px;margin-bottom:15px;"></i>
-                            <p>Не удалось загрузить детали</p>
-                            <button class="btn" onclick="openTicketModal('${ticketId}')" style="background:#f2f2f7;color:#007aff;margin-top:10px;border:none;padding:10px 16px;border-radius:10px;font-weight:600;cursor:pointer;">
-                                <i class="fa-solid fa-rotate-right"></i> Повторить
-                            </button>
-                        </div>`;
+            // SILENT background refresh only if dynamic data is stale
+            if (!cached || !cached.isFresh) {
+                try {
+                    const details = await apiFetch(URL_GOOGLE_SERVER + "?action=getTicketDetails&ticketId=" + encodeURIComponent(ticketId));
+                    
+                    // Only re-render if something actually changed
+                    if (hasMeaningfulChanges(cached?.data, details)) {
+                        renderTicketDetails(details);
+                    }
+                    
+                    setCachedTicket(ticketId, details);
+                } catch (e) {
+                    console.error('Ticket refresh failed:', e);
+                    // User already sees cached data — no error UI
+                    if (!cached) {
+                        modalBody.innerHTML = `
+                            <div style="text-align:center;padding:40px 20px;color:#ff3b30;">
+                                <i class="fa-solid fa-triangle-exclamation" style="font-size:40px;margin-bottom:15px;"></i>
+                                <p>Не удалось загрузить детали</p>
+                                <button class="btn" onclick="openTicketModal('${ticketId}')" style="background:#f2f2f7;color:#007aff;margin-top:10px;border:none;padding:10px 16px;border-radius:10px;font-weight:600;cursor:pointer;">
+                                    <i class="fa-solid fa-rotate-right"></i> Повторить
+                                </button>
+                            </div>`;
+                    }
                 }
             }
         }
