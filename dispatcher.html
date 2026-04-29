@@ -704,7 +704,7 @@
         try {
             const [addrs, users] = await Promise.all([
                 fetch(URL_GOOGLE_SERVER + "?action=getAddresses").then(r => r.json()),
-                fetch(URL_GOOGLE_SERVER).then(r => r.json())
+                fetch(URL_GOOGLE_SERVER + "?action=getUsers").then(r => r.json()) 
             ]);
             allAddresses = addrs.map(a => String(a).trim());
             allMasters   = users.filter(u => u.role === "мастер").map(u => String(u.name).trim());
