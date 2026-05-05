@@ -688,21 +688,12 @@
     // ==========================================
     // ИНИЦИАЛИЗАЦИЯ
     // ==========================================
-    window.onload = async function () {
+    window.onload = function () {
         const userStr = localStorage.getItem("currentUser");
         if (!userStr) { window.location.replace("index.html"); return; }
         currentUser = JSON.parse(userStr);
         if (!currentUser.pin) { window.location.replace("index.html"); return; }
         if (currentUser.role !== "диспетчер") { window.location.replace("index.html"); return; }
-
-        // Проверяем сессию при старте — ждём результат перед рендером
-        try {
-            const sessionOk = await checkSession();
-            if (!sessionOk) return; // checkSession уже сделал logout + redirect
-        } catch(e) {
-            logout(true);
-            return;
-        }
 
         $("profileName").innerText = currentUser.name;
 
@@ -756,7 +747,11 @@
 
         // Проверяем сессию раз в 24 часа, пока вкладка активна
         setInterval(() => {
-            if (document.visibilityState === 'visible') checkSession();
+            if (document.visibilityState === 'visible') {
+                checkSession().then(ok => {
+                    if (!ok) console.log("[Session] Разлогин по таймеру");
+                });
+            }
         }, 24 * 60 * 60 * 1000);
     };
 
