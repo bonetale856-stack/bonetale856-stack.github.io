@@ -831,10 +831,18 @@
             if (userStr) {
                 try {
                     const user = JSON.parse(userStr);
+                    // Редирект только если есть pin и роль
+                    if (!user || !user.pin || !user.role) {
+                        localStorage.removeItem("currentUser");
+                        return;
+                    }
                     if (user.role === "диспетчер") window.location.replace("dispatcher.html");
                     else if (user.role === "мастер") window.location.replace("master.html");
                     else if (user.role === "шеф") window.location.replace("boss.html");
-                } catch(e) { console.error("Ошибка парсинга пользователя", e); }
+                } catch(e) { 
+                    console.error("Ошибка парсинга пользователя", e); 
+                    localStorage.removeItem("currentUser");
+                }
             }
             
             if ('serviceWorker' in navigator) {
