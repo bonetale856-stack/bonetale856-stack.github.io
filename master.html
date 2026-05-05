@@ -786,6 +786,7 @@
       }
     </script>
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
 
@@ -978,7 +979,27 @@
                     <textarea class="form-control" id="repDescription" rows="4" placeholder="Опишите что вы сделали..."></textarea>
                 </div>
 
-                <div class="modal-section" style="margin-bottom:20px;">
+                                <div class="modal-section" style="margin-bottom:20px;">
+                    <div class="modal-section-title">Стоимость</div>
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-ruble-sign"></i> Работа (₽)</label>
+                        <input type="number" class="form-control" id="repWorkCost" placeholder="0" min="0" step="1" oninput="updateTotalCost()">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-ruble-sign"></i> Материалы (₽)</label>
+                        <input type="number" class="form-control" id="repMaterialCost" placeholder="0" min="0" step="1" oninput="updateTotalCost()">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-ruble-sign"></i> Доставка (₽)</label>
+                        <input type="number" class="form-control" id="repDeliveryCost" placeholder="0" min="0" step="1" oninput="updateTotalCost()">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-ruble-sign"></i> Итого (₽)</label>
+                        <input type="number" class="form-control" id="repTotalCost" placeholder="0" min="0" step="1" readonly style="background:#f9f9f9; font-weight:700;">
+                    </div>
+                </div>
+
+<div class="modal-section" style="margin-bottom:20px;">
                     <div class="modal-section-title">Фото и видео отчёт</div>
                     <div class="photo-row">
                         <button class="btn-folder" onclick="openDriveFolder('before')"><i class="fa-solid fa-camera"></i> Фото/видео ДО</button>
@@ -1110,7 +1131,12 @@
             const userStr = localStorage.getItem("currentUser");
             if (!userStr) { window.location.replace("index.html"); return; }
             currentUser = JSON.parse(userStr);
+            if (!currentUser.pin) { window.location.replace("index.html"); return; }
             if (currentUser.role !== "мастер") { window.location.replace("index.html"); return; }
+
+            // Проверяем сессию при старте
+            const sessionOk = await checkSession();
+            if (!sessionOk) return;
 
             document.getElementById("profileName").innerText = currentUser.name;
 
@@ -1135,6 +1161,11 @@
                 }
             }
             preloadWithRetry();
+
+            // Проверяем сессию каждые 5 минут, пока вкладка активна
+            setInterval(() => {
+                if (document.visibilityState === 'visible') checkSession();
+            }, 5 * 60 * 1000);
         };
 
         window.addEventListener('popstate', (event) => {
@@ -1653,6 +1684,10 @@
             document.getElementById("repDescription").value = "";
             document.getElementById("photoBeforeOk").checked = false;
             document.getElementById("photoAfterOk").checked = false;
+            document.getElementById("repWorkCost").value = "";
+            document.getElementById("repMaterialCost").value = "";
+            document.getElementById("repDeliveryCost").value = "";
+            document.getElementById("repTotalCost").value = "";
             const btn = document.getElementById("btnSubmitReport");
             btn.disabled = false;
             btn.innerHTML = '<i class="fa-solid fa-check-double"></i> Закрыть заявку';
@@ -1774,7 +1809,42 @@
             return `${day}.${month}.${year} ${hours}:${minutes}`;
         }
 
-        // ===== ПРОСЛУШИВАНИЕ ЗАЯВКИ =====
+        // ===== АВТОПОДСЧЁТ ИТОГО =====
+function updateTotalCost() {
+    const work = Number(document.getElementById('repWorkCost').value) || 0;
+    const mat  = Number(document.getElementById('repMaterialCost').value) || 0;
+    const del  = Number(document.getElementById('repDeliveryCost').value) || 0;
+    document.getElementById('repTotalCost').value = work + mat + del;
+}
+
+// ===== ПРОВЕРКА СЕССИИ (24ч + защита от удаления) =====
+async function checkSession() {
+    if (!currentUser || !currentUser.name || !currentUser.pin) {
+        logout();
+        return false;
+    }
+    try {
+        const result = await apiFetch(URL_GOOGLE_SERVER, {
+            method: "POST",
+            body: JSON.stringify({
+                action: "checkAuth",
+                name: currentUser.name,
+                pin: currentUser.pin
+            }),
+            headers: { "Content-Type": "text/plain;charset=utf-8" }
+        });
+        if (result.status !== "success") {
+            throw new Error(result.message || "Session invalid");
+        }
+        return true;
+    } catch (e) {
+        alert("Сессия истекла или пользователь удалён. Необходимо повторно войти.");
+        logout();
+        return false;
+    }
+}
+
+// ===== ПРОСЛУШИВАНИЕ ЗАЯВКИ =====
         let currentUtterance = null;
         let isListening = false;
 
@@ -1884,13 +1954,22 @@
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Отправляем...';
 
+            const workCost      = Number(document.getElementById("repWorkCost").value) || 0;
+            const materialCost  = Number(document.getElementById("repMaterialCost").value) || 0;
+            const deliveryCost  = Number(document.getElementById("repDeliveryCost").value) || 0;
+            const totalCost     = Number(document.getElementById("repTotalCost").value) || 0;
+
             const reportData = {
                 action: "submitReport",
                 ticketId: activeTicketId,
                 masterName: currentUser.name,
                 description: desc,
                 photoBeforeOk: photoBeforeOk,
-                photoAfterOk: photoAfterOk
+                photoAfterOk: photoAfterOk,
+                workCost: workCost,
+                materialCost: materialCost,
+                deliveryCost: deliveryCost,
+                totalCost: totalCost
             };
 
             try {
