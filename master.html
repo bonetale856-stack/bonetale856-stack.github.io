@@ -1136,11 +1136,6 @@
 
             document.getElementById("profileName").innerText = currentUser.name;
 
-            // Проверяем сессию в фоне — не блокируем рендер
-            setTimeout(() => checkSession().then(ok => {
-                if (!ok) console.log("[Session] Разлогин в фоне");
-            }), 2000);
-
             if (!window.location.hash) {
                 history.replaceState({tab: 'tasks'}, "", "#tasks");
                 applyTab('tasks');
