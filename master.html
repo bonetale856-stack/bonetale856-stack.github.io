@@ -1134,9 +1134,14 @@
             if (!currentUser.pin) { window.location.replace("index.html"); return; }
             if (currentUser.role !== "мастер") { window.location.replace("index.html"); return; }
 
-            // Проверяем сессию при старте
-            const sessionOk = await checkSession();
-            if (!sessionOk) return;
+            // Проверяем сессию при старте — ждём результат перед рендером
+            try {
+                const sessionOk = await checkSession();
+                if (!sessionOk) return; // checkSession уже сделал logout + redirect
+            } catch(e) {
+                logout(true);
+                return;
+            }
 
             document.getElementById("profileName").innerText = currentUser.name;
 
@@ -1820,7 +1825,7 @@ function updateTotalCost() {
 // ===== ПРОВЕРКА СЕССИИ (24ч + защита от удаления) =====
 async function checkSession() {
     if (!currentUser || !currentUser.name || !currentUser.pin) {
-        logout();
+        logout(true);
         return false;
     }
     try {
@@ -1838,8 +1843,7 @@ async function checkSession() {
         }
         return true;
     } catch (e) {
-        alert("Сессия истекла или пользователь удалён. Необходимо повторно войти.");
-        logout();
+        logout(true);
         return false;
     }
 }
@@ -2016,12 +2020,13 @@ async function checkSession() {
         }
 
         // ===== ВЫХОД =====
-        async function logout() {
+        async function logout(silent) {
+            if (!silent && !confirm("Выйти из аккаунта?")) return;
             if (window.OneSignal) {
                 try { await OneSignal.logout(); } catch(e) {}
             }
             localStorage.removeItem("currentUser");
-            window.location.href = "index.html";
+            window.location.replace("index.html");
         }
 
         // ===== ПЛАШКА УВЕДОМЛЕНИЙ =====
