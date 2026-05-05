@@ -1608,13 +1608,14 @@
                 headers: { "Content-Type": "text/plain;charset=utf-8" }
             });
             const result = await res.json();
-            if (result.status !== "success") {
-                throw new Error(result.message || "Session invalid");
+            if (result.status === "success") {
+                return true;
             }
-            return true;
-        } catch (e) {
             logout(true);
             return false;
+        } catch (e) {
+            console.log("[checkSession] Сетевая ошибка, пропускаем:", e.message);
+            return true;
         }
     }
 
