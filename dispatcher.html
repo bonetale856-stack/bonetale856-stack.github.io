@@ -266,6 +266,7 @@
             display: flex; align-items: center; gap: 6px;
         }
     </style>
+<base target="_blank">
 </head>
 <body>
 
@@ -691,7 +692,12 @@
         const userStr = localStorage.getItem("currentUser");
         if (!userStr) { window.location.replace("index.html"); return; }
         currentUser = JSON.parse(userStr);
+        if (!currentUser.pin) { window.location.replace("index.html"); return; }
         if (currentUser.role !== "диспетчер") { window.location.replace("index.html"); return; }
+
+        // Проверяем сессию при старте
+        const sessionOk = await checkSession();
+        if (!sessionOk) return;
 
         $("profileName").innerText = currentUser.name;
 
@@ -742,6 +748,11 @@
         $('aptInput').addEventListener('keydown', function(e) {
             if (e.key === 'Enter') { e.preventDefault(); addApt(); }
         });
+
+        // Проверяем сессию раз в 24 часа, пока вкладка активна
+        setInterval(() => {
+            if (document.visibilityState === 'visible') checkSession();
+        }, 24 * 60 * 60 * 1000);
     };
 
     window.addEventListener('popstate', (event) => {
@@ -1572,6 +1583,36 @@
     function filterMasters()       { buildDropdown('masterInput', 'customMasterList',      allMasters,   20); }
     function filterEditAddresses() { buildDropdown('editAddress', 'customEditAddressList', allAddresses, 15); }
     function filterEditMasters()   { buildDropdown('editMaster',  'customEditMasterList',  allMasters,   20); }
+
+    // ==========================================
+    // ПРОВЕРКА СЕССИИ (24ч + защита от удаления)
+    // ==========================================
+    async function checkSession() {
+        if (!currentUser || !currentUser.name || !currentUser.pin) {
+            logout();
+            return false;
+        }
+        try {
+            const res = await fetch(URL_GOOGLE_SERVER, {
+                method: "POST",
+                body: JSON.stringify({
+                    action: "checkAuth",
+                    name: currentUser.name,
+                    pin: currentUser.pin
+                }),
+                headers: { "Content-Type": "text/plain;charset=utf-8" }
+            });
+            const result = await res.json();
+            if (result.status !== "success") {
+                throw new Error(result.message || "Session invalid");
+            }
+            return true;
+        } catch (e) {
+            alert("Сессия истекла или пользователь удалён. Необходимо повторно войти.");
+            logout();
+            return false;
+        }
+    }
 
     // ==========================================
     // ВЫХОД
