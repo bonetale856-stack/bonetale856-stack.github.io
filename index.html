@@ -433,6 +433,7 @@
             .page-title h1 { font-size: 1.4rem; }
         }
     </style>
+<base target="_blank">
 </head>
 <body>
 
@@ -452,7 +453,7 @@
             <input type="text" class="form-control" id="userName" placeholder="Ваше ФИО" autocomplete="off">
         </div>
         <div class="form-group">
-            <input type="password" class="form-control" id="userPin" placeholder="ПИН-код" pattern="[0-9]*" inputmode="numeric">
+            <input type="password" class="form-control" id="userPin" placeholder="ПИН-код" pattern="[0-9]*" inputmode="numeric" onkeydown="if(event.key==='Enter')login()">
         </div>
         
         <button class="btn btn-primary" onclick="login()">Войти в систему</button>
@@ -879,7 +880,12 @@
                 const result = await response.json();
 
                 if (result.status === "success") {
-                    localStorage.setItem("currentUser", JSON.stringify(result.user));
+                    localStorage.setItem("currentUser", JSON.stringify({
+                        id: result.user.id,
+                        name: result.user.name,
+                        role: result.user.role,
+                        pin: pinInput
+                    }));
                     showLoader("Успешно! Входим...");
                     
                     setTimeout(() => {
