@@ -695,9 +695,14 @@
         if (!currentUser.pin) { window.location.replace("index.html"); return; }
         if (currentUser.role !== "диспетчер") { window.location.replace("index.html"); return; }
 
-        // Проверяем сессию при старте
-        const sessionOk = await checkSession();
-        if (!sessionOk) return;
+        // Проверяем сессию при старте — ждём результат перед рендером
+        try {
+            const sessionOk = await checkSession();
+            if (!sessionOk) return; // checkSession уже сделал logout + redirect
+        } catch(e) {
+            logout(true);
+            return;
+        }
 
         $("profileName").innerText = currentUser.name;
 
@@ -1589,7 +1594,7 @@
     // ==========================================
     async function checkSession() {
         if (!currentUser || !currentUser.name || !currentUser.pin) {
-            logout();
+            logout(true);
             return false;
         }
         try {
@@ -1608,8 +1613,7 @@
             }
             return true;
         } catch (e) {
-            alert("Сессия истекла или пользователь удалён. Необходимо повторно войти.");
-            logout();
+            logout(true);
             return false;
         }
     }
@@ -1617,10 +1621,10 @@
     // ==========================================
     // ВЫХОД
     // ==========================================
-    function logout() {
-        if (!confirm("Выйти из аккаунта?")) return;
+    function logout(silent) {
+        if (!silent && !confirm("Выйти из аккаунта?")) return;
         localStorage.removeItem("currentUser");
-        window.location.href = "index.html";
+        window.location.replace("index.html");
     }
     </script>
 
