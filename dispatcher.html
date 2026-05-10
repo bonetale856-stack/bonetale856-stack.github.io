@@ -40,6 +40,23 @@
         }
         .apt-tag-remove { color: #007aff; cursor: pointer; font-size: 15px; line-height: 1; opacity: 0.7; }
         .apt-tag-remove:hover { opacity: 1; }
+        /* ===== ТЕГИ МАСТЕРОВ ===== */
+        .master-row { display: flex; gap: 8px; align-items: flex-start; }
+        .master-row .form-control { flex: 1; }
+        .master-tags-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+        .master-tag {
+            background: #e8f5e9; color: #34c759; padding: 4px 10px;
+            border-radius: 20px; font-size: 13px; font-weight: 600;
+            display: flex; align-items: center; gap: 5px;
+        }
+        .master-tag-remove { color: #34c759; cursor: pointer; font-size: 15px; line-height: 1; opacity: 0.7; }
+        .master-tag-remove:hover { opacity: 1; }
+        .master-add-btn {
+            background: #34c759; color: white; border: none;
+            border-radius: 10px; padding: 10px 14px; font-size: 15px;
+            cursor: pointer; flex-shrink: 0; transition: background 0.15s;
+        }
+        .master-add-btn:active { background: #28a745; }
         .apt-add-btn {
             background: #007aff; color: white; border: none;
             border-radius: 10px; padding: 10px 14px; font-size: 15px;
@@ -354,12 +371,20 @@
                               placeholder="Что случилось..."></textarea>
                 </div>
 
-                <!-- МАСТЕР -->
+                <!-- МАСТЕРЫ (несколько) -->
                 <div class="form-group" style="position: relative;">
-                    <label><i class="fa-solid fa-helmet-safety"></i> Назначить мастера:</label>
-                    <input type="text" class="form-control" id="masterInput"
-                           placeholder="Начните вводить ФИО..."
-                           oninput="filterMasters()" onfocus="filterMasters()">
+                    <label><i class="fa-solid fa-helmet-safety"></i> Назначить мастеров:</label>
+                    <div class="master-row">
+                        <input type="text" class="form-control" id="masterInput"
+                               placeholder="Начните вводить ФИО..."
+                               oninput="filterMasters()" onfocus="filterMasters()"
+                               onkeydown="if(event.key==='Enter'){event.preventDefault();addMaster();}">
+                        <button class="master-add-btn" onclick="addMaster()" title="Добавить мастера">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+                    <div class="master-tags-wrap" id="masterTags"></div>
+                    <div class="field-hint">Можно назначить несколько мастеров</div>
                     <div id="customMasterList" class="custom-dropdown"></div>
                 </div>
 
@@ -531,7 +556,7 @@
                     <i class="fa-solid fa-helmet-safety" style="color:#3a3a3c;"></i>
                 </div>
                 <div>
-                    <div class="confirm-label">Мастер</div>
+                    <div class="confirm-label">Мастера</div>
                     <div class="confirm-value" id="cfMaster">—</div>
                 </div>
             </div>
@@ -681,6 +706,7 @@
     let currentCloseId     = null;
     let currentRateTicketId = null;
     let aptList            = [];
+    let masterList         = [];
     let recognition        = null;
     let isRecording        = false;
     let selectedTicketType = '';
@@ -688,11 +714,10 @@
     // ==========================================
     // ИНИЦИАЛИЗАЦИЯ
     // ==========================================
-    window.onload = function () {
+    window.onload = async function () {
         const userStr = localStorage.getItem("currentUser");
         if (!userStr) { window.location.replace("index.html"); return; }
         currentUser = JSON.parse(userStr);
-        if (!currentUser.pin) { window.location.replace("index.html"); return; }
         if (currentUser.role !== "диспетчер") { window.location.replace("index.html"); return; }
 
         $("profileName").innerText = currentUser.name;
@@ -879,6 +904,34 @@
         });
     }
 
+    // ===== МАСТЕРА =====
+    function addMaster() {
+        const val = $('masterInput').value.trim();
+        if (!val) { $('masterInput').focus(); return; }
+        if (!allMasters.includes(val)) { alert("❌ Такого мастера нет в базе!"); return; }
+        if (masterList.includes(val)) { $('masterInput').value = ''; return; }
+        masterList.push(val);
+        renderMasterTags();
+        $('masterInput').value = '';
+        $('masterInput').focus();
+    }
+
+    function removeMaster(val) {
+        masterList = masterList.filter(m => m !== val);
+        renderMasterTags();
+    }
+
+    function renderMasterTags() {
+        const wrap = $('masterTags');
+        wrap.innerHTML = '';
+        masterList.forEach(val => {
+            const tag = document.createElement('div');
+            tag.className = 'master-tag';
+            tag.innerHTML = `${val} <span class="master-tag-remove" onclick="removeMaster('${val}')">×</span>`;
+            wrap.appendChild(tag);
+        });
+    }
+
     // ==========================================
     // РЕЧЬ
     // ==========================================
@@ -990,7 +1043,7 @@
 
         if (!address) { alert("Укажите адрес!"); return; }
         if (!problem)  { alert("Опишите проблему!"); return; }
-        if (!master)   { alert("Назначьте мастера!"); return; }
+        if (masterList.length === 0) { alert("Назначьте хотя бы одного мастера!"); return; }
         if (!selectedTicketType) { alert("Выберите тип заявки!"); return; }
 
         if (!allAddresses.includes(address)) {
@@ -1011,7 +1064,7 @@
         $('cfApt').textContent     = aptText || '—';
         $('cfPhone').textContent   = phone || '—';
         $('cfProblem').textContent = problem;
-        $('cfMaster').textContent  = master;
+        $('cfMaster').textContent  = masterList.join(', ');
 
         $('confirmModal').style.display = 'flex';
     }
@@ -1053,7 +1106,7 @@
                     dispatcherName: currentUser.name,
                     address:        address,
                     problem:        fullProblem,
-                    masterName:     master,
+                    masterName:     masterList.join(", "),
                     ticketType:     selectedTicketType || "Аварийная",
                     paymentType:    getSelectedPaymentType()
                 }),
@@ -1099,7 +1152,9 @@
         $("phone").value       = "";
         $("entrance").value    = "";
         aptList = [];
+        masterList = [];
         renderAptTags();
+        renderMasterTags();
         selectedTicketType = '';
         document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
         $('paymentBlock').style.display  = 'none';
@@ -1251,7 +1306,7 @@
                 ${typeInfo}
                 ${extraInfo}
                 <div class="ticket-info">
-                    <div><i class="fa-solid fa-helmet-safety"></i> ${ticket.master}</div>
+                    <div><i class="fa-solid fa-helmet-safety"></i> ${ticket.master || '—'}</div>
                     ${actionHtml}
                 </div>`;
 
@@ -1585,7 +1640,7 @@
     function filterEditMasters()   { buildDropdown('editMaster',  'customEditMasterList',  allMasters,   20); }
 
     // ==========================================
-    // ПРОВЕРКА СЕССИИ (24ч + защита от удаления)
+    // ВЫХОД
     // ==========================================
     async function checkSession() {
         if (!currentUser || !currentUser.name || !currentUser.pin) {
@@ -1614,9 +1669,6 @@
         }
     }
 
-    // ==========================================
-    // ВЫХОД
-    // ==========================================
     function logout(silent) {
         if (!silent && !confirm("Выйти из аккаунта?")) return;
         localStorage.removeItem("currentUser");
