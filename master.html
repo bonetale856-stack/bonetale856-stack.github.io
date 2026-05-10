@@ -1527,6 +1527,14 @@
                             <div class="modal-info-value">${ticket.dispatcher}</div>
                         </div>
                     </div>` : ''}
+                    ${ticket.master ? `
+                    <div class="modal-info-row">
+                        <div class="modal-info-icon" style="background:#e8f5e9; color:#34c759;"><i class="fa-solid fa-helmet-safety"></i></div>
+                        <div class="modal-info-content">
+                            <div class="modal-info-label">Назначенные мастера</div>
+                            <div class="modal-info-value">${ticket.master}</div>
+                        </div>
+                    </div>` : ''}
                     ${ticket.ticketType ? `
                     <div class="modal-info-row">
                         <div class="modal-info-icon"><i class="fa-solid fa-tag"></i></div>
