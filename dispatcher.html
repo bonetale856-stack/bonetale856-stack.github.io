@@ -705,7 +705,7 @@
     let currentEditId      = null;
     let currentCloseId     = null;
     let currentRateTicketId = null;
-    let aptList            = [];
+    let aptList            = []; // [{entrance, apt}, ...]
     let masterList         = [];
     let recognition        = null;
     let isRecording        = false;
@@ -880,26 +880,34 @@
     // ==========================================
     function addApt() {
         const val = $('aptInput').value.trim();
+        const entrance = $('entrance').value.trim();
         if (!val || isNaN(Number(val)) || Number(val) < 1) { $('aptInput').focus(); return; }
-        if (aptList.includes(val)) { $('aptInput').value = ''; return; }
-        aptList.push(val);
+        const key = (entrance || '—') + '|' + val;
+        if (aptList.some(a => a.entrance === (entrance || '') && a.apt === val)) { 
+            $('aptInput').value = ''; 
+            return; 
+        }
+        aptList.push({ entrance: entrance || '', apt: val });
         renderAptTags();
         $('aptInput').value = '';
         $('aptInput').focus();
     }
 
-    function removeApt(val) {
-        aptList = aptList.filter(a => a !== val);
+    function removeApt(entrance, apt) {
+        aptList = aptList.filter(a => !(a.entrance === entrance && a.apt === apt));
         renderAptTags();
     }
 
     function renderAptTags() {
         const wrap = $('aptTags');
         wrap.innerHTML = '';
-        aptList.forEach(val => {
+        aptList.forEach(item => {
             const tag = document.createElement('div');
             tag.className = 'apt-tag';
-            tag.innerHTML = `кв. ${val} <span class="apt-tag-remove" onclick="removeApt('${val}')">×</span>`;
+            const label = item.entrance 
+                ? `пд.${item.entrance} кв.${item.apt}` 
+                : `кв.${item.apt}`;
+            tag.innerHTML = `${label} <span class="apt-tag-remove" onclick="removeApt('${item.entrance}', '${item.apt}')">×</span>`;
             wrap.appendChild(tag);
         });
     }
@@ -1037,9 +1045,7 @@
     function askConfirm() {
         const address  = $("address").value.trim();
         const problem  = $("problem").value.trim();
-        const master   = $("masterInput").value.trim();
         const phone    = $("phone").value.trim();
-        const entrance = $("entrance").value.trim();
 
         if (!address) { alert("Укажите адрес!"); return; }
         if (!problem)  { alert("Опишите проблему!"); return; }
@@ -1049,8 +1055,11 @@
         if (!allAddresses.includes(address)) {
             alert("❌ Такого адреса нет в базе! Выберите из списка."); return;
         }
-        if (!allMasters.includes(master)) {
-            alert("❌ Такого мастера нет! Выберите из списка."); return;
+        // Проверяем что все выбранные мастера есть в базе
+        for (var i = 0; i < masterList.length; i++) {
+            if (!allMasters.includes(masterList[i])) {
+                alert("❌ Мастер '" + masterList[i] + "' не найден!"); return;
+            }
         }
 
         if (isRecording) stopSpeech();
@@ -1059,9 +1068,12 @@
         $('cfType').textContent    = selectedTicketType + (selectedTicketType !== 'Монтажная' ? ' / ' + getSelectedPaymentType() : ' / Счёт');
 
         let aptText = '';
-        if (entrance) aptText += 'Подъезд ' + entrance;
-        if (aptList.length > 0) aptText += (aptText ? ', ' : '') + 'кв. ' + aptList.join(', ');
-        $('cfApt').textContent     = aptText || '—';
+        if (aptList.length > 0) {
+            aptText = aptList.map(a => {
+                return a.entrance ? `пд.${a.entrance} кв.${a.apt}` : `кв.${a.apt}`;
+            }).join(', ');
+        }
+        $('cfApt').textContent = aptText || '—';
         $('cfPhone').textContent   = phone || '—';
         $('cfProblem').textContent = problem;
         $('cfMaster').textContent  = masterList.join(', ');
@@ -1078,17 +1090,16 @@
     // ==========================================
     async function sendTicket() {
         const address  = $("address").value.trim();
-        const master   = $("masterInput").value.trim();
         const phone    = $("phone").value.trim();
         const entrance = $("entrance").value.trim();
         const problem  = $("problem").value.trim();
 
         // Собираем полную строку проблемы
         let problemParts = [problem];
-        if (entrance || aptList.length > 0) {
-            let aptStr = '';
-            if (entrance) aptStr += 'Подъезд ' + entrance;
-            if (aptList.length > 0) aptStr += (aptStr ? ', ' : '') + 'кв. ' + aptList.join(', ');
+        if (aptList.length > 0) {
+            let aptStr = aptList.map(a => {
+                return a.entrance ? `пд.${a.entrance} кв.${a.apt}` : `кв.${a.apt}`;
+            }).join(' | ');
             problemParts.push(aptStr);
         }
         if (phone) problemParts.push('Тел: ' + phone);
@@ -1624,6 +1635,13 @@
                     e.preventDefault(); // не теряем фокус
                     $(inputId).value  = val;
                     list.style.display = "none";
+                    // Если это поле мастера — сразу добавляем в список
+                    if (inputId === 'masterInput' || inputId === 'editMaster') {
+                        // Для editMaster другая логика, пока только для masterInput
+                        if (inputId === 'masterInput') {
+                            setTimeout(() => addMaster(), 50);
+                        }
+                    }
                 });
                 frag.appendChild(div);
             });
