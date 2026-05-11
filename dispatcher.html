@@ -1270,7 +1270,8 @@
             let extraInfo = '';
             if (ticket.status === 'Принята' && ticket.acceptedAt) {
                 extraInfo = `<div class="ticket-accepted-info">
-                    <i class="fa-solid fa-clock"></i> Принята мастером: ${ticket.acceptedAt}
+                    <i class="fa-solid fa-clock"></i> Принята: ${ticket.acceptedAt}
+                    ${ticket.acceptedBy ? `· <i class="fa-solid fa-user-check"></i> ${ticket.acceptedBy}` : ''}
                 </div>`;
             }
 
