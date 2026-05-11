@@ -1591,6 +1591,14 @@
                             <div class="modal-info-value">${ticket.acceptedAt}</div>
                         </div>
                     </div>
+                    ${ticket.acceptedBy ? `
+                    <div class="modal-info-row">
+                        <div class="modal-info-icon" style="background: #e5f1ff; color: #007aff;"><i class="fa-solid fa-user-check"></i></div>
+                        <div class="modal-info-content">
+                            <div class="modal-info-label">Принял</div>
+                            <div class="modal-info-value">${ticket.acceptedBy}</div>
+                        </div>
+                    </div>` : ''}
                 </div>`;
             }
 
