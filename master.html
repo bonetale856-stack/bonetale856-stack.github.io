@@ -787,6 +787,7 @@
     </script>
 <base target="_blank">
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
 
@@ -1028,7 +1029,7 @@
     </div>
 
     <script>
-        const URL_GOOGLE_SERVER = "https://script.google.com/macros/s/AKfycbxfMMoR5LATkWt4HeT8XCxjOipYSay-c_9YVZExPPZ9edVLciR4YbHrqjadC_nSdFGfjg/exec";
+        const URL_GOOGLE_SERVER = "*****";
         let currentUser = null;
         let activeTicketId = null;
         let activeTicketData = null;
@@ -1476,6 +1477,22 @@
                 activeTicketData = ticket;
                 setCachedTicket(ticketId, ticket);
                 renderTicketModal(ticket);
+
+                // Если папки ещё не созданы — обновим через 5 сек
+                if (!ticket.beforeUrl || !ticket.afterUrl) {
+                    setTimeout(async () => {
+                        try {
+                            const refreshed = await apiFetch(URL_GOOGLE_SERVER + "?action=getTicketDetails&ticketId=" + encodeURIComponent(ticketId));
+                            if (refreshed.beforeUrl || refreshed.afterUrl) {
+                                activeTicketData = refreshed;
+                                setCachedTicket(ticketId, refreshed);
+                                if (activeTicketId === ticketId) {
+                                    renderTicketModal(refreshed);
+                                }
+                            }
+                        } catch(e) {}
+                    }, 5000);
+                }
             } catch (error) {
                 if (!cached) {
                     modalBody.innerHTML = `
@@ -1724,7 +1741,7 @@
             if (url) {
                 window.open(url, '_blank');
             } else {
-                alert('Ссылка на папку не найдена. Обратитесь к диспетчеру.');
+                alert('📁 Папка создаётся. Подождите 10–15 секунд и попробуйте снова, либо обратитесь к диспетчеру.');
             }
         }
 
