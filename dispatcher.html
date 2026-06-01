@@ -284,6 +284,7 @@
         }
     </style>
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
 
@@ -332,10 +333,10 @@
                 <div class="form-group">
                     <label><i class="fa-solid fa-door-open"></i> Подъезд и квартира:</label>
                     <div class="apt-row">
-                        <input type="number" class="form-control" id="entrance"
-                               placeholder="Подъезд" inputmode="numeric" min="1" style="max-width:100px;">
-                        <input type="number" class="form-control" id="aptInput"
-                               placeholder="Квартира" inputmode="numeric" min="1">
+                        <input type="text" class="form-control" id="entrance"
+                               placeholder="Подъезд" inputmode="numeric" pattern="[0-9]*" style="max-width:100px;">
+                        <input type="text" class="form-control" id="aptInput"
+                               placeholder="Квартира" inputmode="numeric" pattern="[0-9]*">
                         <button class="apt-add-btn" onclick="addApt()" title="Добавить квартиру">
                             <i class="fa-solid fa-plus"></i>
                         </button>
@@ -765,9 +766,12 @@
             });
         });
 
-        // Enter в поле квартиры
+        // Enter + blur в поле квартиры (авто-сохранение)
         $('aptInput').addEventListener('keydown', function(e) {
             if (e.key === 'Enter') { e.preventDefault(); addApt(); }
+        });
+        $('aptInput').addEventListener('blur', function() {
+            if (this.value.trim()) addApt();
         });
 
         // Проверяем сессию раз в 24 часа, пока вкладка активна
@@ -1089,6 +1093,9 @@
     // СОЗДАНИЕ ЗАЯВКИ
     // ==========================================
     async function sendTicket() {
+        // Авто-сохранение квартиры, если пользователь забыл нажать +
+        if ($('aptInput').value.trim()) addApt();
+
         const address  = $("address").value.trim();
         const phone    = $("phone").value.trim();
         const entrance = $("entrance").value.trim();
@@ -1109,6 +1116,22 @@
         btn.disabled = true;
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Отправляем...';
 
+        // Оптимистичный UI: показываем успех мгновенно, отправляем в фоне
+        closeConfirmModal();
+        resetCreateForm();
+
+        const mainBtn = $("btnSubmitTicket");
+        mainBtn.innerHTML = '<i class="fa-solid fa-check"></i> Готово!';
+        mainBtn.style.background = "#34c759";
+        setTimeout(() => {
+            mainBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить заявку';
+            mainBtn.style.background = "";
+        }, 2500);
+
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить';
+
+        // Отправка в фоне (уже не блокирует UI)
         try {
             const res = await fetch(URL_GOOGLE_SERVER, {
                 method: "POST",
@@ -1126,33 +1149,13 @@
             const result = await res.json();
 
             if (result.status === 'error') {
-                alert("⚠️ " + (result.message || "Ошибка создания заявки"));
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить';
-                return;
+                alert("⚠️ Заявка могла не создаться: " + (result.message || "Ошибка сервера"));
             }
-
-            closeConfirmModal();
-            resetCreateForm();
-
-            const mainBtn = $("btnSubmitTicket");
-            mainBtn.innerHTML = '<i class="fa-solid fa-check"></i> Готово!';
-            mainBtn.style.background = "#34c759";
-            setTimeout(() => {
-                mainBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить заявку';
-                mainBtn.style.background = "";
-            }, 2500);
 
             localStorage.removeItem("cachedDispatcherTickets_" + currentUser.name);
 
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить';
-
         } catch (e) {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить';
-            closeConfirmModal();
-            alert("Ошибка. Проверьте интернет и попробуйте снова.");
+            alert("⚠️ Ошибка сети. Заявка может быть не создана. Проверьте интернет.");
         }
     }
 
