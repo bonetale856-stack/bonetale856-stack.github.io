@@ -285,6 +285,7 @@
     </style>
 <base target="_blank">
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
 
@@ -1092,7 +1093,19 @@
     // ==========================================
     // СОЗДАНИЕ ЗАЯВКИ
     // ==========================================
-    async function sendTicket() {
+    
+    function showErrorOverlay(msg) {
+        $('errorOverlayText').textContent = msg;
+        $('errorOverlay').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function hideErrorOverlay() {
+        $('errorOverlay').style.display = 'none';
+        document.body.style.overflow = '';
+    }
+
+async function sendTicket() {
         // Авто-сохранение квартиры, если пользователь забыл нажать +
         if ($('aptInput').value.trim()) addApt();
 
@@ -1100,6 +1113,12 @@
         const phone    = $("phone").value.trim();
         const entrance = $("entrance").value.trim();
         const problem  = $("problem").value.trim();
+
+        // Защита: если сессия слетела — не отправляем
+        if (!currentUser || !currentUser.name) {
+            showErrorOverlay("Сессия устарела. Войдите в систему заново.");
+            return;
+        }
 
         // Собираем полную строку проблемы
         let problemParts = [problem];
@@ -1116,22 +1135,6 @@
         btn.disabled = true;
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Отправляем...';
 
-        // Оптимистичный UI: показываем успех мгновенно, отправляем в фоне
-        closeConfirmModal();
-        resetCreateForm();
-
-        const mainBtn = $("btnSubmitTicket");
-        mainBtn.innerHTML = '<i class="fa-solid fa-check"></i> Готово!';
-        mainBtn.style.background = "#34c759";
-        setTimeout(() => {
-            mainBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить заявку';
-            mainBtn.style.background = "";
-        }, 2500);
-
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить';
-
-        // Отправка в фоне (уже не блокирует UI)
         try {
             const res = await fetch(URL_GOOGLE_SERVER, {
                 method: "POST",
@@ -1149,13 +1152,35 @@
             const result = await res.json();
 
             if (result.status === 'error') {
-                alert("⚠️ Заявка могла не создаться: " + (result.message || "Ошибка сервера"));
+                // ❌ ОШИБКА — показываем на весь экран
+                showErrorOverlay(result.message || "Ошибка сервера. Попробуйте ещё раз.");
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить';
+                return;
             }
+
+            // ✅ УСПЕХ — только теперь чистим форму и показываем «Готово!»
+            closeConfirmModal();
+            resetCreateForm();
+
+            const mainBtn = $("btnSubmitTicket");
+            mainBtn.innerHTML = '<i class="fa-solid fa-check"></i> Готово!';
+            mainBtn.style.background = "#34c759";
+            setTimeout(() => {
+                mainBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить заявку';
+                mainBtn.style.background = "";
+            }, 2500);
+
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить';
 
             localStorage.removeItem("cachedDispatcherTickets_" + currentUser.name);
 
         } catch (e) {
-            alert("⚠️ Ошибка сети. Заявка может быть не создана. Проверьте интернет.");
+            // ❌ СЕТЬ — тоже на весь экран
+            showErrorOverlay("Ошибка сети. Заявка не создана. Проверьте интернет и попробуйте снова.");
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить';
         }
     }
 
@@ -1705,6 +1730,17 @@
                 .catch(err => console.log('Ошибка SW', err));
         }
     </script>
+
+
+    <!-- ПОЛНОЭКРАННАЯ ОШИБКА -->
+    <div id="errorOverlay" style="display:none; position:fixed; inset:0; background:#ff3b30; z-index:9999; flex-direction:column; align-items:center; justify-content:center; padding:24px; text-align:center; color:white; animation:fadeIn 0.2s;">
+        <i class="fa-solid fa-triangle-exclamation" style="font-size:72px; margin-bottom:24px; opacity:0.9;"></i>
+        <h2 style="font-size:26px; font-weight:800; margin:0 0 12px;">Заявка не создана</h2>
+        <p id="errorOverlayText" style="font-size:17px; margin:0 0 32px; line-height:1.5; max-width:320px;"></p>
+        <button onclick="hideErrorOverlay()" style="background:white; color:#ff3b30; border:none; padding:14px 32px; border-radius:14px; font-size:17px; font-weight:700; cursor:pointer; box-shadow:0 4px 20px rgba(0,0,0,0.2);">
+            Понятно
+        </button>
+    </div>
 
 </body>
 </html>
