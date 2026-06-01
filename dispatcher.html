@@ -1134,7 +1134,6 @@ async function sendTicket() {
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Отправляем...';
 
     try {
-        // 1. Fast core creation (1-2 seconds)
         const res = await fetch(URL_GOOGLE_SERVER, {
             method: "POST",
             body: JSON.stringify({
@@ -1157,7 +1156,7 @@ async function sendTicket() {
             return;
         }
 
-        // ✅ INSTANT SUCCESS — reset UI immediately
+        // ✅ SUCCESS — backend already handles Drive + OneSignal in background
         closeConfirmModal();
         resetCreateForm();
 
@@ -1173,53 +1172,11 @@ async function sendTicket() {
         btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить';
         localStorage.removeItem("cachedDispatcherTickets_" + currentUser.name);
 
-        // 2. Background sync (Bitrix + OneSignal + Drive)
-        syncTicketExternals(
-            result.ticketId,
-            masterList.join(", "),
-            address,
-            fullProblem,
-            selectedTicketType || "Аварийная",
-            getSelectedPaymentType()
-        );
-
     } catch (e) {
         showErrorOverlay("Ошибка сети. Заявка не создана.");
         btn.disabled = false;
         btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить';
     }
-}
-
-// Background sync with retry
-function syncTicketExternals(ticketId, masterName, address, problem, ticketType, paymentType) {
-    const payload = {
-        action:         "syncTicketExternals",
-        ticketId:       ticketId,
-        masterName:     masterName,
-        address:        address,
-        problem:        problem,
-        ticketType:     ticketType,
-        paymentType:    paymentType,
-        dispatcherName: currentUser.name
-    };
-
-    fetch(URL_GOOGLE_SERVER, {
-        method: "POST",
-        keepalive: true,           // survives tab close
-        body: JSON.stringify(payload),
-        headers: { "Content-Type": "text/plain;charset=utf-8" }
-    })
-    .then(r => r.json())
-    .then(result => {
-        if (result.status !== 'synced') throw new Error('Sync returned ' + result.status);
-        console.log("[Sync] OK for ticket", ticketId);
-    })
-    .catch(err => {
-        console.log("[Sync] Failed, retrying in 5s...", err);
-        setTimeout(() => {
-            syncTicketExternals(ticketId, masterName, address, problem, ticketType, paymentType);
-        }, 5000);
-    });
 }
 
     function resetCreateForm() {
