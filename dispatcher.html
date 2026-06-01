@@ -1106,83 +1106,121 @@
     }
 
 async function sendTicket() {
-        // Авто-сохранение квартиры, если пользователь забыл нажать +
-        if ($('aptInput').value.trim()) addApt();
+    // Auto-save apartment if user forgot to press +
+    if ($('aptInput').value.trim()) addApt();
 
-        const address  = $("address").value.trim();
-        const phone    = $("phone").value.trim();
-        const entrance = $("entrance").value.trim();
-        const problem  = $("problem").value.trim();
+    const address  = $("address").value.trim();
+    const phone    = $("phone").value.trim();
+    const problem  = $("problem").value.trim();
 
-        // Защита: если сессия слетела — не отправляем
-        if (!currentUser || !currentUser.name) {
-            showErrorOverlay("Сессия устарела. Войдите в систему заново.");
+    if (!currentUser || !currentUser.name) {
+        showErrorOverlay("Сессия устарела. Войдите в систему заново.");
+        return;
+    }
+
+    // Build full problem string
+    let problemParts = [problem];
+    if (aptList.length > 0) {
+        let aptStr = aptList.map(a => {
+            return a.entrance ? `пд.${a.entrance} кв.${a.apt}` : `кв.${a.apt}`;
+        }).join(' | ');
+        problemParts.push(aptStr);
+    }
+    if (phone) problemParts.push('Тел: ' + phone);
+    const fullProblem = problemParts.filter(Boolean).join(' | ');
+
+    const btn = $("btnConfirmSend");
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Отправляем...';
+
+    try {
+        // 1. Fast core creation (1-2 seconds)
+        const res = await fetch(URL_GOOGLE_SERVER, {
+            method: "POST",
+            body: JSON.stringify({
+                action:         "createTicket",
+                dispatcherName: currentUser.name,
+                address:        address,
+                problem:        fullProblem,
+                masterName:     masterList.join(", "),
+                ticketType:     selectedTicketType || "Аварийная",
+                paymentType:    getSelectedPaymentType()
+            }),
+            headers: { "Content-Type": "text/plain;charset=utf-8" }
+        });
+        const result = await res.json();
+
+        if (result.status === 'error') {
+            showErrorOverlay(result.message || "Ошибка сервера");
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить';
             return;
         }
 
-        // Собираем полную строку проблемы
-        let problemParts = [problem];
-        if (aptList.length > 0) {
-            let aptStr = aptList.map(a => {
-                return a.entrance ? `пд.${a.entrance} кв.${a.apt}` : `кв.${a.apt}`;
-            }).join(' | ');
-            problemParts.push(aptStr);
-        }
-        if (phone) problemParts.push('Тел: ' + phone);
-        const fullProblem = problemParts.filter(Boolean).join(' | ');
+        // ✅ INSTANT SUCCESS — reset UI immediately
+        closeConfirmModal();
+        resetCreateForm();
 
-        const btn = $("btnConfirmSend");
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Отправляем...';
+        const mainBtn = $("btnSubmitTicket");
+        mainBtn.innerHTML = '<i class="fa-solid fa-check"></i> Готово!';
+        mainBtn.style.background = "#34c759";
+        setTimeout(() => {
+            mainBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить заявку';
+            mainBtn.style.background = "";
+        }, 2500);
 
-        try {
-            const res = await fetch(URL_GOOGLE_SERVER, {
-                method: "POST",
-                body: JSON.stringify({
-                    action:         "createTicket",
-                    dispatcherName: currentUser.name,
-                    address:        address,
-                    problem:        fullProblem,
-                    masterName:     masterList.join(", "),
-                    ticketType:     selectedTicketType || "Аварийная",
-                    paymentType:    getSelectedPaymentType()
-                }),
-                headers: { "Content-Type": "text/plain;charset=utf-8" }
-            });
-            const result = await res.json();
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить';
+        localStorage.removeItem("cachedDispatcherTickets_" + currentUser.name);
 
-            if (result.status === 'error') {
-                // ❌ ОШИБКА — показываем на весь экран
-                showErrorOverlay(result.message || "Ошибка сервера. Попробуйте ещё раз.");
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить';
-                return;
-            }
+        // 2. Background sync (Bitrix + OneSignal + Drive)
+        syncTicketExternals(
+            result.ticketId,
+            masterList.join(", "),
+            address,
+            fullProblem,
+            selectedTicketType || "Аварийная",
+            getSelectedPaymentType()
+        );
 
-            // ✅ УСПЕХ — только теперь чистим форму и показываем «Готово!»
-            closeConfirmModal();
-            resetCreateForm();
-
-            const mainBtn = $("btnSubmitTicket");
-            mainBtn.innerHTML = '<i class="fa-solid fa-check"></i> Готово!';
-            mainBtn.style.background = "#34c759";
-            setTimeout(() => {
-                mainBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить заявку';
-                mainBtn.style.background = "";
-            }, 2500);
-
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить';
-
-            localStorage.removeItem("cachedDispatcherTickets_" + currentUser.name);
-
-        } catch (e) {
-            // ❌ СЕТЬ — тоже на весь экран
-            showErrorOverlay("Ошибка сети. Заявка не создана. Проверьте интернет и попробуйте снова.");
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить';
-        }
+    } catch (e) {
+        showErrorOverlay("Ошибка сети. Заявка не создана.");
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить';
     }
+}
+
+// Background sync with retry
+function syncTicketExternals(ticketId, masterName, address, problem, ticketType, paymentType) {
+    const payload = {
+        action:         "syncTicketExternals",
+        ticketId:       ticketId,
+        masterName:     masterName,
+        address:        address,
+        problem:        problem,
+        ticketType:     ticketType,
+        paymentType:    paymentType,
+        dispatcherName: currentUser.name
+    };
+
+    fetch(URL_GOOGLE_SERVER, {
+        method: "POST",
+        keepalive: true,           // survives tab close
+        body: JSON.stringify(payload),
+        headers: { "Content-Type": "text/plain;charset=utf-8" }
+    })
+    .then(r => r.json())
+    .then(result => {
+        if (result.status !== 'synced') throw new Error('Sync returned ' + result.status);
+        console.log("[Sync] OK for ticket", ticketId);
+    })
+    .catch(err => {
+        console.log("[Sync] Failed, retrying in 5s...", err);
+        setTimeout(() => {
+            syncTicketExternals(ticketId, masterName, address, problem, ticketType, paymentType);
+        }, 5000);
+    });
+}
 
     function resetCreateForm() {
         $("address").value     = "";
