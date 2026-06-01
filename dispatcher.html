@@ -1106,7 +1106,6 @@
     }
 
 async function sendTicket() {
-    // Auto-save apartment if user forgot to press +
     if ($('aptInput').value.trim()) addApt();
 
     const address  = $("address").value.trim();
@@ -1128,6 +1127,13 @@ async function sendTicket() {
     }
     if (phone) problemParts.push('Тел: ' + phone);
     const fullProblem = problemParts.filter(Boolean).join(' | ');
+
+    /* =========================================================
+       CAPTURE everything BEFORE resetting the form
+       ========================================================= */
+    const masterNameStr  = masterList.join(", ");
+    const ticketTypeStr  = selectedTicketType || "Аварийная";
+    const paymentTypeStr = getSelectedPaymentType();
 
     // ✅ INSTANT SUCCESS — show immediately, don't wait for server
     closeConfirmModal();
@@ -1152,24 +1158,23 @@ async function sendTicket() {
             dispatcherName: currentUser.name,
             address:        address,
             problem:        fullProblem,
-            masterName:     masterList.join(", "),
-            ticketType:     selectedTicketType || "Аварийная",
-            paymentType:    getSelectedPaymentType()
+            masterName:     masterNameStr,   // ← captured value
+            ticketType:     ticketTypeStr,   // ← captured value
+            paymentType:    paymentTypeStr   // ← captured value
         }),
         headers: { "Content-Type": "text/plain;charset=utf-8" }
     })
     .then(r => r.json())
     .then(result => {
         if (result.status === 'error') {
-            console.log("[Background] Server error:", result.message);
-            // Optionally show a subtle toast/notification here
+            console.error("[Background] Server error:", result.message);
+            // Optional: show a subtle toast that the server failed
         } else {
             console.log("[Background] Ticket created:", result.ticketId);
         }
     })
     .catch(err => {
-        console.log("[Background] Network error:", err);
-        // Optionally retry or notify
+        console.error("[Background] Network error:", err);
     });
 }
 
