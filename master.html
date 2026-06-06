@@ -762,6 +762,14 @@
     cursor: pointer;
     white-space: nowrap;
 }
+
+        /* ===== SPLASH SCREEN ===== */
+        #splashScreen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        
     </style>
 
     <!-- ONESIGNAL PUSH NOTIFICATIONS -->
@@ -844,9 +852,25 @@
     </script>
 <base target="_blank">
 <base target="_blank">
-<base target="_blank">
 </head>
 <body>
+    
+    <!-- ===== SPLASH SCREEN ===== -->
+    <div id="splashScreen" style="position:fixed;inset:0;background:linear-gradient(135deg,#1c1c1e 0%,#2c2c2e 100%);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.6s ease,visibility 0.6s ease;">
+        <div style="position:relative;width:120px;height:120px;margin-bottom:24px;">
+            <!-- Animated ring -->
+            <svg viewBox="0 0 120 120" style="width:100%;height:100%;transform:rotate(-90deg);">
+                <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,149,0,0.15)" stroke-width="6"/>
+                <circle id="splashRing" cx="60" cy="60" r="52" fill="none" stroke="#ff9500" stroke-width="6" stroke-linecap="round" stroke-dasharray="327" stroke-dashoffset="327" style="transition:stroke-dashoffset 2.5s cubic-bezier(0.4,0,0.2,1);"/>
+            </svg>
+            <!-- Center icon -->
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:44px;">
+                ⚡
+            </div>
+        </div>
+        <div style="font-size:32px;font-weight:800;color:white;letter-spacing:2px;margin-bottom:8px;">ГИЛЬДИЯ</div>
+        <div id="splashStatus" style="font-size:13px;color:#8e8e93;font-weight:500;letter-spacing:0.5px;">Загрузка заявок...</div>
+    </div>
 
     <!-- ===== OFFLINE TOAST ===== -->
     <div class="offline-toast" id="offlineToast">
@@ -1091,6 +1115,18 @@
         let activeTicketId = null;
         let activeTicketData = null;
         const TICKET_CACHE_TTL = 5 * 60 * 1000;
+
+function escapeHtml(str) {
+    if (str == null) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+let originalTicketsCache = null;
         
         // ===== OPTIMISTIC CLOSE HELPERS =====
 let pendingReportData = null;
@@ -1108,7 +1144,7 @@ function showToast(message, type) {
     
     toast.style.background = bg;
     toast.style.color = 'white';
-    toast.innerHTML = `<i class="fa-solid ${icon}"></i> ${message}`;
+    toast.innerHTML = `<i class="fa-solid ${icon}"></i> ${escapeHtml(message)}`;
     document.body.appendChild(toast);
     
     requestAnimationFrame(() => toast.classList.add('show'));
@@ -1133,9 +1169,10 @@ function showPersistentBanner(message, actionText, onAction) {
     
     const banner = document.createElement('div');
     banner.id = 'persistentBanner';
+    banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#ff3b30;color:white;padding:14px 20px;z-index:10001;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:14px;font-weight:600;box-shadow:0 4px 20px rgba(255,59,48,0.3);animation:slideDown 0.3s ease;';
     banner.innerHTML = `
-        <span style="flex:1;">${message}</span>
-        <button>${actionText}</button>
+        <span style="flex:1;">${escapeHtml(message)}</span>
+        <button style="background:white;color:#ff3b30;border:none;padding:8px 16px;border-radius:10px;font-weight:700;cursor:pointer;white-space:nowrap;">${escapeHtml(actionText)}</button>
     `;
     banner.querySelector('button').onclick = function() {
         banner.remove();
@@ -1290,46 +1327,117 @@ function restoreReportForm(ticketId) {
         })();
 
         // ===== ИНИЦИАЛИЗАЦИЯ =====
-        window.onload = function() {
-            const userStr = localStorage.getItem("currentUser");
-            if (!userStr) { window.location.replace("index.html"); return; }
-            currentUser = JSON.parse(userStr);
-            if (!currentUser.pin) { window.location.replace("index.html"); return; }
-            if (currentUser.role !== "мастер") { window.location.replace("index.html"); return; }
+          let splashMinTimeDone = false;
+    let splashTicketsLoaded = false;
+    let splashTicketsData = null;
 
-            document.getElementById("profileName").innerText = currentUser.name;
+    // ==========================================
+    // ИНИЦИАЛИЗАЦИЯ
+    // ==========================================
+    window.onload = async function () {
+        const userStr = localStorage.getItem("currentUser");
+        if (!userStr) { window.location.replace("index.html"); return; }
+        currentUser = JSON.parse(userStr);
+        if (!currentUser.pin) { window.location.replace("index.html"); return; }
+        if (currentUser.role !== "мастер") { window.location.replace("index.html"); return; }
 
-            if (!window.location.hash) {
-                history.replaceState({tab: 'tasks'}, "", "#tasks");
-                applyTab('tasks');
-            } else {
-                let hashTab = window.location.hash.replace('#', '');
-                applyTab(hashTab);
+        document.getElementById("profileName").innerText = currentUser.name;
+
+        // Start splash animation
+        startSplash();
+
+        // Start loading tickets in background immediately
+        const ticketsPromise = preloadTickets();
+
+        // Minimum splash duration: 2.5 seconds
+        const minTimePromise = new Promise(r => setTimeout(r, 2500));
+
+        // Wait for both: tickets loaded AND minimum time elapsed
+        const [tickets] = await Promise.all([ticketsPromise, minTimePromise]);
+        splashTicketsData = tickets;
+        splashTicketsLoaded = true;
+        splashMinTimeDone = true;
+
+        checkSplashDone();
+    };
+
+    function startSplash() {
+        // Animate the ring
+        requestAnimationFrame(() => {
+            const ring = document.getElementById('splashRing');
+            if (ring) ring.style.strokeDashoffset = '0';
+        });
+    }
+
+    function checkSplashDone() {
+        if (!splashMinTimeDone || !splashTicketsLoaded) return;
+
+        const splash = document.getElementById('splashScreen');
+        const status = document.getElementById('splashStatus');
+
+        // Update status text briefly before hiding
+        if (status) status.innerText = 'Готово!';
+
+        setTimeout(() => {
+            if (splash) splash.classList.add('hidden');
+            // Now render tickets behind the scenes
+            if (splashTicketsData) {
+                renderMasterTickets(splashTicketsData);
             }
+            // Continue with normal init
+            finishInit();
+        }, 300);
+    }
 
-            let retries = 0;
-            async function preloadWithRetry() {
+    async function preloadTickets() {
+        const cacheKey = "cachedMasterTickets_" + currentUser.name;
+        const cached = localStorage.getItem(cacheKey);
+
+        // Try server first (with cache fallback)
+        try {
+            const tickets = await apiFetch(URL_GOOGLE_SERVER + "?action=getTickets&masterName=" + encodeURIComponent(currentUser.name));
+            // Filter active only
+            const activeStatuses = ["Новая", "Принята", "New", "Accepted", "accepted"];
+            const cleanTickets = tickets.filter(t => activeStatuses.includes((t.status || '').toString().trim()));
+            localStorage.setItem(cacheKey, JSON.stringify(cleanTickets));
+            lastLoadTime.tasks = Date.now();   // ← FIX: Prevent duplicate fetch in finishInit
+            return cleanTickets;
+        } catch (error) {
+            // Server failed — use cache if available
+            if (cached) {
                 try {
-                    await loadTickets(true);
-                } catch (e) {
-                    retries++;
-                    if (retries < 3) {
-                        console.log('Retry loadTickets #' + retries);
-                        setTimeout(preloadWithRetry, 2000);
-                    }
-                }
+                    const parsed = JSON.parse(cached);
+                    // Update status to show we're using cache
+                    const status = document.getElementById('splashStatus');
+                    if (status) status.innerText = 'Работаем офлайн...';
+                    return parsed;
+                } catch (e) { return []; }
             }
-            preloadWithRetry();
+            return [];
+        }
+    }
 
-            // Проверяем сессию раз в 24 часа, пока вкладка активна
-            setInterval(() => {
-                if (document.visibilityState === 'visible') {
-                    checkSession().then(ok => {
-                        if (!ok) console.log("[Session] Разлогин по таймеру");
-                    });
-                }
-            }, 24 * 60 * 60 * 1000);
-        };
+    function finishInit() {
+        if (!window.location.hash) {
+            history.replaceState({tab: 'tasks'}, "", "#tasks");
+            applyTab('tasks');
+        } else {
+            let hashTab = window.location.hash.replace('#', '');
+            applyTab(hashTab);
+        }
+
+        // Check push reminder
+        checkPushReminder();
+
+        // Session check interval
+        setInterval(() => {
+            if (document.visibilityState === 'visible') {
+                checkSession().then(ok => {
+                    if (!ok) console.log("[Session] Разлогин по таймеру");
+                });
+            }
+        }, 24 * 60 * 60 * 1000);
+    }
 
         window.addEventListener('popstate', (event) => {
             if (document.getElementById("reportModal").classList.contains("show")) {
@@ -1378,9 +1486,15 @@ function restoreReportForm(ticketId) {
             const cacheKey = "cachedMasterStats_" + currentUser.name;
             const cachedStats = localStorage.getItem(cacheKey);
             if (cachedStats) {
-                document.getElementById("loadingProfile").style.display = "none";
-                document.getElementById("profileContent").style.display = "block";
-                renderMasterStats(JSON.parse(cachedStats));
+                try {
+                    const parsed = JSON.parse(cachedStats);
+                    document.getElementById("loadingProfile").style.display = "none";
+                    document.getElementById("profileContent").style.display = "block";
+                    renderMasterStats(parsed);
+                } catch (e) {
+                    console.error("Corrupted stats cache, clearing:", e);
+                    localStorage.removeItem(cacheKey);
+                }
             } else {
                 document.getElementById("loadingProfile").style.display = "block";
                 document.getElementById("profileContent").style.display = "none";
@@ -1467,8 +1581,14 @@ function restoreReportForm(ticketId) {
     const cacheKey = "cachedMasterTickets_" + currentUser.name;
     const cachedTickets = localStorage.getItem(cacheKey);
     if (cachedTickets) {
-        document.getElementById("loadingTasks").style.display = "none";
-        renderMasterTickets(JSON.parse(cachedTickets)); // filtering happens inside
+        try {
+            const parsed = JSON.parse(cachedTickets);
+            document.getElementById("loadingTasks").style.display = "none";
+            renderMasterTickets(parsed);
+        } catch (e) {
+            console.error("Corrupted ticket cache, clearing:", e);
+            localStorage.removeItem(cacheKey);
+        }
     } else {
         document.getElementById("loadingTasks").style.display = "block";
         document.getElementById("ticketsContainer").innerHTML = "";
@@ -1499,8 +1619,14 @@ function restoreReportForm(ticketId) {
             const cacheKey = "cachedMasterHistory_" + currentUser.name;
             const cachedHistory = localStorage.getItem(cacheKey);
             if (cachedHistory) {
-                document.getElementById("loadingHistory").style.display = "none";
-                renderMasterHistory(JSON.parse(cachedHistory));
+                try {
+                    const parsed = JSON.parse(cachedHistory);
+                    document.getElementById("loadingHistory").style.display = "none";
+                    renderMasterHistory(parsed);
+                } catch (e) {
+                    console.error("Corrupted history cache, clearing:", e);
+                    localStorage.removeItem(cacheKey);
+                }
             } else {
                 document.getElementById("loadingHistory").style.display = "block";
                 document.getElementById("historyContainer").innerHTML = "";
@@ -1534,11 +1660,11 @@ function restoreReportForm(ticketId) {
                 div.style.opacity = "0.9";
                 div.innerHTML = `
                     <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-                        <span style="font-size:12px; color:#8e8e93;"><i class="fa-regular fa-calendar-check"></i> ${ticket.date || ''}</span>
+                        <span style="font-size:12px; color:#8e8e93;"><i class="fa-regular fa-calendar-check"></i> ${escapeHtml(ticket.date || '')}</span>
                         <span style="font-size:12px; font-weight:bold; color:#34c759;"><i class="fa-solid fa-check-double"></i> Закрыта</span>
                     </div>
-                    <div class="ticket-address">${ticket.address || ''}</div>
-                    <div class="ticket-problem"><i class="fa-solid fa-wrench" style="color:#8e8e93;"></i> ${ticket.problem || ''}</div>
+                    <div class="ticket-address">${escapeHtml(ticket.address || '')}</div>
+                    <div class="ticket-problem"><i class="fa-solid fa-wrench" style="color:#8e8e93;"></i> ${escapeHtml(ticket.problem || '')}</div>
                 `;
                 container.appendChild(div);
             });
@@ -1580,7 +1706,7 @@ function restoreReportForm(ticketId) {
 
         let closeBtn = '';
         if (isAccepted) {
-            closeBtn = `<button class="btn-close-ticket" onclick="event.stopPropagation(); openReportFromCard('${ticket.id}')"><i class="fa-solid fa-flag-checkered"></i> Закрыть заявку</button>`;
+            closeBtn = `<button class="btn-close-ticket" onclick="event.stopPropagation(); openReportFromCard('${escapeHtml(ticket.id)}')"><i class="fa-solid fa-flag-checkered"></i> Закрыть заявку</button>`;
         }
 
         div.innerHTML = `
@@ -1588,10 +1714,10 @@ function restoreReportForm(ticketId) {
                 <i class="fa-solid ${badgeIcon}"></i>
                 <span>${isAccepted ? 'Отправьте отчет' : 'Примите заявку'}</span>
             </div>
-            <div class="ticket-date"><i class="fa-regular fa-clock"></i> ${ticket.date || ticket.createdAt || ""}</div>
-            <div class="ticket-address">${ticket.address || ''}</div>
-            <div class="ticket-problem"><i class="fa-solid fa-wrench" style="color:#8e8e93;"></i> ${ticket.problem || ''}</div>
-            ${ticket.ticketType ? `<span class="ticket-type-badge">${ticket.ticketType}</span>` : ''}
+            <div class="ticket-date"><i class="fa-regular fa-clock"></i> ${escapeHtml(ticket.date || ticket.createdAt || "")}</div>
+            <div class="ticket-address">${escapeHtml(ticket.address || '')}</div>
+            <div class="ticket-problem"><i class="fa-solid fa-wrench" style="color:#8e8e93;"></i> ${escapeHtml(ticket.problem || '')}</div>
+            ${ticket.ticketType ? `<span class="ticket-type-badge">${escapeHtml(ticket.ticketType)}</span>` : ''}
             ${closeBtn}
         `;
         div.onclick = () => openTicketModal(ticket.id);
@@ -1660,7 +1786,7 @@ function restoreReportForm(ticketId) {
                         <div style="text-align: center; padding: 40px 20px; color: #ff3b30;">
                             <i class="fa-solid fa-triangle-exclamation" style="font-size: 40px; margin-bottom: 15px;"></i>
                             <p>Ошибка загрузки данных</p>
-                            <button class="btn" onclick="openTicketModal('${ticketId}')" style="background: #f2f2f7; color: #007aff; margin-top: 10px;">
+                            <button class="btn" onclick="openTicketModal('${escapeHtml(ticketId)}')" style="background: #f2f2f7; color: #007aff; margin-top: 10px;">
                                 <i class="fa-solid fa-rotate-right"></i> Повторить
                             </button>
                         </div>
@@ -1694,7 +1820,7 @@ function restoreReportForm(ticketId) {
                         <div class="modal-info-icon"><i class="fa-solid fa-calendar"></i></div>
                         <div class="modal-info-content">
                             <div class="modal-info-label">Дата создания</div>
-                            <div class="modal-info-value">${ticket.createdAt || formatDate(ticket.createdAt)}</div>
+                            <div class="modal-info-value">${escapeHtml(formatDate(ticket.createdAt))}</div>
                         </div>
                     </div>
                     ${ticket.dispatcher ? `
@@ -1702,7 +1828,7 @@ function restoreReportForm(ticketId) {
                         <div class="modal-info-icon"><i class="fa-solid fa-headset"></i></div>
                         <div class="modal-info-content">
                             <div class="modal-info-label">Диспетчер</div>
-                            <div class="modal-info-value">${ticket.dispatcher}</div>
+                            <div class="modal-info-value">${escapeHtml(ticket.dispatcher)}</div>
                         </div>
                     </div>` : ''}
                     ${ticket.master ? `
@@ -1710,7 +1836,7 @@ function restoreReportForm(ticketId) {
                         <div class="modal-info-icon" style="background:#e8f5e9; color:#34c759;"><i class="fa-solid fa-helmet-safety"></i></div>
                         <div class="modal-info-content">
                             <div class="modal-info-label">Назначенные мастера</div>
-                            <div class="modal-info-value">${ticket.master}</div>
+                            <div class="modal-info-value">${escapeHtml(ticket.master)}</div>
                         </div>
                     </div>` : ''}
                     ${ticket.ticketType ? `
@@ -1718,7 +1844,7 @@ function restoreReportForm(ticketId) {
                         <div class="modal-info-icon"><i class="fa-solid fa-tag"></i></div>
                         <div class="modal-info-content">
                             <div class="modal-info-label">Тип заявки</div>
-                            <div class="modal-info-value">${ticket.ticketType}</div>
+                            <div class="modal-info-value">${escapeHtml(ticket.ticketType)}</div>
                         </div>
                     </div>` : ''}
                     ${ticket.paymentType ? `
@@ -1726,7 +1852,7 @@ function restoreReportForm(ticketId) {
                         <div class="modal-info-icon"><i class="fa-solid fa-credit-card"></i></div>
                         <div class="modal-info-content">
                             <div class="modal-info-label">Тип оплаты</div>
-                            <div class="modal-info-value">${ticket.paymentType}</div>
+                            <div class="modal-info-value">${escapeHtml(ticket.paymentType)}</div>
                         </div>
                     </div>` : ''}
                 </div>
@@ -1737,7 +1863,7 @@ function restoreReportForm(ticketId) {
                         <div class="modal-info-icon" style="background: #fff3e0; color: #ff9500;"><i class="fa-solid fa-location-dot"></i></div>
                         <div class="modal-info-content">
                             <div class="modal-info-label">Адрес</div>
-                            <div class="modal-info-value address">${ticket.address || ''}</div>
+                            <div class="modal-info-value address">${escapeHtml(ticket.address || '')}</div>
                             <div style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;">
                                 <a href="https://yandex.ru/maps/?text=${encodeURIComponent(ticket.address || '')}" target="_blank" style="display:inline-flex; align-items:center; gap:6px; background:#ffcc00; color:#000; padding:8px 12px; border-radius:8px; text-decoration:none; font-size:13px; font-weight:600;">
                                     <i class="fa-solid fa-map-location-dot"></i> Яндекс
@@ -1752,7 +1878,7 @@ function restoreReportForm(ticketId) {
                         <div class="modal-info-icon" style="background: #fde2e2; color: #ff3b30;"><i class="fa-solid fa-wrench"></i></div>
                         <div class="modal-info-content">
                             <div class="modal-info-label">Проблема</div>
-                            <div class="modal-info-value problem">${ticket.problem || ''}</div>
+                            <div class="modal-info-value problem">${escapeHtml(ticket.problem || '')}</div>
                         </div>
                     </div>
                 </div>
@@ -1766,7 +1892,7 @@ function restoreReportForm(ticketId) {
                         <div class="modal-info-icon" style="background: #d1f4e0; color: #34c759;"><i class="fa-solid fa-check"></i></div>
                         <div class="modal-info-content">
                             <div class="modal-info-label">Принята</div>
-                            <div class="modal-info-value">${ticket.acceptedAt}</div>
+                            <div class="modal-info-value">${escapeHtml(ticket.acceptedAt)}</div>
                         </div>
                     </div>
                     ${ticket.acceptedBy ? `
@@ -1774,7 +1900,7 @@ function restoreReportForm(ticketId) {
                         <div class="modal-info-icon" style="background: #e5f1ff; color: #007aff;"><i class="fa-solid fa-user-check"></i></div>
                         <div class="modal-info-content">
                             <div class="modal-info-label">Принял</div>
-                            <div class="modal-info-value">${ticket.acceptedBy}</div>
+                            <div class="modal-info-value">${escapeHtml(ticket.acceptedBy)}</div>
                         </div>
                     </div>` : ''}
                 </div>`;
@@ -1997,6 +2123,8 @@ function updateTicketCardOptimistic(ticket) {
     let tickets = [];
     const cached = localStorage.getItem(cacheKey);
     if (cached) {
+        // FIX: Save original cache string before mutating
+        originalTicketsCache = cached;
         tickets = JSON.parse(cached);
         const idx = tickets.findIndex(t => String(t.id) === String(ticket.id));
         if (idx !== -1) {
@@ -2010,10 +2138,11 @@ function updateTicketCardOptimistic(ticket) {
 }
 
 function restoreTicketCardFromCache(ticketId) {
-    const cacheKey = "cachedMasterTickets_" + currentUser.name;
-    const cached = localStorage.getItem(cacheKey);
-    if (cached) {
-        renderMasterTickets(JSON.parse(cached));
+    if (originalTicketsCache) {
+        const cacheKey = "cachedMasterTickets_" + currentUser.name;
+        localStorage.setItem(cacheKey, originalTicketsCache);
+        renderMasterTickets(JSON.parse(originalTicketsCache));
+        originalTicketsCache = null;
     }
 }
         function formatDateStr(d) {
