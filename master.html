@@ -751,11 +751,15 @@
 
       OneSignalDeferred.push(async function(OneSignal) {
           OneSignal.Notifications.addEventListener("click", function(event) {
-              if (currentUser) {
-                  localStorage.removeItem("cachedMasterTickets_" + currentUser.name);
-              }
-              switchTab('tasks');
-          });
+    if (currentUser) {
+        localStorage.removeItem("cachedMasterTickets_" + currentUser.name);
+    }
+    switchTab('tasks');
+    // Force an immediate server fetch, ignoring the 15-sec throttle
+    setTimeout(() => {
+        if (typeof loadTickets === 'function') loadTickets(true);
+    }, 300);
+});
       });
 
       function updatePushUI() {
@@ -1747,92 +1751,122 @@
 
         // ===== ПРИНЯТЬ ЗАЯВКУ =====
         async function acceptTicket() {
-            if (!activeTicketId) return;
+    if (!activeTicketId || !activeTicketData) return;
 
-            const btnAccept = document.getElementById('btnAcceptTicket');
-            const acceptLabel = document.getElementById('acceptLabel');
-            const btnIcon = btnAccept.querySelector('i');
+    const btnAccept = document.getElementById('btnAcceptTicket');
+    const acceptLabel = document.getElementById('acceptLabel');
+    const btnIcon = btnAccept.querySelector('i');
 
-            btnAccept.disabled = true;
-            btnAccept.classList.add('btn-loading');
-            btnIcon.className = 'fa-solid fa-circle-notch fa-spin';
-            acceptLabel.textContent = 'Принимаем...';
+    // ── 1. SAVE STATE FOR ROLLBACK ──
+    const prevState = {
+        status: activeTicketData.status,
+        acceptedAt: activeTicketData.acceptedAt,
+        acceptedBy: activeTicketData.acceptedBy,
+        mapsLink: activeTicketData.mapsLink,
+        geoAccuracy: activeTicketData.geoAccuracy
+    };
 
+    // ── 2. OPTIMISTIC UPDATE (UI changes instantly) ──
+    const nowStr = formatDateStr(new Date());
+    activeTicketData.status = "Принята";
+    activeTicketData.acceptedAt = nowStr;
+    activeTicketData.acceptedBy = currentUser.name;
+
+    renderTicketModal(activeTicketData);               // modal now shows "Принята"
+    updateTicketCardOptimistic(activeTicketData);      // list card turns green
+
+    // ── 3. BACKGROUND API CALL ──
+    btnAccept.disabled = true; // prevent double-click
+    let lat = '', lon = '', accuracy = '';
+
+    try {
+        if (navigator.geolocation) {
             try {
-                let lat = '', lon = '', accuracy = '';
-
-                if (navigator.geolocation) {
-                    try {
-                        const position = await new Promise((resolve, reject) => {
-                            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
-                        });
-                        lat = position.coords.latitude;
-                        lon = position.coords.longitude;
-                        accuracy = Math.round(position.coords.accuracy);
-                    } catch (geoError) {
-                        console.log('Geolocation error:', geoError);
-                    }
-                }
-
-                const result = await apiFetch(URL_GOOGLE_SERVER, {
-                    method: "POST",
-                    body: JSON.stringify({
-                        action: "acceptTicket",
-                        ticketId: activeTicketId,
-                        lat: lat,
-                        lon: lon,
-                        accuracy: accuracy
-                    }),
-                    headers: { "Content-Type": "text/plain;charset=utf-8" }
+                const position = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
                 });
-
-                    if (result.status === "success") {
-                    btnAccept.classList.remove('btn-loading');
-
-                    if (activeTicketData) {
-                        activeTicketData.status = "Принята";
-                        activeTicketData.acceptedAt = formatDateStr(new Date());
-                        if (lat && lon) {
-                            activeTicketData.mapsLink = "https://maps.google.com/?q=" + lat + "," + lon;
-                            activeTicketData.geoAccuracy = "±" + accuracy + " м";
-                        }
-                        setCachedTicket(activeTicketId, activeTicketData);
-                        renderTicketModal(activeTicketData);
-                    }
-
-                    // === NEW: update list cache locally instead of full reload ===
-                    const cacheKey = "cachedMasterTickets_" + currentUser.name;
-                    const cachedStr = localStorage.getItem(cacheKey);
-                    if (cachedStr && activeTicketData) {
-                        const tickets = JSON.parse(cachedStr);
-                        const idx = tickets.findIndex(t => String(t.id) === String(activeTicketId));
-                        if (idx !== -1) {
-                            tickets[idx] = activeTicketData;
-                            localStorage.setItem(cacheKey, JSON.stringify(tickets));
-                            renderMasterTickets(tickets);
-                        } else {
-                            localStorage.removeItem(cacheKey);
-                            loadTickets(true);
-                        }
-                    } else {
-                        loadTickets(true);
-                    }
-
-                    // Optional: silent background refresh after 3 seconds
-                    setTimeout(() => loadTickets(true), 3000);
-                } else {
-                    throw new Error(result.message || "Ошибка сервера");
-                }
-            } catch (error) {
-                console.error('Accept ticket error:', error);
-                btnAccept.classList.remove('btn-loading');
-                btnAccept.disabled = false;
-                btnIcon.className = 'fa-solid fa-check';
-                acceptLabel.textContent = 'Принять заявку';
-                alert("Ошибка: " + (error.message || "Не удалось принять заявку"));
+                lat = position.coords.latitude;
+                lon = position.coords.longitude;
+                accuracy = Math.round(position.coords.accuracy);
+            } catch (geoError) {
+                console.log('Geolocation error:', geoError);
             }
         }
 
+        const result = await apiFetch(URL_GOOGLE_SERVER, {
+            method: "POST",
+            body: JSON.stringify({
+                action: "acceptTicket",
+                ticketId: activeTicketId,
+                lat: lat,
+                lon: lon,
+                accuracy: accuracy
+            }),
+            headers: { "Content-Type": "text/plain;charset=utf-8" }
+        });
+
+        if (result.status !== "success") {
+            throw new Error(result.message || "Ошибка сервера");
+        }
+
+        // ── 4. SILENT SYNC SUCCESS ──
+        if (lat && lon) {
+            activeTicketData.mapsLink = "https://maps.google.com/?q=" + lat + "," + lon;
+            activeTicketData.geoAccuracy = "±" + accuracy + " м";
+        }
+        setCachedTicket(activeTicketId, activeTicketData);
+
+        // Refresh cache quietly after 3 sec so geolocation is saved
+        setTimeout(() => loadTickets(true), 3000);
+
+    } catch (error) {
+        console.error('Accept ticket error:', error);
+
+        // ── 5. ROLLBACK ON FAILURE ──
+        activeTicketData.status = prevState.status;
+        activeTicketData.acceptedAt = prevState.acceptedAt;
+        activeTicketData.acceptedBy = prevState.acceptedBy;
+        activeTicketData.mapsLink = prevState.mapsLink;
+        activeTicketData.geoAccuracy = prevState.geoAccuracy;
+
+        renderTicketModal(activeTicketData);
+        restoreTicketCardFromCache(activeTicketId);
+
+        alert("Ошибка: " + (error.message || "Не удалось принять заявку"));
+    } finally {
+        btnAccept.disabled = false;
+        btnAccept.classList.remove('btn-loading');
+        btnIcon.className = 'fa-solid fa-check';
+        acceptLabel.textContent = 'Принять заявку';
+    }
+}
+
+// Helper: updates the existing card in the list without full re-render
+function updateTicketCardOptimistic(ticket) {
+    const cacheKey = "cachedMasterTickets_" + currentUser.name;
+    let tickets = [];
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+        tickets = JSON.parse(cached);
+        const idx = tickets.findIndex(t => String(t.id) === String(ticket.id));
+        if (idx !== -1) {
+            tickets[idx] = { ...tickets[idx], ...ticket };
+        } else {
+            tickets.unshift(ticket);
+        }
+    }
+    localStorage.setItem(cacheKey, JSON.stringify(tickets));
+    renderMasterTickets(tickets);
+}
+
+// Helper: re-renders from cache to wipe optimistic changes if rollback needed
+function restoreTicketCardFromCache(ticketId) {
+    const cacheKey = "cachedMasterTickets_" + currentUser.name;
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+        renderMasterTickets(JSON.parse(cached));
+    }
+}
         function formatDateStr(d) {
             const day = String(d.getDate()).padStart(2, '0');
             const month = String(d.getMonth() + 1).padStart(2, '0');
