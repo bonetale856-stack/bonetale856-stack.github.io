@@ -500,6 +500,13 @@
             50% { transform: translateY(-6px); }
         }
 
+        @keyframes splashWrench {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(-12deg) scale(1.05); }
+            50% { transform: rotate(0deg) scale(1); }
+            75% { transform: rotate(12deg) scale(1.05); }
+        }
+
         .rank-name { font-size: 16px; font-weight: 800; color: white; margin: 0; }
         .rank-level { font-size: 11px; color: #8e8e93; margin: 4px 0 0 0; }
 
@@ -856,20 +863,26 @@
 <body>
     
     <!-- ===== SPLASH SCREEN ===== -->
-    <div id="splashScreen" style="position:fixed;inset:0;background:linear-gradient(135deg,#1c1c1e 0%,#2c2c2e 100%);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.6s ease,visibility 0.6s ease;">
-        <div style="position:relative;width:120px;height:120px;margin-bottom:24px;">
+    <div id="splashScreen" style="position:fixed;inset:0;background:#ffffff;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.6s ease,visibility 0.6s ease;">
+        <div style="position:relative;width:140px;height:140px;margin-bottom:32px;">
             <!-- Animated ring -->
-            <svg viewBox="0 0 120 120" style="width:100%;height:100%;transform:rotate(-90deg);">
-                <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,149,0,0.15)" stroke-width="6"/>
-                <circle id="splashRing" cx="60" cy="60" r="52" fill="none" stroke="#ff9500" stroke-width="6" stroke-linecap="round" stroke-dasharray="327" stroke-dashoffset="327" style="transition:stroke-dashoffset 2.5s cubic-bezier(0.4,0,0.2,1);"/>
+            <svg viewBox="0 0 140 140" style="width:100%;height:100%;transform:rotate(-90deg);">
+                <circle cx="70" cy="70" r="62" fill="none" stroke="#f2f2f7" stroke-width="6"/>
+                <circle id="splashRing" cx="70" cy="70" r="62" fill="none" stroke="#ff9500" stroke-width="6" stroke-linecap="round" stroke-dasharray="390" stroke-dashoffset="390" style="transition:stroke-dashoffset 2.5s cubic-bezier(0.4,0,0.2,1);"/>
             </svg>
             <!-- Center icon -->
-            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:44px;">
-                ⚡
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);">
+                <div style="animation:splashWrench 2s ease-in-out infinite;">
+                    <i class="fa-solid fa-screwdriver-wrench" style="font-size:44px;color:#ff9500;"></i>
+                </div>
             </div>
         </div>
-        <div style="font-size:32px;font-weight:800;color:white;letter-spacing:2px;margin-bottom:8px;">ГИЛЬДИЯ</div>
-        <div id="splashStatus" style="font-size:13px;color:#8e8e93;font-weight:500;letter-spacing:0.5px;">Загрузка заявок...</div>
+        <!-- Animated text fill -->
+        <div style="position:relative;margin-bottom:12px;">
+            <div style="font-size:34px;font-weight:900;letter-spacing:6px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:transparent;-webkit-text-stroke:2px #1c1c1e;">ГИЛЬДИЯ</div>
+            <div id="splashTextFill" style="position:absolute;top:0;left:0;font-size:34px;font-weight:900;letter-spacing:6px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#ff9500;overflow:hidden;white-space:nowrap;width:0%;transition:width 2s cubic-bezier(0.4,0,0.2,1);">ГИЛЬДИЯ</div>
+        </div>
+        <div id="splashStatus" style="font-size:14px;color:#8e8e93;font-weight:500;letter-spacing:0.5px;">Загрузка заявок...</div>
     </div>
 
     <!-- ===== OFFLINE TOAST ===== -->
@@ -1362,10 +1375,12 @@ function restoreReportForm(ticketId) {
     };
 
     function startSplash() {
-        // Animate the ring
+        // Animate the ring and text fill
         requestAnimationFrame(() => {
             const ring = document.getElementById('splashRing');
             if (ring) ring.style.strokeDashoffset = '0';
+            const fill = document.getElementById('splashTextFill');
+            if (fill) fill.style.width = '100%';
         });
     }
 
