@@ -1615,7 +1615,7 @@ function restoreReportForm(ticketId) {
         }
 
         // ===== МОДАЛЬНОЕ ОКНО ЗАЯВКИ =====
-        async function openTicketModal(ticketId) {
+                async function openTicketModal(ticketId) {
             activeTicketId = ticketId;
             const modal = document.getElementById('ticketModal');
             const modalBody = document.getElementById('modalBody');
@@ -1624,6 +1624,8 @@ function restoreReportForm(ticketId) {
             resetModalButtons();
 
             const cached = getCachedTicket(ticketId);
+            
+            // INSTANT render from cache
             if (cached) {
                 activeTicketData = cached;
                 renderTicketModal(cached);
@@ -1635,26 +1637,22 @@ function restoreReportForm(ticketId) {
                 `;
             }
 
+            // SILENT background refresh
             try {
                 const ticket = await apiFetch(URL_GOOGLE_SERVER + "?action=getTicketDetails&ticketId=" + encodeURIComponent(ticketId));
-                activeTicketData = ticket;
-                setCachedTicket(ticketId, ticket);
-                renderTicketModal(ticket);
-
-                // Если папки ещё не созданы — обновим через 5 сек
-                if (!ticket.beforeUrl || !ticket.afterUrl) {
-                    setTimeout(async () => {
-                        try {
-                            const refreshed = await apiFetch(URL_GOOGLE_SERVER + "?action=getTicketDetails&ticketId=" + encodeURIComponent(ticketId));
-                            if (refreshed.beforeUrl || refreshed.afterUrl) {
-                                activeTicketData = refreshed;
-                                setCachedTicket(ticketId, refreshed);
-                                if (activeTicketId === ticketId) {
-                                    renderTicketModal(refreshed);
-                                }
-                            }
-                        } catch(e) {}
-                    }, 5000);
+                
+                const hasChanges = !cached || 
+                    cached.beforeUrl !== ticket.beforeUrl || 
+                    cached.afterUrl !== ticket.afterUrl ||
+                    cached.status !== ticket.status ||
+                    cached.acceptedAt !== ticket.acceptedAt;
+                
+                if (hasChanges) {
+                    activeTicketData = ticket;
+                    setCachedTicket(ticketId, ticket);
+                    if (activeTicketId === ticketId) {
+                        renderTicketModal(ticket);
+                    }
                 }
             } catch (error) {
                 if (!cached) {
