@@ -709,6 +709,59 @@
         .form-control:focus { outline: none; border-color: #007aff; }
         .form-control::placeholder { color: #c7c7cc; }
         .form-control:disabled { background: #f9f9f9; color: #8e8e93; }
+        
+        /* ===== OPTIMISTIC UI TOAST & BANNER ===== */
+#optimisticToast {
+    position: fixed;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-120%);
+    padding: 12px 20px;
+    border-radius: 14px;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 10000;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    pointer-events: none;
+}
+#optimisticToast.show { transform: translateX(-50%) translateY(0); }
+
+#persistentBanner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: #ff3b30;
+    color: white;
+    padding: 14px 20px;
+    z-index: 10001;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 4px 20px rgba(255,59,48,0.3);
+    animation: slideDown 0.3s ease;
+}
+@keyframes slideDown {
+    from { transform: translateY(-100%); }
+    to { transform: translateY(0); }
+}
+#persistentBanner button {
+    background: white;
+    color: #ff3b30;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+}
     </style>
 
     <!-- ONESIGNAL PUSH NOTIFICATIONS -->
@@ -1038,6 +1091,111 @@
         let activeTicketId = null;
         let activeTicketData = null;
         const TICKET_CACHE_TTL = 5 * 60 * 1000;
+        
+        // ===== OPTIMISTIC CLOSE HELPERS =====
+let pendingReportData = null;
+
+function showToast(message, type) {
+    const existing = document.getElementById('optimisticToast');
+    if (existing) existing.remove();
+    
+    const toast = document.createElement('div');
+    toast.id = 'optimisticToast';
+    let icon = 'fa-circle-notch fa-spin';
+    let bg = '#1c1c1e';
+    if (type === 'success') { icon = 'fa-check'; bg = '#34c759'; }
+    if (type === 'error') { icon = 'fa-triangle-exclamation'; bg = '#ff3b30'; }
+    
+    toast.style.background = bg;
+    toast.style.color = 'white';
+    toast.innerHTML = `<i class="fa-solid ${icon}"></i> ${message}`;
+    document.body.appendChild(toast);
+    
+    requestAnimationFrame(() => toast.classList.add('show'));
+    
+    if (type !== 'loading') {
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 400);
+        }, 3000);
+    }
+    return toast;
+}
+
+function hideToast() {
+    const t = document.getElementById('optimisticToast');
+    if (t) { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }
+}
+
+function showPersistentBanner(message, actionText, onAction) {
+    const existing = document.getElementById('persistentBanner');
+    if (existing) existing.remove();
+    
+    const banner = document.createElement('div');
+    banner.id = 'persistentBanner';
+    banner.innerHTML = `
+        <span style="flex:1;">${message}</span>
+        <button>${actionText}</button>
+    `;
+    banner.querySelector('button').onclick = function() {
+        banner.remove();
+        if (onAction) onAction();
+    };
+    document.body.appendChild(banner);
+}
+
+function removeTicketFromList(ticketId) {
+    const card = document.getElementById("ticket-card-" + ticketId);
+    if (card) {
+        card.style.transition = 'all 0.3s ease';
+        card.style.opacity = '0';
+        card.style.transform = 'translateX(100%)';
+        setTimeout(() => card.remove(), 300);
+    }
+    const cacheKey = "cachedMasterTickets_" + currentUser.name;
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+        const tickets = JSON.parse(cached).filter(t => String(t.id) !== String(ticketId));
+        localStorage.setItem(cacheKey, JSON.stringify(tickets));
+    }
+}
+
+function saveReportDraft() {
+    pendingReportData = {
+        ticketId: activeTicketId,
+        description: document.getElementById("repDescription").value,
+        workCost: document.getElementById("repWorkCost").value,
+        materialCost: document.getElementById("repMaterialCost").value,
+        deliveryCost: document.getElementById("repDeliveryCost").value,
+        totalCost: document.getElementById("repTotalCost").value,
+        photoBeforeOk: document.getElementById("photoBeforeOk").checked,
+        photoAfterOk: document.getElementById("photoAfterOk").checked
+    };
+    sessionStorage.setItem("reportDraft_" + activeTicketId, JSON.stringify(pendingReportData));
+}
+
+function restoreReportForm(ticketId) {
+    const draft = pendingReportData || JSON.parse(sessionStorage.getItem("reportDraft_" + ticketId) || "null");
+    if (!draft) return;
+    
+    activeTicketId = draft.ticketId;
+    const modal = document.getElementById('reportModal');
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+    
+    document.getElementById("repDescription").value = draft.description || "";
+    document.getElementById("repWorkCost").value = draft.workCost || "";
+    document.getElementById("repMaterialCost").value = draft.materialCost || "";
+    document.getElementById("repDeliveryCost").value = draft.deliveryCost || "";
+    document.getElementById("repTotalCost").value = draft.totalCost || "";
+    document.getElementById("photoBeforeOk").checked = draft.photoBeforeOk || false;
+    document.getElementById("photoAfterOk").checked = draft.photoAfterOk || false;
+    
+    const btn = document.getElementById("btnSubmitReport");
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-check-double"></i> Закрыть заявку';
+    btn.style.background = "";
+}
 
         // ===== API DEDUPLICATION & THROTTLING =====
         const MIN_REFRESH_MS = 15000;
@@ -1406,6 +1564,7 @@
 
     activeTickets.forEach(ticket => {
         const div = document.createElement("div");
+        div.id = "ticket-card-" + ticket.id;
         const isAccepted = ticket.status === "Принята" || ticket.status === "Accepted" || ticket.status === "accepted";
         div.className = `card ticket-card status-${isAccepted ? "accepted" : "new"}`;
 
@@ -1757,7 +1916,6 @@
     const acceptLabel = document.getElementById('acceptLabel');
     const btnIcon = btnAccept.querySelector('i');
 
-    // ── 1. SAVE STATE FOR ROLLBACK ──
     const prevState = {
         status: activeTicketData.status,
         acceptedAt: activeTicketData.acceptedAt,
@@ -1766,17 +1924,15 @@
         geoAccuracy: activeTicketData.geoAccuracy
     };
 
-    // ── 2. OPTIMISTIC UPDATE (UI changes instantly) ──
     const nowStr = formatDateStr(new Date());
     activeTicketData.status = "Принята";
     activeTicketData.acceptedAt = nowStr;
     activeTicketData.acceptedBy = currentUser.name;
 
-    renderTicketModal(activeTicketData);               // modal now shows "Принята"
-    updateTicketCardOptimistic(activeTicketData);      // list card turns green
+    renderTicketModal(activeTicketData);
+    updateTicketCardOptimistic(activeTicketData);
 
-    // ── 3. BACKGROUND API CALL ──
-    btnAccept.disabled = true; // prevent double-click
+    btnAccept.disabled = true;
     let lat = '', lon = '', accuracy = '';
 
     try {
@@ -1798,6 +1954,7 @@
             body: JSON.stringify({
                 action: "acceptTicket",
                 ticketId: activeTicketId,
+                masterName: currentUser.name,
                 lat: lat,
                 lon: lon,
                 accuracy: accuracy
@@ -1809,20 +1966,16 @@
             throw new Error(result.message || "Ошибка сервера");
         }
 
-        // ── 4. SILENT SYNC SUCCESS ──
         if (lat && lon) {
             activeTicketData.mapsLink = "https://maps.google.com/?q=" + lat + "," + lon;
             activeTicketData.geoAccuracy = "±" + accuracy + " м";
         }
         setCachedTicket(activeTicketId, activeTicketData);
 
-        // Refresh cache quietly after 3 sec so geolocation is saved
         setTimeout(() => loadTickets(true), 3000);
 
     } catch (error) {
         console.error('Accept ticket error:', error);
-
-        // ── 5. ROLLBACK ON FAILURE ──
         activeTicketData.status = prevState.status;
         activeTicketData.acceptedAt = prevState.acceptedAt;
         activeTicketData.acceptedBy = prevState.acceptedBy;
@@ -1841,7 +1994,6 @@
     }
 }
 
-// Helper: updates the existing card in the list without full re-render
 function updateTicketCardOptimistic(ticket) {
     const cacheKey = "cachedMasterTickets_" + currentUser.name;
     let tickets = [];
@@ -1859,7 +2011,6 @@ function updateTicketCardOptimistic(ticket) {
     renderMasterTickets(tickets);
 }
 
-// Helper: re-renders from cache to wipe optimistic changes if rollback needed
 function restoreTicketCardFromCache(ticketId) {
     const cacheKey = "cachedMasterTickets_" + currentUser.name;
     const cached = localStorage.getItem(cacheKey);
@@ -2003,84 +2154,78 @@ async function checkSession() {
 
         // ===== ОТПРАВКА ОТЧЁТА =====
         async function submitReport() {
-            const desc = document.getElementById("repDescription").value.trim();
-            if (!desc) {
-                alert("Пожалуйста, напишите описание выполненных работ!");
-                return;
-            }
+    const desc = document.getElementById("repDescription").value.trim();
+    if (!desc) {
+        alert("Пожалуйста, напишите описание выполненных работ!");
+        return;
+    }
 
-            const photoBeforeOk = document.getElementById("photoBeforeOk").checked;
-            const photoAfterOk = document.getElementById("photoAfterOk").checked;
-            
-              if (!photoBeforeOk || !photoAfterOk) {
+    const photoBeforeOk = document.getElementById("photoBeforeOk").checked;
+    const photoAfterOk = document.getElementById("photoAfterOk").checked;
+    
+    if (!photoBeforeOk || !photoAfterOk) {
         alert("Пожалуйста, загрузите фото ДО и ПОСЛЕ, затем отметьте обе галочки!");
         return;
     }
 
-            const btn = document.getElementById("btnSubmitReport");
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Отправляем...';
+    const currentTicketId = activeTicketId;
+    saveReportDraft();
 
-            const workCost      = Number(document.getElementById("repWorkCost").value) || 0;
-            const materialCost  = Number(document.getElementById("repMaterialCost").value) || 0;
-            const deliveryCost  = Number(document.getElementById("repDeliveryCost").value) || 0;
-            const totalCost     = Number(document.getElementById("repTotalCost").value) || 0;
+    // 1. OPTIMISTIC CLOSE (UI changes instantly)
+    closeReportModal();
+    closeTicketModal();
+    showToast("Отчёт отправляется...", "loading");
+    removeTicketFromList(currentTicketId);
 
-            const reportData = {
-                action: "submitReport",
-                ticketId: activeTicketId,
-                masterName: currentUser.name,
-                description: desc,
-                photoBeforeOk: photoBeforeOk,
-                photoAfterOk: photoAfterOk,
-                workCost: workCost,
-                materialCost: materialCost,
-                deliveryCost: deliveryCost,
-                totalCost: totalCost
-            };
+    const workCost      = Number(document.getElementById("repWorkCost").value) || 0;
+    const materialCost  = Number(document.getElementById("repMaterialCost").value) || 0;
+    const deliveryCost  = Number(document.getElementById("repDeliveryCost").value) || 0;
+    const totalCost     = Number(document.getElementById("repTotalCost").value) || 0;
 
-            try {
-                const result = await apiFetch(URL_GOOGLE_SERVER, {
-                    method: "POST",
-                    body: JSON.stringify(reportData),
-                    headers: { "Content-Type": "text/plain;charset=utf-8" }
-                });
+    const reportData = {
+        action: "submitReport",
+        ticketId: currentTicketId,
+        masterName: currentUser.name,
+        description: desc,
+        photoBeforeOk: photoBeforeOk,
+        photoAfterOk: photoAfterOk,
+        workCost: workCost,
+        materialCost: materialCost,
+        deliveryCost: deliveryCost,
+        totalCost: totalCost
+    };
 
-                if (result.status === "success") {
-                    btn.innerHTML = '<i class="fa-solid fa-check"></i> ✓ Принято!';
-                    btn.style.background = "#34c759";
+    try {
+        const result = await apiFetch(URL_GOOGLE_SERVER, {
+            method: "POST",
+            body: JSON.stringify(reportData),
+            headers: { "Content-Type": "text/plain;charset=utf-8" }
+        });
 
-                    const cached = getCachedTicket(activeTicketId);
-                    if (cached) {
-                        cached.status = "Выполнено";
-                        cached.description = desc;
-                        cached.photoBeforeOk = photoBeforeOk ? "Да" : "Нет";
-                        cached.photoAfterOk = photoAfterOk ? "Да" : "Нет";
-                        setCachedTicket(activeTicketId, cached);
-                    }
+        if (result.status === "success") {
+            hideToast();
+            showToast("✓ Заявка закрыта", "success");
+            
+            sessionStorage.removeItem("reportDraft_" + currentTicketId);
+            pendingReportData = null;
 
-                    setTimeout(() => {
-                        btn.disabled = false;
-                        btn.innerHTML = '<i class="fa-solid fa-check-double"></i> Закрыть заявку';
-                        btn.style.background = "";
-                        closeReportModal();
-                        closeTicketModal();
-                        localStorage.removeItem("cachedMasterTickets_" + currentUser.name);
-                        localStorage.removeItem("cachedMasterHistory_" + currentUser.name);
-                        loadTickets();
-                    }, 1200);
-                } else {
-                    throw new Error(result.message || "Ошибка сервера");
-                }
-            } catch (error) {
-                console.error(error);
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-exclamation"></i> Ошибка. Повторить';
-                btn.style.background = "#ff3b30";
-                setTimeout(() => { btn.style.background = ""; }, 3000);
-                alert("Ошибка при отправке отчёта: " + error.message);
-            }
+            localStorage.removeItem("cachedMasterHistory_" + currentUser.name);
+            setTimeout(() => loadHistory(true), 1500);
+        } else {
+            throw new Error(result.message || "Ошибка сервера");
         }
+    } catch (error) {
+        console.error(error);
+        hideToast();
+        showToast("Ошибка отправки", "error");
+        
+        showPersistentBanner(
+            "Заявка #" + currentTicketId + " не закрыта. Отчёт сохранён.",
+            "Повторить",
+            () => restoreReportForm(currentTicketId)
+        );
+    }
+}
 
         // ===== ВЫХОД =====
         async function logout(silent) {
