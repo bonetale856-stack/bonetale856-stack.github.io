@@ -282,12 +282,46 @@
             font-size: 12px; color: #ff9500; margin-top: 6px;
             display: flex; align-items: center; gap: 6px;
         }
+        
+        /* ===== OFFLINE TOAST ===== */
+        .offline-toast {
+            position: fixed;
+            top: -80px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 18px;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 9999;
+            transition: top 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            white-space: nowrap;
+            pointer-events: none;
+        }
+        .offline-toast.show { top: 16px; }
+        .offline-toast.offline { background: #1c1c1e; color: white; }
+        .offline-toast.online { background: #34c759; color: white; }
+        
+                @keyframes slideDown {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
+        }
     </style>
 <base target="_blank">
 <base target="_blank">
 <base target="_blank">
 </head>
 <body>
+    
+    <!-- ===== OFFLINE TOAST ===== -->
+    <div class="offline-toast" id="offlineToast">
+        <i id="toastIcon" class="fa-solid fa-wifi-slash"></i>
+        <span id="toastText">Нет подключения к интернету</span>
+    </div>
 
     <div class="top-bar" id="headerTitle">Новая заявка</div>
 
@@ -1105,6 +1139,24 @@
         document.body.style.overflow = '';
     }
 
+function showPersistentBanner(message, actionText, onAction) {
+    const existing = document.getElementById('persistentBanner');
+    if (existing) existing.remove();
+    
+    const banner = document.createElement('div');
+    banner.id = 'persistentBanner';
+    banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#ff3b30;color:white;padding:14px 20px;z-index:10001;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:14px;font-weight:600;box-shadow:0 4px 20px rgba(255,59,48,0.3);animation:slideDown 0.3s ease;';
+    banner.innerHTML = `
+        <span style="flex:1;">${message}</span>
+        <button style="background:white;color:#ff3b30;border:none;padding:8px 16px;border-radius:10px;font-weight:700;cursor:pointer;white-space:nowrap;">${actionText}</button>
+    `;
+    banner.querySelector('button').onclick = function() {
+        banner.remove();
+        if (onAction) onAction();
+    };
+    document.body.appendChild(banner);
+}
+
 async function sendTicket() {
     if ($('aptInput').value.trim()) addApt();
 
@@ -1137,6 +1189,19 @@ async function sendTicket() {
 
     // ✅ INSTANT SUCCESS — show immediately, don't wait for server
     closeConfirmModal();
+    
+    // Save form data for potential restore
+    const savedFormData = {
+        address: address,
+        problem: problem,
+        phone: phone,
+        entrance: $("entrance").value,
+        aptList: JSON.parse(JSON.stringify(aptList)),
+        masterList: [...masterList],
+        selectedTicketType: selectedTicketType,
+        paymentType: paymentTypeStr
+    };
+
     resetCreateForm();
 
     const mainBtn = $("btnSubmitTicket");
@@ -1158,9 +1223,9 @@ async function sendTicket() {
             dispatcherName: currentUser.name,
             address:        address,
             problem:        fullProblem,
-            masterName:     masterNameStr,   // ← captured value
-            ticketType:     ticketTypeStr,   // ← captured value
-            paymentType:    paymentTypeStr   // ← captured value
+            masterName:     masterNameStr,
+            ticketType:     ticketTypeStr,
+            paymentType:    paymentTypeStr
         }),
         headers: { "Content-Type": "text/plain;charset=utf-8" }
     })
@@ -1168,13 +1233,79 @@ async function sendTicket() {
     .then(result => {
         if (result.status === 'error') {
             console.error("[Background] Server error:", result.message);
-            // Optional: show a subtle toast that the server failed
-        } else {
-            console.log("[Background] Ticket created:", result.ticketId);
+            // ✅ Show non-blocking banner — doesn't interrupt workflow
+            showPersistentBanner(
+                "⚠️ Заявка не создана: " + (result.message || "Ошибка сервера"),
+                "Повторить",
+                () => {
+                    // Restore form values and reopen confirm modal
+                    $("address").value = savedFormData.address;
+                    $("problem").value = savedFormData.problem;
+                    $("phone").value = savedFormData.phone;
+                    $("entrance").value = savedFormData.entrance;
+                    aptList = savedFormData.aptList;
+                    masterList = savedFormData.masterList;
+                    selectedTicketType = savedFormData.selectedTicketType;
+                    renderAptTags();
+                    renderMasterTags();
+                    // Restore payment UI
+                    if (selectedTicketType) {
+                        document.querySelectorAll('.type-btn').forEach(b => {
+                            if (b.textContent.includes(selectedTicketType === 'Аварийная' ? '🚨' : 
+                                selectedTicketType === 'Линейная' ? '🔧' : '🏗️')) {
+                                b.classList.add('active');
+                            }
+                        });
+                        updatePaymentOptions(selectedTicketType);
+                        if (selectedTicketType !== 'Монтажная') {
+                            const radios = document.querySelectorAll('input[name="payment"]');
+                            radios.forEach(r => {
+                                if (r.value === savedFormData.paymentType) r.checked = true;
+                            });
+                        }
+                    }
+                    askConfirm();
+                }
+            );
+            return;
         }
+        console.log("[Background] Ticket created:", result.ticketId);
     })
     .catch(err => {
         console.error("[Background] Network error:", err);
+        // ✅ Same non-blocking banner
+        showPersistentBanner(
+            "⚠️ Нет связи с сервером. Заявка не создана.",
+            "Повторить",
+            () => {
+                // Restore form
+                $("address").value = savedFormData.address;
+                $("problem").value = savedFormData.problem;
+                $("phone").value = savedFormData.phone;
+                $("entrance").value = savedFormData.entrance;
+                aptList = savedFormData.aptList;
+                masterList = savedFormData.masterList;
+                selectedTicketType = savedFormData.selectedTicketType;
+                renderAptTags();
+                renderMasterTags();
+                if (selectedTicketType) {
+                    document.querySelectorAll('.type-btn').forEach(b => {
+                        if (b.textContent.includes(selectedTicketType === 'Аварийная' ? '🚨' : 
+                            selectedTicketType === 'Линейная' ? '🔧' : '🏗️')) {
+                            b.classList.add('active');
+                        }
+                    });
+                    updatePaymentOptions(selectedTicketType);
+                    if (selectedTicketType !== 'Монтажная') {
+                        const radios = document.querySelectorAll('input[name="payment"]');
+                        radios.forEach(r => {
+                            if (r.value === savedFormData.paymentType) r.checked = true;
+                        });
+                    }
+                }
+                askConfirm();
+            }
+        );
     });
 }
 
@@ -1715,6 +1846,34 @@ async function sendTicket() {
         localStorage.removeItem("currentUser");
         window.location.replace("index.html");
     }
+    
+    
+    // ===== OFFLINE TOAST =====
+(function() {
+    const toast = document.getElementById('offlineToast');
+    const toastText = document.getElementById('toastText');
+    const toastIcon = document.getElementById('toastIcon');
+    let toastTimer = null;
+
+    function showToast(isOnline) {
+        clearTimeout(toastTimer);
+        if (isOnline) {
+            toast.className = 'offline-toast online show';
+            toastIcon.className = 'fa-solid fa-wifi';
+            toastText.innerText = 'Соединение восстановлено';
+            toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+        } else {
+            toast.className = 'offline-toast offline show';
+            toastIcon.className = 'fa-solid fa-wifi-slash';
+            toastText.innerText = 'Нет подключения к интернету';
+        }
+    }
+
+    window.addEventListener('offline', () => showToast(false));
+    window.addEventListener('online', () => showToast(true));
+    if (!navigator.onLine) showToast(false);
+})();
+
     </script>
 
     <script>
