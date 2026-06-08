@@ -1993,23 +1993,39 @@ function restoreReportForm(ticketId) {
         }
 
         // ===== ОТКРЫТИЕ ОТЧЁТА С КАРТОЧКИ =====
-        async function openReportFromCard(ticketId) {
-            activeTicketId = ticketId;
-            const cached = getCachedTicket(ticketId);
-            if (cached && cached.beforeUrl && cached.afterUrl) {
-                activeTicketData = cached;
-                openReportForm();
-                return;
-            }
-            try {
-                const ticket = await apiFetch(URL_GOOGLE_SERVER + "?action=getTicketDetails&ticketId=" + encodeURIComponent(ticketId));
+async function openReportFromCard(ticketId) {
+    activeTicketId = ticketId;
+
+    // Open form immediately if ANY cached data exists — don't block on folder URLs
+    const cached = getCachedTicket(ticketId);
+    if (cached) {
+        activeTicketData = cached;
+        openReportForm();
+        // Silently refresh folder URLs in background
+        apiFetch(URL_GOOGLE_SERVER + "?action=getTicketDetails&ticketId=" + encodeURIComponent(ticketId))
+            .then(ticket => {
                 activeTicketData = ticket;
                 setCachedTicket(ticketId, ticket);
-                openReportForm();
-            } catch (e) {
-                alert('Не удалось загрузить данные заявки. Проверьте интернет.');
-            }
-        }
+            })
+            .catch(() => {});
+        return;
+    }
+
+    // No cache at all — show loading on the button, then open
+    const card = document.getElementById("ticket-card-" + ticketId);
+    const closeBtn = card ? card.querySelector('.btn-close-ticket') : null;
+    if (closeBtn) { closeBtn.disabled = true; closeBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Загрузка...'; }
+
+    try {
+        const ticket = await apiFetch(URL_GOOGLE_SERVER + "?action=getTicketDetails&ticketId=" + encodeURIComponent(ticketId));
+        activeTicketData = ticket;
+        setCachedTicket(ticketId, ticket);
+        openReportForm();
+    } catch (e) {
+        alert('Не удалось загрузить данные заявки. Проверьте интернет.');
+        if (closeBtn) { closeBtn.disabled = false; closeBtn.innerHTML = '<i class="fa-solid fa-flag-checkered"></i> Закрыть заявку'; }
+    }
+}
 
         // ===== МОДАЛЬНОЕ ОКНО ОТЧЁТА =====
         function openReportForm() {
