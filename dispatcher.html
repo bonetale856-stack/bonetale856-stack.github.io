@@ -1328,24 +1328,43 @@ async function sendTicket() {
     // ==========================================
     // ЗАГРУЗКА ЗАЯВОК
     // ==========================================
-    async function loadMyTickets() {
+        // ==========================================
+    // ЗАГРУЗКА ЗАЯВОК (МГНОВЕННАЯ ИЗ КЭША)
+    // ==========================================
+    let lastTicketsLoadTime = 0;
+
+    async function loadMyTickets(force = false) {
         const containerNew  = $("ticketsContainerNew");
         const containerDone = $("ticketsContainerDone");
+        const cacheKey = "cachedDispatcherTickets_" + currentUser.name;
+
+        // 1. Если прошло меньше 15 секунд — мгновенно рисуем из кэша и не дергаем сервер
+        if (!force && Date.now() - lastTicketsLoadTime < 15000) {
+            if (myTicketsArray.length > 0) {
+                renderTicketsList(myTicketsArray);
+                return;
+            }
+        }
 
         if (!containerNew.innerHTML.trim())  showLoader('New');
         if (!containerDone.innerHTML.trim()) showLoader('Done');
 
-        const cacheKey = "cachedDispatcherTickets_" + currentUser.name;
-        const cached   = localStorage.getItem(cacheKey);
+        // 2. Рисуем старый кэш, пока ждем сервер (чтобы не было белого экрана)
+        const cached = localStorage.getItem(cacheKey);
         if (cached) {
-            try { renderTicketsList(JSON.parse(cached)); } catch (e) {}
+            try { 
+                myTicketsArray = JSON.parse(cached);
+                renderTicketsList(myTicketsArray); 
+            } catch (e) {}
         }
 
+        // 3. Тихо скачиваем свежие данные в фоне
         try {
-            const res = await fetch(URL_GOOGLE_SERVER +
-                "?action=getDispatcherTickets&dispatcherName=" +
-                encodeURIComponent(currentUser.name));
+            const res = await fetch(URL_GOOGLE_SERVER + "?action=getDispatcherTickets&dispatcherName=" + encodeURIComponent(currentUser.name));
             const freshTickets = await res.json();
+            
+            lastTicketsLoadTime = Date.now(); // Запоминаем время
+            myTicketsArray = freshTickets;
             localStorage.setItem(cacheKey, JSON.stringify(freshTickets));
             renderTicketsList(freshTickets);
         } catch (e) {
@@ -1503,7 +1522,7 @@ async function sendTicket() {
 
     function closeEditModal() { $("editModal").style.display = "none"; }
 
-    async function saveEdit() {
+        async function saveEdit() {
         const newAddress     = $("editAddress").value.trim();
         const newProblem     = $("editProblem").value.trim();
         const newMaster      = $("editMaster").value.trim();
@@ -1514,43 +1533,43 @@ async function sendTicket() {
         if (!allAddresses.includes(newAddress)) { alert("❌ Такого адреса нет в базе!"); return; }
         if (!allMasters.includes(newMaster))    { alert("❌ Такого мастера нет!"); return; }
 
-        const btn = $("btnSaveEdit");
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Сохраняем...';
+        const currentId = currentEditId;
+        const ticket = myTicketsArray.find(t => t.id == currentId);
+        const backup = ticket ? { ...ticket } : null; // Сохраняем на случай ошибки
 
+        // === ОПТИМИСТИЧНОЕ СОХРАНЕНИЕ ===
+        closeEditModal(); // Закрываем окно СРАЗУ
+        
+        if (ticket) {
+            ticket.address = newAddress;
+            ticket.problem = newProblem;
+            ticket.master = newMaster;
+            ticket.ticketType = newTicketType;
+            ticket.paymentType = newPaymentType;
+            renderTicketsList(myTicketsArray); // Мгновенно обновляем текст на экране
+        }
+
+        // Тихо отправляем на сервер
         try {
             const res = await fetch(URL_GOOGLE_SERVER, {
                 method: "POST",
                 body: JSON.stringify({
-                    action:      "editTicket",
-                    ticketId:    currentEditId,
-                    address:     newAddress,
-                    problem:     newProblem,
-                    masterName:  newMaster,
-                    ticketType:  newTicketType,
-                    paymentType: newPaymentType
+                    action: "editTicket", ticketId: currentId, address: newAddress,
+                    problem: newProblem, masterName: newMaster, ticketType: newTicketType, paymentType: newPaymentType
                 }),
                 headers: { "Content-Type": "text/plain;charset=utf-8" }
             });
             const result = await res.json();
-
-            if (result.status === 'error') {
-                alert("⚠️ " + (result.message || "Ошибка редактирования"));
-                btn.disabled = false;
-                btn.innerHTML = '💾 Сохранить изменения';
-                return;
-            }
-
-            closeEditModal();
-            btn.disabled = false;
-            btn.innerHTML = '💾 Сохранить изменения';
-            localStorage.removeItem("cachedDispatcherTickets_" + currentUser.name);
-            loadMyTickets();
-
+            if (result.status === 'error') throw new Error(result.message);
+            
+            localStorage.setItem("cachedDispatcherTickets_" + currentUser.name, JSON.stringify(myTicketsArray));
         } catch (e) {
-            alert("Ошибка сохранения. Проверьте интернет.");
-            btn.disabled = false;
-            btn.innerHTML = '💾 Сохранить изменения';
+            alert("Ошибка сохранения: " + e.message);
+            // Если нет интернета - откатываем как было
+            if (ticket && backup) {
+                Object.assign(ticket, backup);
+                renderTicketsList(myTicketsArray);
+            }
         }
     }
 
@@ -1574,58 +1593,45 @@ async function sendTicket() {
         currentCloseId = null;
     }
 
-    async function confirmCloseTicket() {
+        async function confirmCloseTicket() {
         if (!currentCloseId) return;
 
         const desc = $("closeDescription").value.trim();
-        if (!desc) {
-            alert("Напишите описание выполненных работ!");
-            $("closeDescription").focus();
-            return;
-        }
+        if (!desc) { alert("Напишите описание выполненных работ!"); $("closeDescription").focus(); return; }
 
-        const ticket     = myTicketsArray.find(t => t.id == currentCloseId);
+        const currentId = currentCloseId;
+        const ticket = myTicketsArray.find(t => t.id == currentId);
         const masterName = ticket ? ticket.master : "";
 
-        const btn = $("btnConfirmClose");
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Закрываем...';
+        // === МГНОВЕННОЕ ЗАКРЫТИЕ ===
+        closeCloseModal(); // Закрываем окно СРАЗУ
+        
+        if (ticket) {
+            ticket.status = "Выполнено";
+            renderTicketsList(myTicketsArray); // Заявка на глазах перелетит во вкладку "Закрытые"
+        }
 
+        // Тихо отправляем на сервер
         try {
             const res = await fetch(URL_GOOGLE_SERVER, {
                 method: "POST",
                 body: JSON.stringify({
-                    action:        "submitReport",
-                    ticketId:      currentCloseId,
-                    masterName:    masterName,
-                    closedBy:      currentUser.name,
-                    description:   desc,
-                    forced:        true,
-                    forcedReason:  "Закрыто диспетчером",
-                    photoBeforeOk: false,
-                    photoAfterOk:  false
+                    action: "submitReport", ticketId: currentId, masterName: masterName, closedBy: currentUser.name,
+                    description: desc, forced: true, forcedReason: "Закрыто диспетчером", photoBeforeOk: false, photoAfterOk: false
                 }),
                 headers: { "Content-Type": "text/plain;charset=utf-8" }
             });
             const result = await res.json();
+            if (result.status === 'error') throw new Error(result.message);
 
-            if (result.status === 'error') {
-                alert("⚠️ " + (result.message || "Ошибка закрытия"));
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-check-double"></i> Закрыть заявку';
-                return;
-            }
-
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fa-solid fa-check-double"></i> Закрыть заявку';
-            closeCloseModal();
-            localStorage.removeItem("cachedDispatcherTickets_" + currentUser.name);
-            loadMyTickets();
-
+            localStorage.setItem("cachedDispatcherTickets_" + currentUser.name, JSON.stringify(myTicketsArray));
         } catch (e) {
-            alert("Ошибка при закрытии заявки. Проверьте интернет.");
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fa-solid fa-check-double"></i> Закрыть заявку';
+            alert("Ошибка закрытия: " + e.message);
+            // Откатываем статус обратно
+            if (ticket) {
+                ticket.status = "Принята";
+                renderTicketsList(myTicketsArray);
+            }
         }
     }
 
@@ -1650,47 +1656,45 @@ async function sendTicket() {
         currentRateTicketId = null;
     }
 
-    async function submitRate() {
+        async function submitRate() {
         const rating  = parseInt($('rateValue').value);
         const comment = $('rateComment').value.trim();
 
         if (rating === 0) { alert('Выберите оценку от 1 до 5!'); return; }
 
-        const btn = $('btnSubmitRate');
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Отправляем...';
+        const currentId = currentRateTicketId;
+        const ticket = myTicketsArray.find(t => t.id == currentId);
 
+        // === МГНОВЕННАЯ ОЦЕНКА ===
+        closeRateModal(); // Закрываем СРАЗУ
+        
+        if (ticket) {
+            ticket.rated = true;
+            ticket.rating = rating;
+            renderTicketsList(myTicketsArray); // Кнопка "Оценить" на глазах превратится в бэйдж ⭐️ 5/5
+        }
+
+        // Тихо отправляем на сервер
         try {
             const res = await fetch(URL_GOOGLE_SERVER, {
                 method: 'POST',
                 body: JSON.stringify({
-                    action:   'rateTicket',       // ✅ правильный action
-                    ticketId: currentRateTicketId,
-                    rating:   rating,
-                    comment:  comment,
-                    ratedBy:  currentUser.name    // ✅ правильное поле
+                    action: 'rateTicket', ticketId: currentId, rating: rating,
+                    comment: comment, ratedBy: currentUser.name
                 }),
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' }
             });
             const result = await res.json();
+            if (result.status === 'error') throw new Error(result.message);
 
-            if (result.status === 'error') {
-                alert("⚠️ " + (result.message || "Ошибка отправки оценки"));
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить оценку';
-                return;
-            }
-
-            closeRateModal();
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить оценку';
-            localStorage.removeItem('cachedDispatcherTickets_' + currentUser.name);
-            loadMyTickets();
-
+            localStorage.setItem('cachedDispatcherTickets_' + currentUser.name, JSON.stringify(myTicketsArray));
         } catch (e) {
-            alert('Ошибка отправки оценки. Проверьте интернет.');
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Отправить оценку';
+            alert('Ошибка отправки оценки: ' + e.message);
+            if (ticket) {
+                ticket.rated = false;
+                ticket.rating = null;
+                renderTicketsList(myTicketsArray);
+            }
         }
     }
 
