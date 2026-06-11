@@ -791,70 +791,85 @@
             serviceWorkerParam: { scope: "/" },
             persistNotification: true,
             allowLocalhostAsSecureOrigin: true,
-            notifyButton: { enable: false },
-            promptOptions: {
-                slidedown: {
-                    prompts: [{
-                        type: "push",
-                        autoPrompt: false,
-                        text: {
-                            actionMessage: "Включите уведомления, чтобы моментально узнавать о новых заявках от диспетчера.",
-                            acceptButton: "Разрешить",
-                            cancelButton: "Позже"
-                        }
-                    }]
-                }
-            }
+            notifyButton: { enable: false }
         });
 
+        // Привязываем аккаунт
         const userStr = localStorage.getItem("currentUser");
         if (userStr) {
             const user = JSON.parse(userStr);
             OneSignal.login(user.name);
         }
 
-        OneSignal.User.PushSubscription.addEventListener("change", updatePushUI);
+        // Проверяем статус при загрузке (с небольшой задержкой, чтобы SDK успел проснуться)
+        setTimeout(() => checkPushEnforcement(OneSignal), 1000);
+
+        // Слушаем изменения (если мастер нажал Разрешить/Запретить)
+        OneSignal.User.PushSubscription.addEventListener("change", function() {
+            checkPushEnforcement(OneSignal);
+            updatePushUI(); // Обновление кнопок в профиле
+        });
+        
         updatePushUI();
       });
 
-      OneSignalDeferred.push(async function(OneSignal) {
-          OneSignal.Notifications.addEventListener("click", function(event) {
-    if (currentUser) {
-        localStorage.removeItem("cachedMasterTickets_" + currentUser.name);
-    }
-    switchTab('tasks');
-    // Force an immediate server fetch, ignoring the 15-sec throttle
-    setTimeout(() => {
-        if (typeof loadTickets === 'function') loadTickets(true);
-    }, 300);
-});
-      });
+      // Функция проверки: пускать мастера или блокировать
+      function checkPushEnforcement(OneSignal) {
+          const isSubscribed = OneSignal.User.PushSubscription.optedIn;
+          const forceScreen = document.getElementById('forcePushScreen');
+          const pushInstructions = document.getElementById('pushInstructions');
+          const pushDenied = document.getElementById('pushDenied');
+
+          if (isSubscribed) {
+              // Уведомления включены - скрываем окно блокировки
+              forceScreen.style.display = 'none';
+          } else {
+              // Уведомления выключены - показываем экран блокировки
+              forceScreen.style.display = 'flex';
+              
+              // Проверяем, не заблокировал ли он их наглухо в ОС
+              if (Notification.permission === "denied") {
+                  pushInstructions.style.display = 'none';
+                  pushDenied.style.display = 'block';
+              } else {
+                  pushInstructions.style.display = 'block';
+                  pushDenied.style.display = 'none';
+              }
+          }
+      }
+
+      // Функция вызова системного окна (когда мастер нажал "Понятно, включить")
+      function requestPushPermission() {
+          window.OneSignalDeferred.push(async function(OneSignal) {
+              // Вызываем родное окно OneSignal, которое запросит права ОС
+              await OneSignal.Slidedown.promptPush({ force: true });
+          });
+      }
 
       function updatePushUI() {
         const btn = document.getElementById("btnPush");
         if (!btn) return;
-        const isSubscribed = OneSignal.User.PushSubscription.optedIn;
-        if (isSubscribed) {
-            btn.innerText = "Включены ✓";
-            btn.style.background = "#e8f5e9";
-            btn.style.color = "#34c759";
-            btn.disabled = true;
-        } else {
-            btn.innerText = "Включить";
-            btn.style.background = "#e5f1ff";
-            btn.style.color = "#007aff";
-            btn.disabled = false;
-        }
+        window.OneSignalDeferred.push(function(OneSignal) {
+            const isSubscribed = OneSignal.User.PushSubscription.optedIn;
+            if (isSubscribed) {
+                btn.innerText = "Включены ✓";
+                btn.style.background = "#e8f5e9";
+                btn.style.color = "#34c759";
+                btn.disabled = true;
+            } else {
+                btn.innerText = "Включить";
+                btn.style.background = "#e5f1ff";
+                btn.style.color = "#007aff";
+                btn.disabled = false;
+            }
+        });
       }
 
       async function enablePush() {
         const btn = document.getElementById("btnPush");
         btn.innerText = "Загрузка...";
         btn.disabled = true;
-        window.OneSignalDeferred.push(async function(OneSignal) {
-            await OneSignal.Slidedown.promptPush({ force: true });
-            setTimeout(updatePushUI, 1000);
-        });
+        requestPushPermission();
       }
     </script>
 <base target="_blank">
@@ -884,6 +899,45 @@
         </div>
         <div id="splashStatus" style="font-size:14px;color:#8e8e93;font-weight:500;letter-spacing:0.5px;">Загрузка заявок...</div>
     </div>
+    
+        <!-- ===== ЭКРАН ПРИНУДИТЕЛЬНЫХ УВЕДОМЛЕНИЙ ===== -->
+    <div id="forcePushScreen" style="display:none; position:fixed; inset:0; background:#ffffff; z-index:99990; flex-direction:column; align-items:center; justify-content:center; padding:24px; text-align:center;">
+        <div style="width:80px; height:80px; background:#e5f1ff; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-bottom:24px;">
+            <i class="fa-solid fa-bell" style="font-size:36px; color:#007aff; animation: ring 2s infinite ease-in-out;"></i>
+        </div>
+        <h2 style="font-size:24px; font-weight:800; margin:0 0 12px; font-family:-apple-system, sans-serif;">Включите уведомления</h2>
+        
+        <div id="pushInstructions">
+            <p style="font-size:16px; color:#3a3a3c; margin:0 0 16px; line-height:1.4;">Это рабочее приложение. Без уведомлений вы пропустите новые заявки и срочные сообщения от диспетчера.</p>
+            <div style="background:#f2f2f7; padding:16px; border-radius:12px; margin-bottom:32px; text-align:left;">
+                <p style="margin:0 0 8px; font-weight:600; color:#1c1c1e;"><i class="fa-solid fa-circle-info" style="color:#ff9500;"></i> Инструкция:</p>
+                <p style="margin:0; font-size:14px; color:#8e8e93;">Нажмите кнопку ниже, а затем в появившемся окне телефона обязательно нажмите <b>«Разрешить»</b>.</p>
+            </div>
+            <button onclick="requestPushPermission()" style="background:#007aff; color:#fff; border:none; padding:16px 32px; border-radius:14px; font-size:17px; font-weight:700; width:100%; max-width:300px; cursor:pointer;">
+                Понятно, включить
+            </button>
+        </div>
+
+        <!-- Блок, если пользователь нажал "Запретить" -->
+        <div id="pushDenied" style="display:none;">
+            <p style="font-size:16px; color:#ff3b30; margin:0 0 16px; line-height:1.4; font-weight:600;">Вы запретили уведомления!</p>
+            <p style="font-size:14px; color:#8e8e93; margin:0 0 24px; line-height:1.4;">Приложение не будет работать, пока вы не разрешите их в настройках.</p>
+            <div style="background:#fff0f0; border: 1px solid #ffd6d6; padding:16px; border-radius:12px; text-align:left; font-size:14px; color:#3a3a3c;">
+                <b>Как исправить:</b><br><br>
+                1. Нажмите на значок <i class="fa-solid fa-lock" style="color:#8e8e93;"></i> (или <i class="fa-solid fa-a"></i><i class="fa-solid fa-a"></i>) в адресной строке браузера наверху.<br>
+                2. Зайдите в <b>«Настройки сайта»</b>.<br>
+                3. Найдите <b>«Уведомления»</b> и выберите <b>«Разрешить»</b>.<br>
+                4. Обновите эту страницу.
+            </div>
+            <button onclick="location.reload()" style="background:#f2f2f7; color:#007aff; border:none; padding:14px 32px; border-radius:14px; font-size:17px; font-weight:700; margin-top:24px; cursor:pointer;">
+                <i class="fa-solid fa-rotate-right"></i> Я включил, обновить
+            </button>
+        </div>
+    </div>
+    
+    <style>
+        @keyframes ring { 0% { transform: rotate(0); } 10% { transform: rotate(15deg); } 20% { transform: rotate(-15deg); } 30% { transform: rotate(10deg); } 40% { transform: rotate(-10deg); } 50% { transform: rotate(0); } 100% { transform: rotate(0); } }
+    </style>
 
     <!-- ===== OFFLINE TOAST ===== -->
     <div class="offline-toast" id="offlineToast">
