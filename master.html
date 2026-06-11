@@ -2073,91 +2073,86 @@ function restoreReportForm(ticketId) {
             }
         }
 
-        // ===== ПРИНЯТЬ ЗАЯВКУ =====
+        // ===== ПРИНЯТЬ ЗАЯВКУ (МГНОВЕННО) =====
         async function acceptTicket() {
-    if (!activeTicketId || !activeTicketData) return;
+            // 1. Копируем ID заявки в локальную переменную, чтобы не потерять её при закрытии окна
+            const currentTicketId = activeTicketId;
+            const currentTicketData = { ...activeTicketData }; 
 
-    const btnAccept = document.getElementById('btnAcceptTicket');
-    const acceptLabel = document.getElementById('acceptLabel');
-    const btnIcon = btnAccept.querySelector('i');
+            if (!currentTicketId || !currentTicketData) return;
 
-    const prevState = {
-        status: activeTicketData.status,
-        acceptedAt: activeTicketData.acceptedAt,
-        acceptedBy: activeTicketData.acceptedBy,
-        mapsLink: activeTicketData.mapsLink,
-        geoAccuracy: activeTicketData.geoAccuracy
-    };
+            // 2. МОМЕНТАЛЬНЫЙ ВИЗУАЛЬНЫЙ ОТКЛИК (Оптимистичный UI)
+            const nowStr = formatDateStr(new Date());
+            currentTicketData.status = "Принята";
+            currentTicketData.acceptedAt = nowStr;
+            currentTicketData.acceptedBy = currentUser.name;
 
-    const nowStr = formatDateStr(new Date());
-    activeTicketData.status = "Принята";
-    activeTicketData.acceptedAt = nowStr;
-    activeTicketData.acceptedBy = currentUser.name;
+            // Обновляем карточку в списке
+            updateTicketCardOptimistic(currentTicketData);
+            
+            // Сразу закрываем окно, не заставляя мастера ждать!
+            closeTicketModal(); 
+            showToast("Получаем координаты...", "loading");
 
-    renderTicketModal(activeTicketData);
-    updateTicketCardOptimistic(activeTicketData);
+            let lat = '', lon = '', accuracy = '';
 
-    btnAccept.disabled = true;
-    let lat = '', lon = '', accuracy = '';
-
-    try {
-        if (navigator.geolocation) {
             try {
-                const position = await new Promise((resolve, reject) => {
-                    navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
+                // 3. Пытаемся получить GPS (это занимает время, но окно уже закрыто, мастер может работать дальше)
+                if (navigator.geolocation) {
+                    try {
+                        const position = await new Promise((resolve, reject) => {
+                            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 4000 });
+                        });
+                        lat = position.coords.latitude;
+                        lon = position.coords.longitude;
+                        accuracy = Math.round(position.coords.accuracy);
+                    } catch (geoError) {
+                        console.log('Geolocation error:', geoError);
+                    }
+                }
+
+                showToast("Отправляем на сервер...", "loading");
+
+                // 4. Отправляем запрос
+                const result = await apiFetch(URL_GOOGLE_SERVER, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        action: "acceptTicket",
+                        ticketId: currentTicketId, // Используем сохраненный ID!
+                        masterName: currentUser.name,
+                        lat: lat,
+                        lon: lon,
+                        accuracy: accuracy
+                    }),
+                    headers: { "Content-Type": "text/plain;charset=utf-8" }
                 });
-                lat = position.coords.latitude;
-                lon = position.coords.longitude;
-                accuracy = Math.round(position.coords.accuracy);
-            } catch (geoError) {
-                console.log('Geolocation error:', geoError);
+
+                if (result.status !== "success") {
+                    throw new Error(result.message || "Ошибка сервера");
+                }
+
+                // 5. Успех!
+                hideToast();
+                showToast("✓ Заявка принята", "success");
+
+                // Сохраняем геоданные в память
+                if (lat && lon) {
+                    currentTicketData.mapsLink = "https://maps.google.com/?q=" + lat + "," + lon;
+                    currentTicketData.geoAccuracy = "±" + accuracy + " м";
+                    updateTicketCardOptimistic(currentTicketData);
+                }
+
+            } catch (error) {
+                // 6. Если произошла ошибка (нет интернета и т.д.) - откатываем изменения
+                console.error('Accept ticket error:', error);
+                hideToast();
+                showToast("Ошибка", "error");
+                
+                // Возвращаем карточку в исходное состояние (синяя "Новая")
+                restoreTicketCardFromCache(currentTicketId);
+                showPersistentBanner("Не удалось принять заявку #" + currentTicketId + ". Проверьте интернет.", "Понятно", null);
             }
         }
-
-        const result = await apiFetch(URL_GOOGLE_SERVER, {
-            method: "POST",
-            body: JSON.stringify({
-                action: "acceptTicket",
-                ticketId: activeTicketId,
-                masterName: currentUser.name,
-                lat: lat,
-                lon: lon,
-                accuracy: accuracy
-            }),
-            headers: { "Content-Type": "text/plain;charset=utf-8" }
-        });
-
-        if (result.status !== "success") {
-            throw new Error(result.message || "Ошибка сервера");
-        }
-
-        if (lat && lon) {
-            activeTicketData.mapsLink = "https://maps.google.com/?q=" + lat + "," + lon;
-            activeTicketData.geoAccuracy = "±" + accuracy + " м";
-        }
-        setCachedTicket(activeTicketId, activeTicketData);
-
-        setTimeout(() => loadTickets(true), 3000);
-
-    } catch (error) {
-        console.error('Accept ticket error:', error);
-        activeTicketData.status = prevState.status;
-        activeTicketData.acceptedAt = prevState.acceptedAt;
-        activeTicketData.acceptedBy = prevState.acceptedBy;
-        activeTicketData.mapsLink = prevState.mapsLink;
-        activeTicketData.geoAccuracy = prevState.geoAccuracy;
-
-        renderTicketModal(activeTicketData);
-        restoreTicketCardFromCache(activeTicketId);
-
-        alert("Ошибка: " + (error.message || "Не удалось принять заявку"));
-    } finally {
-        btnAccept.disabled = false;
-        btnAccept.classList.remove('btn-loading');
-        btnIcon.className = 'fa-solid fa-check';
-        acceptLabel.textContent = 'Принять заявку';
-    }
-}
 
 function updateTicketCardOptimistic(ticket) {
     const cacheKey = "cachedMasterTickets_" + currentUser.name;
