@@ -1756,7 +1756,8 @@ function restoreReportForm(ticketId) {
         }
 
         // ===== МОДАЛЬНОЕ ОКНО ЗАЯВКИ =====
-                async function openTicketModal(ticketId) {
+                        // ===== МОДАЛЬНОЕ ОКНО ЗАЯВКИ (МОМЕНТАЛЬНОЕ ОТКРЫТИЕ) =====
+        async function openTicketModal(ticketId) {
             activeTicketId = ticketId;
             const modal = document.getElementById('ticketModal');
             const modalBody = document.getElementById('modalBody');
@@ -1764,46 +1765,44 @@ function restoreReportForm(ticketId) {
             document.body.style.overflow = 'hidden';
             resetModalButtons();
 
-            const cached = getCachedTicket(ticketId);
-            
-            // INSTANT render from cache
-            if (cached) {
-                activeTicketData = cached;
-                renderTicketModal(cached);
-            } else {
-                modalBody.innerHTML = `
-                    <div class="inline-loader">
-                        <i class="fa-solid fa-circle-notch fa-spin"></i><br>Загрузка данных...
-                    </div>
-                `;
+            // 1. ДОСТАЕМ ДАННЫЕ ПРЯМО ИЗ ПАМЯТИ ТЕЛЕФОНА (моментально)
+            const cacheKey = "cachedMasterTickets_" + currentUser.name;
+            const cachedListStr = localStorage.getItem(cacheKey);
+            let ticketData = null;
+
+            if (cachedListStr) {
+                const ticketsList = JSON.parse(cachedListStr);
+                ticketData = ticketsList.find(t => String(t.id) === String(ticketId));
             }
 
-            // SILENT background refresh
-            try {
-                const ticket = await apiFetch(URL_GOOGLE_SERVER + "?action=getTicketDetails&ticketId=" + encodeURIComponent(ticketId));
-                
-                const hasChanges = !cached || 
-                    cached.beforeUrl !== ticket.beforeUrl || 
-                    cached.afterUrl !== ticket.afterUrl ||
-                    cached.status !== ticket.status ||
-                    cached.acceptedAt !== ticket.acceptedAt;
-                
-                if (hasChanges) {
-                    activeTicketData = ticket;
-                    setCachedTicket(ticketId, ticket);
-                    if (activeTicketId === ticketId) {
-                        renderTicketModal(ticket);
-                    }
+            // 2. ЕСЛИ ДАННЫЕ ЕСТЬ — СРАЗУ РИСУЕМ ЭКРАН (0 секунд ожидания)
+            if (ticketData) {
+                activeTicketData = ticketData;
+                renderTicketModal(ticketData);
+
+                // Тихий фоновый запрос ТОЛЬКО если вдруг не хватает ссылок на папки
+                if (!ticketData.beforeUrl || !ticketData.afterUrl) {
+                    apiFetch(URL_GOOGLE_SERVER + "?action=getTicketDetails&ticketId=" + encodeURIComponent(ticketId))
+                    .then(updatedTicket => {
+                        activeTicketData = updatedTicket;
+                        updateTicketCardOptimistic(updatedTicket); // обновляем кэш
+                        if (document.getElementById('ticketModal').classList.contains('show')) {
+                            renderTicketModal(updatedTicket); // незаметно обновляем экран
+                        }
+                    }).catch(() => {});
                 }
-            } catch (error) {
-                if (!cached) {
+            } else {
+                // 3. ЭКСТРЕННЫЙ СЛУЧАЙ (если кэша вдруг почему-то нет)
+                modalBody.innerHTML = `<div class="inline-loader"><i class="fa-solid fa-circle-notch fa-spin"></i><br>Загрузка данных...</div>`;
+                try {
+                    const ticket = await apiFetch(URL_GOOGLE_SERVER + "?action=getTicketDetails&ticketId=" + encodeURIComponent(ticketId));
+                    activeTicketData = ticket;
+                    renderTicketModal(ticket);
+                } catch (error) {
                     modalBody.innerHTML = `
                         <div style="text-align: center; padding: 40px 20px; color: #ff3b30;">
                             <i class="fa-solid fa-triangle-exclamation" style="font-size: 40px; margin-bottom: 15px;"></i>
                             <p>Ошибка загрузки данных</p>
-                            <button class="btn" onclick="openTicketModal('${escapeHtml(ticketId)}')" style="background: #f2f2f7; color: #007aff; margin-top: 10px;">
-                                <i class="fa-solid fa-rotate-right"></i> Повторить
-                            </button>
                         </div>
                     `;
                 }
@@ -1992,41 +1991,52 @@ function restoreReportForm(ticketId) {
             stopCurrentSpeech();
         }
 
-        // ===== ОТКРЫТИЕ ОТЧЁТА С КАРТОЧКИ =====
-async function openReportFromCard(ticketId) {
-    activeTicketId = ticketId;
+        // ===== ОТКРЫТИЕ ОТЧЁТА С КАРТОЧКИ (МОМЕНТАЛЬНО) =====
+        async function openReportFromCard(ticketId) {
+            activeTicketId = ticketId;
 
-    // Open form immediately if ANY cached data exists — don't block on folder URLs
-    const cached = getCachedTicket(ticketId);
-    if (cached) {
-        activeTicketData = cached;
-        openReportForm();
-        // Silently refresh folder URLs in background
-        apiFetch(URL_GOOGLE_SERVER + "?action=getTicketDetails&ticketId=" + encodeURIComponent(ticketId))
-            .then(ticket => {
+            // Достаем из памяти
+            const cacheKey = "cachedMasterTickets_" + currentUser.name;
+            const cachedListStr = localStorage.getItem(cacheKey);
+            let ticketData = null;
+
+            if (cachedListStr) {
+                const ticketsList = JSON.parse(cachedListStr);
+                ticketData = ticketsList.find(t => String(t.id) === String(ticketId));
+            }
+
+            // Открываем форму моментально!
+            if (ticketData) {
+                activeTicketData = ticketData;
+                openReportForm();
+                
+                // Незаметно подтягиваем ссылки в фоне, если их нет
+                if (!ticketData.beforeUrl || !ticketData.afterUrl) {
+                    apiFetch(URL_GOOGLE_SERVER + "?action=getTicketDetails&ticketId=" + encodeURIComponent(ticketId))
+                    .then(ticket => {
+                        activeTicketData = ticket;
+                        updateTicketCardOptimistic(ticket);
+                    }).catch(() => {});
+                }
+                return;
+            }
+
+            // Если кэша нет - показываем загрузку (редкий случай)
+            const card = document.getElementById("ticket-card-" + ticketId);
+            const closeBtn = card ? card.querySelector('.btn-close-ticket') : null;
+            if (closeBtn) { closeBtn.disabled = true; closeBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Загрузка...'; }
+
+            try {
+                const ticket = await apiFetch(URL_GOOGLE_SERVER + "?action=getTicketDetails&ticketId=" + encodeURIComponent(ticketId));
                 activeTicketData = ticket;
-                setCachedTicket(ticketId, ticket);
-            })
-            .catch(() => {});
-        return;
-    }
-
-    // No cache at all — show loading on the button, then open
-    const card = document.getElementById("ticket-card-" + ticketId);
-    const closeBtn = card ? card.querySelector('.btn-close-ticket') : null;
-    if (closeBtn) { closeBtn.disabled = true; closeBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Загрузка...'; }
-
-    try {
-        const ticket = await apiFetch(URL_GOOGLE_SERVER + "?action=getTicketDetails&ticketId=" + encodeURIComponent(ticketId));
-        activeTicketData = ticket;
-        setCachedTicket(ticketId, ticket);
-        openReportForm();
-    } catch (e) {
-        alert('Не удалось загрузить данные заявки. Проверьте интернет.');
-        if (closeBtn) { closeBtn.disabled = false; closeBtn.innerHTML = '<i class="fa-solid fa-flag-checkered"></i> Закрыть заявку'; }
-    }
-}
-
+                openReportForm();
+                if (closeBtn) { closeBtn.disabled = false; closeBtn.innerHTML = '<i class="fa-solid fa-flag-checkered"></i> Закрыть заявку'; }
+            } catch (e) {
+                alert('Не удалось загрузить данные заявки. Проверьте интернет.');
+                if (closeBtn) { closeBtn.disabled = false; closeBtn.innerHTML = '<i class="fa-solid fa-flag-checkered"></i> Закрыть заявку'; }
+            }
+        }
+        
         // ===== МОДАЛЬНОЕ ОКНО ОТЧЁТА =====
         function openReportForm() {
             const modal = document.getElementById('reportModal');
