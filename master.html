@@ -781,10 +781,13 @@
 
     <!-- ONESIGNAL PUSH NOTIFICATIONS -->
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-    <script>
+        <script>
+      // 🔊 Подгружаем звук сирены (можно заменить ссылку на свою .mp3)
+      const alertSound = new Audio('https://bonetale856-stack.github.io/guild.mp3');
+
       window.OneSignalDeferred = window.OneSignalDeferred || [];
       OneSignalDeferred.push(async function(OneSignal) {
-                await OneSignal.init({
+          await OneSignal.init({
             appId: "50cbfdd0-0ecb-4231-9d63-63717276a9fc",
             safari_web_id: "web.onesignal.auto.62a04992-e924-4258-8064-560c4d6dc347",
             serviceWorkerPath: "sw.js",
@@ -793,7 +796,7 @@
             allowLocalhostAsSecureOrigin: true,
             notifyButton: { enable: false },
             
-            // 👇 Возвращаем русский язык для выпадающего окна OneSignal
+            // Русский язык для выпадающего окна OneSignal
             promptOptions: {
                 slidedown: {
                     prompts: [{
@@ -815,6 +818,35 @@
             const user = JSON.parse(userStr);
             OneSignal.login(user.name);
         }
+
+        // 👇=== ДОБАВЛЕНО: ОБРАБОТКА УВЕДОМЛЕНИЙ И ЗВУКА ===👇
+
+        // 1. Если мастер КЛИКНУЛ по пушу в шторке
+        OneSignal.Notifications.addEventListener("click", function(event) {
+            if (typeof currentUser !== 'undefined' && currentUser) {
+                localStorage.removeItem("cachedMasterTickets_" + currentUser.name);
+            }
+            switchTab('tasks');
+            setTimeout(() => {
+                if (typeof loadTickets === 'function') loadTickets(true);
+            }, 300);
+        });
+
+        // 2. Если пуш пришел, пока приложение ОТКРЫТО у мастера на экране
+        OneSignal.Notifications.addEventListener("foregroundWillDisplay", function(event) {
+            // Играем звук сирены!
+            alertSound.play().catch(e => console.log("Браузер заблокировал автовоспроизведение звука"));
+            
+            // Автоматически обновляем список заявок на экране
+            if (typeof currentUser !== 'undefined' && currentUser) {
+                localStorage.removeItem("cachedMasterTickets_" + currentUser.name);
+            }
+            setTimeout(() => {
+                if (typeof loadTickets === 'function') loadTickets(true);
+            }, 1000);
+        });
+
+        // 👆=================================================👆
 
         // Проверяем статус при загрузке (с небольшой задержкой, чтобы SDK успел проснуться)
         setTimeout(() => checkPushEnforcement(OneSignal), 1000);
